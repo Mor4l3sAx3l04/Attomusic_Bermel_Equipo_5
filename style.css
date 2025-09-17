@@ -1,4 +1,4 @@
-body{
+.bodyII{
 background: linear-gradient(160deg, #ba01ff, #00dffc) ;
 height: 100vh;
 display: flex;
@@ -7,15 +7,6 @@ align-items: center;
 
 }
 
-nav{
-background-color: white;
-text-align: center;
-height: 800px;
-width: 300px;
-
-
-
-}
 input{
    
    border-top:#00dffc;
@@ -24,8 +15,6 @@ input{
 }
 h2{
     color: #ba01ff;
-    text-align: center;
-   
 }
 h1{
     color: #5a189a;
