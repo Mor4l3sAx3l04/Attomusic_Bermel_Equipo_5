@@ -106,3 +106,24 @@ body {
   width: 100%;
   /* overflow: hidden; REMOVER esta línea */
 }
+
+.bodyII{
+    background: linear-gradient(160deg, #ba01ff, #00dffc) ;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+input{  
+   border-top:#00dffc;
+   border-left: #00dffc;
+   border-right: #00dffc;
+}
+.h2I{
+    color: #ba01ff;
+}
+.h1I{
+    color: #5a189a;
+}
+.aI{
+    color: #5a189a;
+}
