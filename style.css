@@ -1,0 +1,51 @@
+body{
+background: linear-gradient(160deg, #ba01ff, #00dffc) ;
+height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
+
+}
+
+nav{
+background-color: white;
+text-align: center;
+height: 800px;
+width: 300px;
+
+
+
+}
+input{
+   
+   border-top:#00dffc;
+   border-left: #00dffc;
+   border-right: #00dffc;
+}
+h2{
+    color: #ba01ff;
+    text-align: center;
+   
+}
+h1{
+    color: #5a189a;
+    
+}
+hr{
+    background-color: #ba01ff;
+    color: #ba01ff;
+    height: 5px;
+}
+
+.Botone{
+    text-align: center;
+    background-color: #ba01ff;
+    border-radius: 20%;
+    padding: 20px;
+    height: 40px;
+    width: 160px;
+}
+a{
+    color: #5a189a;
+}
+
