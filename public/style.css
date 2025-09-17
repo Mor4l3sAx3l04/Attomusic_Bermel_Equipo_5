@@ -1,71 +1,108 @@
- body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-    }
+body {
+  font-family: "Ubuntu", sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+}
 
-    /* Navbar con gradiente */
-    .navbar {
-      background: linear-gradient(160deg, #ba01ff, #00dffc);
-    }
+.title {
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 1000;
+  font-size:60px;
+  font-style: bold;
+  color: #b3b3b3;
+}
 
-    .navbar-brand {
-      font-weight: bold;
-      color: white !important;
-    }
+.normaltext {
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 1000;
+  font-size: 30px;
+  font-style: bold;
+  color: #b3b3b3;
+}
 
-    .nav-link {
-      color: white !important;
-      font-weight: 500;
-      transition: 0.3s;
-    }
+.icon{
+  width: 450px;
+  height: 450px;
+  border-radius: 20%;
+  align-items: center;
+}
 
-    .nav-link:hover {
-      color: #5a189a !important;
-    }
+.iconnavbar{
+  width: 50px;
+  height: 50px;
+  align-items: center;
+}
 
-    /* Input de búsqueda oculto */
-    .search-input {
-      width: 0;
-      opacity: 0;
-      transition: all 0.4s ease;
-      border: none;
-      border-radius: 20px;
-      padding: 5px 10px;
-    }
+/* Navbar con gradiente */
+.navbar {
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+}
 
-    .search-input.active {
-      width: 200px;
-      opacity: 1;
-      margin-right: 10px;
-    }
+.navbar-brand {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  color: white !important;
+}
 
-    /* Icono lupa */
-    .search-btn {
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
+.nav-link {
+  color: white !important;
+  font-weight: 500;
+  transition: 0.3s;
+}
 
-    /* Perfil */
-    .profile-pic {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid white;
-      cursor: pointer;
-    }
+.nav-link:hover {
+  color: #5a189a !important;
+}
 
-    /* Contenedor principal */
-    .content {
-      margin-top: 80px;
-      padding: 10px;
-      min-height: 80vh;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 100%;
-      overflow: hidden;
-    }
+.search-input {
+  width: 0;
+  opacity: 0;
+  transition: all 0.4s ease;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 10px;
+}
+
+.search-input.active {
+  width: 200px;
+  opacity: 1;
+  margin-right: 10px;
+}
+
+/* Icono lupa */
+.search-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Perfil */
+.profile-pic {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+/* Contenedor principal */
+.content {
+  margin-top: 80px;
+  padding: 10px;
+  min-height: 80vh;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 100%;
+  /* overflow: hidden; REMOVER esta línea */
+}
