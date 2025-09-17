@@ -1,0 +1,5 @@
+formulario => {
+
+    document.getElementById("Edad")
+
+}
