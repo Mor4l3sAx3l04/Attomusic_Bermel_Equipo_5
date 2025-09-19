@@ -127,3 +127,120 @@ input{
 .aI{
     color: #5a189a;
 }
+.bodyIII{
+    font-family: montsserrat;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(160deg, #ba01ff, #00dffc);
+    height: 100vh;
+}
+
+.formulario{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background: #fff;
+    border-radius: 10px;
+}
+.formulario h1{
+    text-align: center;
+    padding: 0 0 10px 0;
+    
+    color: #5a189a;
+}
+
+.formulario h2{
+    text-align: center;
+    padding: 0 0 10px 0;
+    border-bottom: 1px solid #ccc;
+    color: #5a189a;
+}
+
+.formulario form{
+    padding: 0 40px;
+    box-sizing: border-box;
+}
+
+form .username{
+    position: relative;
+    border-bottom: 2px solid #adadad;
+    margin: 30px 0;
+}
+.username input{
+    width: 100%;
+    padding: 0 5px;
+    height: 40px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background: none;
+}
+
+.username label{
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    color: #adadad;
+    transform: translateY(-50%);
+    font-size: 16px;
+    pointer-events: none;
+    transition: .5s;
+}
+
+.username span::before{
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #5a189a;
+    transition: .5s;
+}
+.username input:focus ~ label,
+.username input:valid ~ label{
+    top: -5px;
+    color: #5a189a;
+    width: 100%;
+}
+
+.recordar{
+    margin: -5px 0 20px 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    color: #5a189a;
+    font-size: 20px;
+}
+
+input[type="submit"]{
+    width: 100%;
+    height: 50px;
+    cursor: pointer;
+    border: 1px solid ;
+    background: #5a189a;
+    border-radius: 25px;
+    font-size: 25px;
+    color: #fff;
+    outline: none;
+    display: block;
+    margin: 20px auto;
+}
+
+.registrate {
+    text-align: center;
+    font-size: 20px;
+    color: #5a189a;
+    margin: 20px 0;
+}
+
+.registrate a {
+    color: #ba01ff;
+    text-decoration: none;
+    
+}
+
+.registrate a:hover {
+    text-decoration: underline;
+}

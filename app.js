@@ -1,5 +1,0 @@
-formulario => {
-
-    document.getElementById("Edad")
-
-}
