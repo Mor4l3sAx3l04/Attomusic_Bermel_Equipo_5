@@ -12,7 +12,7 @@
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container-fluid">
 
-      <a class="navbar-brand" href="index.html"> <img alt="Icono" class="iconnavbar" src="../images/iconowhite.png"> AttoMusic </a>
+  <a class="navbar-brand" href="index.html"> <img alt="Icono" class="iconnavbar" src="../images/iconowhite.png"> AttoMusic </a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -51,7 +51,7 @@
   </nav>
 
   <div id="content" class="content container">
-    <iframe id="contentFrame" src="bienvenido.html" style="width:100%; height:80vh; border:none;"></iframe>
+    <div id="main-content"></div>
   </div>
 
   <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
@@ -122,47 +122,93 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../app.js"></script>
   <script>
-    //Animar Búsqueda
-      const searchBtn = document.getElementById("searchBtn");
-      const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const searchInput = document.getElementById("searchInput");
 
-      searchBtn.addEventListener("click", () => {
-          searchInput.classList.toggle("active");
-          if (searchInput.classList.contains("active")) {
-          searchInput.focus();
-          }
-      });
+    // Carga inicial
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPage('bienvenido.html');
+    });
+
+    // Animación desplegable y búsqueda
+    searchBtn.addEventListener("click", () => {
+      if (!searchInput.classList.contains("active")) {
+        searchInput.classList.add("active");
+        searchInput.focus();
+      } else {
+        const query = searchInput.value.trim();
+        if (query) {
+          loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
+        }
+      }
+    });
+
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (query) {
+          loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
+        }
+      }
+    });
   </script>
+
   <script>
-      // Función para cargar páginas en el iframe
+      // Función para cargar páginas en el div
       function loadPage(url) {
-          const frame = document.getElementById("contentFrame");
-          frame.src = url; // cambia la página que se muestra en el iframe
+        // Detecta si está en Live Server (ruta contiene /public/)
+        let pagePath = url;
+        if (!url.startsWith('http') && !url.startsWith('/')) {
+          // Si la URL no es absoluta, prepende 'public/' si está en Live Server
+          if (window.location.pathname.includes('/public/')) {
+            pagePath = 'public/' + url.replace(/^\/?/, '');
+          }
+        }
+        // Extraer parámetros si existen
+        const urlObj = new URL(pagePath, window.location.origin);
+        const params = urlObj.search;
+        fetch(urlObj.pathname)
+          .then(res => res.text())
+          .then(html => {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = html;
+            window.scrollTo(0, 0);
+
+            // Ejecutar los scripts internos del HTML cargado y pasarle los parámetros
+            const scripts = mainContent.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+              const newScript = document.createElement('script');
+              if (oldScript.src) {
+                newScript.src = oldScript.src;
+              } else {
+                // Si es buscador.html, inyecta los parámetros
+                if (urlObj.pathname.endsWith('buscador.html')) {
+                  newScript.textContent = `window._searchParams = '${params}';\n` + oldScript.textContent;
+                } else {
+                  newScript.textContent = oldScript.textContent;
+                }
+              }
+              document.body.appendChild(newScript);
+              setTimeout(() => newScript.remove(), 1000);
+            });
+          })
+          .catch(() => {
+            document.getElementById('main-content').innerHTML = '<div style="padding:40px;text-align:center;color:#ba01ff;font-size:2rem;">No se pudo cargar la página.</div>';
+          });
       }
 
       // Asignar evento a los links
       document.querySelectorAll(".load-page").forEach(link => {
-          link.addEventListener("click", function(e) {
-              e.preventDefault(); // evita que cambie de página
-              const href = this.getAttribute("href");
-              if(href !== "#") { // evita enlaces vacíos
-                  loadPage(href);
-              }
-          });
-      });
-
-      const frame = document.getElementById("contentFrame");
-      frame.onload = function() {
-          try {
-              // Ajusta el alto del iframe al contenido
-              frame.style.height = frame.contentWindow.document.body.scrollHeight + "px";
-          } catch(e) {
-              // Esto falla si la página cargada es de otro dominio
-              console.warn("No se puede ajustar altura automáticamente por CORS.");
+        link.addEventListener("click", function(e) {
+          e.preventDefault();
+          const href = this.getAttribute("href");
+          if(href !== "#") {
+            loadPage(href);
           }
-      };
+        });
+      });
   </script>
 </body>
 </html>

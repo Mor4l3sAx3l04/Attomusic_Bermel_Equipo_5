@@ -1,0 +1,204 @@
+<!-- public/busqueda.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultados de búsqueda - AttoMusic</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+    body {
+      color: #030303;
+      font-family: Arial, sans-serif;
+      padding: 32px 24px 24px 24px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      width: 100vw;
+      overflow-x: hidden;
+    }
+    .results {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: flex-start;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .card {
+      background: #fff;
+      padding: 18px 18px 12px 18px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(90,24,154,0.12), 0 1.5px 6px rgba(0,223,252,0.10);
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 210px;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .card:hover {
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 8px 32px rgba(90,24,154,0.18), 0 3px 12px rgba(0,223,252,0.18);
+    }
+    .card img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(90,24,154,0.10);
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #5a189a;
+      margin-bottom: 8px;
+      margin-top: 0;
+      text-shadow: 0 1px 2px #e0e0e0;
+    }
+    .card p {
+      font-size: 0.95rem;
+      color: #333;
+      margin: 4px 0;
+    }
+    audio {
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 8px;
+      background: #f3f3f3;
+    }
+    h2 {
+      color: #5a189a;
+      margin-bottom: 18px;
+      font-size: 2rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h3 {
+      color: #ba01ff;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔎 Resultados de búsqueda</h2>
+  <h3>Canciones</h3>
+  <div id="results-tracks" class="results"></div>
+  <h3>Artistas</h3>
+  <div id="results-artists" class="results"></div>
+  <h3>Álbumes</h3>
+  <div id="results-albums" class="results"></div>
+
+  <script>
+    async function runSearch() {
+      // Usa window._searchParams si existe (SPA), si no usa window.location.search (acceso directo)
+      const searchStr = typeof window._searchParams === 'string' ? window._searchParams : window.location.search;
+      const params = new URLSearchParams(searchStr);
+      const q = params.get("q");
+      const type = params.get("type") || "track,artist,album";
+
+      if (!q) {
+        document.getElementById("results-tracks").innerHTML = "<p>No se ingresó búsqueda.</p>";
+        document.getElementById("results-artists").innerHTML = "";
+        document.getElementById("results-albums").innerHTML = "";
+        return;
+      }
+
+      const res = await fetch(`http://localhost:3000/search?q=${encodeURIComponent(q)}&type=${type}`);
+      const data = await res.json();
+
+      mostrarTracks(data.tracks?.items || []);
+      mostrarArtistas(data.artists?.items || []);
+      mostrarAlbums(data.albums?.items || []);
+    }
+
+    function mostrarTracks(items) {
+      const container = document.getElementById("results-tracks");
+      container.innerHTML = "";
+      if (items.length === 0) {
+        container.innerHTML = "<p>No se encontraron canciones.</p>";
+        return;
+      }
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+        let img = "";
+  if (item.album?.images?.[0]?.url) img = item.album.images[0].url;
+  else if (item.images?.[0]?.url) img = item.images[0].url;
+  // Si la imagen es de tu servidor, usa la ruta relativa correcta
+  if (img && img.startsWith('icono')) img = 'images/' + img;
+        div.innerHTML = `
+          <h3>${item.name}</h3>
+          ${img ? `<img src="${img}" alt="cover">` : ""}
+          ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
+          ${item.album?.release_date ? `<p>📅 ${item.album.release_date}</p>` : ""}
+          ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
+          ${item.preview_url ? `<audio controls src="${item.preview_url}"></audio>` : `<p>⚠️ No hay preview disponible</p>`}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function mostrarArtistas(items) {
+      const container = document.getElementById("results-artists");
+      container.innerHTML = "";
+      if (items.length === 0) {
+        container.innerHTML = "<p>No se encontraron artistas.</p>";
+        return;
+      }
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+        let img = "";
+  if (item.images?.[0]?.url) img = item.images[0].url;
+  if (img && img.startsWith('icono')) img = 'images/' + img;
+        div.innerHTML = `
+          <h3>${item.name}</h3>
+          ${img ? `<img src="${img}" alt="cover">` : ""}
+          ${item.followers?.total ? `<p>👥 Seguidores: ${item.followers.total}</p>` : ""}
+          ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function mostrarAlbums(items) {
+      const container = document.getElementById("results-albums");
+      container.innerHTML = "";
+      if (items.length === 0) {
+        container.innerHTML = "<p>No se encontraron álbumes.</p>";
+        return;
+      }
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+        let img = "";
+  if (item.images?.[0]?.url) img = item.images[0].url;
+  if (img && img.startsWith('icono')) img = 'images/' + img;
+        div.innerHTML = `
+          <h3>${item.name}</h3>
+          ${img ? `<img src="${img}" alt="cover">` : ""}
+          ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
+          ${item.release_date ? `<p>📅 ${item.release_date}</p>` : ""}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    runSearch();
+  </script>
+</body>
+</html>
