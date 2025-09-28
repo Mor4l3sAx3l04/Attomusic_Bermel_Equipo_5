@@ -1,45 +1,118 @@
+require("dotenv").config();
+console.log("Client ID:", process.env.SPOTIFY_CLIENT_ID);
+console.log("Client Secret:", process.env.SPOTIFY_CLIENT_SECRET);
 const express = require("express");
 const axios = require("axios");
-require("dotenv").config();
+const cors = require("cors");
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const PORT = process.env.PORT || 3000;
 
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+app.use(cors());
+app.use(express.static("public"));
 
-let accessToken = "";
+// --- Función para obtener access token con Client Credentials ---
+let accessToken = null;
+let tokenExpiresAt = 0;
 
-// Función para obtener token
 async function getAccessToken() {
-  const tokenUrl = "https://accounts.spotify.com/api/token";
-  const auth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
+  const now = Date.now();
+  if (accessToken && now < tokenExpiresAt) return accessToken;
 
-  const res = await axios.post(tokenUrl, "grant_type=client_credentials", {
-    headers: {
-      Authorization: `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
+  const resp = await axios.post(
+    "https://accounts.spotify.com/api/token",
+    new URLSearchParams({ grant_type: "client_credentials" }),
+    {
+      headers: {
+        Authorization:
+          "Basic " +
+          Buffer.from(
+            process.env.SPOTIFY_CLIENT_ID + ":" + process.env.SPOTIFY_CLIENT_SECRET
+          ).toString("base64"),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
 
-  accessToken = res.data.access_token;
+  accessToken = resp.data.access_token;
+  tokenExpiresAt = now + resp.data.expires_in * 1000 - 60000; // refresca 1min antes
+  return accessToken;
 }
 
-// Endpoint de búsqueda general
-app.get("/search", async (req, res) => {
+// Middleware para agregar token a headers
+async function withToken(req, res, next) {
   try {
-    if (!accessToken) await getAccessToken();
-    const query = req.query.q;
-    const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track,artist,album&limit=10`;
-    const response = await axios.get(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const token = await getAccessToken();
+    req.token = token;
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error obteniendo token de Spotify");
+  }
+}
+
+// ====== RUTAS ======
+
+// 🔎 Búsqueda
+app.get("/search", withToken, async (req, res) => {
+  const { q, type = "track,artist,album", limit = 10 } = req.query;
+  if (!q) return res.status(400).send("Falta parámetro ?q=");
+
+  try {
+    const response = await axios.get("https://api.spotify.com/v1/search", {
+      headers: { Authorization: "Bearer " + req.token },
+      params: { q, type, limit },
     });
     res.json(response.data);
   } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).json({ error: "Error buscando en Spotify" });
+    console.error(err.response?.data || err);
+    res.status(500).json({ error: "Error en búsqueda" });
   }
 });
 
-app.listen(3000, () => console.log("Servidor corriendo en puerto 3000"));
+// 🎵 Track por ID
+app.get("/track/:id", withToken, async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/tracks/${req.params.id}`,
+      { headers: { Authorization: "Bearer " + req.token } }
+    );
+    res.json(response.data);
+  } catch (err) {
+    console.error(err.response?.data || err);
+    res.status(500).json({ error: "Error obteniendo track" });
+  }
+});
+
+// 👩‍🎤 Artista por ID
+app.get("/artist/:id", withToken, async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/artists/${req.params.id}`,
+      { headers: { Authorization: "Bearer " + req.token } }
+    );
+    res.json(response.data);
+  } catch (err) {
+    console.error(err.response?.data || err);
+    res.status(500).json({ error: "Error obteniendo artista" });
+  }
+});
+
+// 💿 Álbum por ID
+app.get("/album/:id", withToken, async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/albums/${req.params.id}`,
+      { headers: { Authorization: "Bearer " + req.token } }
+    );
+    res.json(response.data);
+  } catch (err) {
+    console.error(err.response?.data || err);
+    res.status(500).json({ error: "Error obteniendo álbum" });
+  }
+});
+
+// 🚀 Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`Servidor en http://localhost:${PORT}`);
+});
