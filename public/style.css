@@ -1,3 +1,78 @@
+/* Estilos para resultados de búsqueda */
+.search-results-title {
+  color: #5a189a;
+  margin-bottom: 18px;
+  font-size: 2rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-section-title {
+  color: #ba01ff;
+  margin-top: 24px;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.search-results {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-card {
+  background: #fff;
+  padding: 18px 18px 12px 18px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(90,24,154,0.12), 0 1.5px 6px rgba(0,223,252,0.10);
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 210px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.search-card:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 8px 32px rgba(90,24,154,0.18), 0 3px 12px rgba(0,223,252,0.18);
+}
+.search-card img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(90,24,154,0.10);
+}
+.search-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #5a189a;
+  margin-bottom: 8px;
+  margin-top: 0;
+  text-shadow: 0 1px 2px #e0e0e0;
+}
+.search-card p {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 4px 0;
+}
+.search-card audio {
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 8px;
+  background: #f3f3f3;
+}
 body {
   font-family: "Ubuntu", sans-serif;
   background-color: #f9f9f9;
