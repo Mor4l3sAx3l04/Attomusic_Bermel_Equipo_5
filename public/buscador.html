@@ -30,7 +30,7 @@
         return;
       }
 
-      const res = await fetch(`http://localhost:3000/search?q=${encodeURIComponent(q)}&type=${type}`);
+  const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(q)}&type=${type}`);
       const data = await res.json();
 
       mostrarTracks(data.tracks?.items || []);
