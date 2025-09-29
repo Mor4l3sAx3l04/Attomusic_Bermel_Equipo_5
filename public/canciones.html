@@ -15,7 +15,12 @@
 <body>
 
 
-<h2 style="color:#5a189a;font-weight:900;text-align:center;margin-top:32px;">🎶 Canciones Populares por Género</h2>
+<div id="nav-generos" style="max-width:1100px;margin:32px auto 0 auto;">
+  <h2 style="color:#5a189a;font-weight:900;text-align:center;">🎶 Canciones Populares por Género</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:18px 0 0 0;">
+    <!-- Navegador de géneros -->
+  </div>
+</div>
 <div id="generos-canciones" style="margin:32px auto;max-width:1100px;"></div>
 
 <script>
@@ -25,8 +30,38 @@ const generos = [
   { nombre: "Reggaeton", query: "genre:reggaeton" },
   { nombre: "Hip Hop", query: "genre:hip hop" },
   { nombre: "Electrónica", query: "genre:electronic" },
-  { nombre: "Indie", query: "genre:indie" }
+  { nombre: "Indie", query: "genre:indie" },
+  { nombre: "Jazz", query: "genre:jazz" },
+  { nombre: "Metal", query: "genre:metal" },
+  { nombre: "Country", query: "genre:country" },
+  { nombre: "Reggae", query: "genre:reggae" },
+  { nombre: "Blues", query: "genre:blues" },
+  { nombre: "Folk", query: "genre:folk" },
+  { nombre: "Clásica", query: "genre:classical" },
+  { nombre: "Latina", query: "genre:latin" },
+  { nombre: "Dance", query: "genre:dance" },
+  { nombre: "Soul", query: "genre:soul" },
+  { nombre: "Funk", query: "genre:funk" },
+  { nombre: "Trap", query: "genre:trap" },
+  { nombre: "R&B", query: "genre:r&b" },
+  { nombre: "Alternativa", query: "genre:alternative" },
+  { nombre: "Punk", query: "genre:punk" },
+  { nombre: "Ska", query: "genre:ska" },
+  { nombre: "Disco", query: "genre:disco" },
+  { nombre: "K-Pop", query: "genre:k-pop" },
+  { nombre: "Cumbia", query: "genre:cumbia" },
+  { nombre: "Bachata", query: "genre:bachata" },
+  { nombre: "Salsa", query: "genre:salsa" },
+  { nombre: "Tango", query: "genre:tango" },
+  { nombre: "Flamenco", query: "genre:flamenco" }
 ];
+
+// Renderiza el navegador de géneros
+function renderNavGeneros() {
+  const navDiv = document.querySelector('#nav-generos > div');
+  navDiv.innerHTML = generos.map(g => `<a href="#genero-${g.nombre.replace(/[^a-zA-Z0-9]/g,'')}" style="text-decoration:none;padding:7px 16px;border-radius:16px;background:linear-gradient(90deg,#ba01ff,#00dffc);color:white;font-weight:700;font-size:1rem;transition:background 0.2s;">${g.nombre}</a>`).join("");
+}
+renderNavGeneros();
 
 async function cargarCancionesPopulares() {
   const cont = document.getElementById("generos-canciones");
@@ -36,13 +71,9 @@ async function cargarCancionesPopulares() {
   for (const genero of generos) {
     const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(genero.query)}&type=track&limit=12`);
     const data = await res.json();
-    let tracks = data.tracks?.items || [];
-    // Filtra Reggaeton por popularidad > 0
-    if (genero.nombre === "Reggaeton") {
-      tracks = tracks.filter(track => track.popularity > 0);
-    }
+    let tracks = (data.tracks?.items || []).filter(track => track.popularity > 94);
     if (tracks.length > 0) {
-      html += `<h3 style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3><div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
+      html += `<h3 id='genero-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3><div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
       tracks.forEach((track, idx) => {
         let img = track.album?.images?.[0]?.url || "";
         const cardId = `card-${genero.nombre.replace(/\s/g,'')}-${idx}`;
