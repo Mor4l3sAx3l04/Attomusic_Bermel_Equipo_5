@@ -84,7 +84,10 @@ async function cargarCancionesPopulares() {
   for (const genero of generos) {
     const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(genero.query)}&type=track&limit=12`);
     const data = await res.json();
-    let tracks = (data.tracks?.items || []).filter(track => track.popularity >= 85);
+    let allTracksGenero = data.tracks?.items || [];
+    let maxPop = Math.max(...allTracksGenero.map(t => t.popularity), 0);
+    let minPop = maxPop - 10;
+    let tracks = allTracksGenero.filter(track => track.popularity >= minPop && track.popularity <= maxPop && maxPop > 0);
     html += `<h3 id='genero-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3>`;
     if (tracks.length > 0) {
       html += `<div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
