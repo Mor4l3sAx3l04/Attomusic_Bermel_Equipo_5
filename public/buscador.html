@@ -68,8 +68,9 @@
 
       // Función para mostrar detalle de canción en el mismo div
       async function mostrarDetalleCancion(id) {
-        const main = document.getElementById("results-tracks").parentElement.parentElement;
-        main.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;min-height:60vh;"><div class='search-card' id='detalle-cancion' style='max-width:400px;width:100%;margin:auto;'></div></div>`;
+        // Ocupa todo el espacio del contenedor principal
+        const mainContent = document.getElementById("main-content") || document.body;
+        mainContent.innerHTML = `<div class='detalle-cancion-container' style='width:100%;height:100%;display:flex;justify-content:center;align-items:center;'><div class='search-card' id='detalle-cancion' style='max-width:500px;width:100%;margin:auto;'></div></div>`;
         const detalle = document.getElementById('detalle-cancion');
         detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
         const res = await fetch(`https://attomusic.onrender.com/track/${id}`);
@@ -94,7 +95,16 @@
           </div>
         `;
         document.getElementById('volver-btn').onclick = () => {
-          // Recargar resultados de búsqueda
+          // Recargar resultados de búsqueda y restaurar el buscador
+          mainContent.innerHTML = `
+            <h2 class='search-results-title'>🔎 Resultados de búsqueda</h2>
+            <h3 class='search-section-title'>Canciones</h3>
+            <div id='results-tracks' class='search-results'></div>
+            <h3 class='search-section-title'>Artistas</h3>
+            <div id='results-artists' class='search-results'></div>
+            <h3 class='search-section-title'>Álbumes</h3>
+            <div id='results-albums' class='search-results'></div>
+          `;
           runSearch();
         };
         document.getElementById("calificar-form").addEventListener("submit", function(e) {
@@ -102,6 +112,12 @@
           const val = document.getElementById("calificacion").value;
           document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
         });
+    // Permitir nuevas búsquedas al navegar entre secciones
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.getElementById('searchInput')) {
+        document.getElementById('searchInput').value = '';
+      }
+    });
       }
     }
 
