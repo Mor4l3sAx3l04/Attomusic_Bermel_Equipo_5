@@ -30,14 +30,13 @@
       const track = await res.json();
       let img = track.album?.images?.[0]?.url || "";
       document.getElementById("track-details").innerHTML = `
-        <div class="search-card" style="margin:auto;max-width:350px;">
+        <div">
           <h2>${track.name}</h2>
           ${img ? `<img src="${img}" alt="cover">` : ""}
           <p>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
           <p>💿 Álbum: ${track.album?.name || ""}</p>
           <p>📅 ${track.album?.release_date || ""}</p>
           <p>🔥 Popularidad: ${track.popularity}</p>
-          ${track.preview_url ? `<audio controls src="${track.preview_url}"></audio>` : `<p>⚠️ No hay preview disponible</p>`}
         </div>
       `;
     }
