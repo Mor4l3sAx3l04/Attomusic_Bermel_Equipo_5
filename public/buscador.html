@@ -59,6 +59,10 @@
           ${item.album?.release_date ? `<p>📅 ${item.album.release_date}</p>` : ""}
           ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
         `;
+        div.style.cursor = "pointer";
+        div.addEventListener("click", () => {
+          window.location.href = `cancion.html?id=${item.id}`;
+        });
         container.appendChild(div);
       });
     }
