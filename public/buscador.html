@@ -58,7 +58,6 @@
           ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
           ${item.album?.release_date ? `<p>📅 ${item.album.release_date}</p>` : ""}
           ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
-          ${item.preview_url ? `<audio controls src="${item.preview_url}"></audio>` : `<p>⚠️ No hay preview disponible</p>`}
         `;
         container.appendChild(div);
       });
