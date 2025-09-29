@@ -15,6 +15,14 @@
         <button type="submit" class="btn btn-primary" style="margin-left:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;">Enviar</button>
       </form>
       <div id="calificacion-result" style="margin-top:10px;"></div>
+      <div id="comentario-section" style="margin-top:32px;text-align:center;">
+        <h2 style="color:#5a189a;font-weight:900;">Deja un comentario</h2>
+        <form id="comentario-form" style="display:inline-block;margin-top:10px;width:100%;max-width:400px;">
+          <textarea id="comentario" name="comentario" rows="3" required style="width:100%;border-radius:8px;border:1px solid #5a189a;padding:8px;"></textarea>
+          <button type="submit" class="btn btn-primary" style="margin-top:10px;background:linear-gradient(160deg,#5a189a,#00dffc);border:none;width:100%;">Enviar comentario</button>
+        </form>
+        <div id="comentario-result" style="margin-top:10px;"></div>
+      </div>
     </div>
   </div>
   <script>
@@ -49,6 +57,14 @@
       e.preventDefault();
       const val = document.getElementById("calificacion").value;
       document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;font-size:1.2rem;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
+    });
+    document.getElementById("comentario-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const comentario = document.getElementById("comentario").value.trim();
+      if (comentario) {
+        document.getElementById("comentario-result").innerHTML = `<p style='color:#5a189a;font-size:1.1rem;'>¡Gracias por tu comentario!</p><div style='background:#f3e8ff;border-radius:8px;padding:10px;margin-top:6px;color:#5a189a;'>${comentario}</div>`;
+        document.getElementById("comentario").value = "";
+      }
     });
   </script>
 </body>

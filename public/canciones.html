@@ -13,8 +13,102 @@
 </head>
 <body>
 
-<p class="normaltext"> Acá va a estar como la lista de todas las canciones y como apartados de generos y mas populares de ese genero, para que
-  sea más fácil encontrar las canciones que los usuarios quieran reseñar o recomendar </p>
+
+<h2 style="color:#5a189a;font-weight:900;text-align:center;margin-top:32px;">🎶 Canciones Populares por Género</h2>
+<div id="generos-canciones" style="margin:32px auto;max-width:1100px;"></div>
+
+<script>
+const generos = [
+  { nombre: "Pop", query: "genre:pop" },
+  { nombre: "Rock", query: "genre:rock" },
+  { nombre: "Reggaeton", query: "genre:reggaeton" },
+  { nombre: "Hip Hop", query: "genre:hip hop" },
+  { nombre: "Electrónica", query: "genre:electronic" },
+  { nombre: "Indie", query: "genre:indie" }
+];
+
+async function cargarCancionesPopulares() {
+  const cont = document.getElementById("generos-canciones");
+  cont.innerHTML = "<div style='text-align:center;color:#5a189a;font-size:1.3rem;'>Cargando canciones populares...</div>";
+  let html = "";
+  for (const genero of generos) {
+    // Busca canciones populares del género
+    const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(genero.query)}&type=track&limit=6`);
+    const data = await res.json();
+    const tracks = data.tracks?.items || [];
+    if (tracks.length > 0) {
+      html += `<h3 style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3><div class='row' style='margin-bottom:24px;'>`;
+      tracks.forEach(track => {
+        let img = track.album?.images?.[0]?.url || "";
+        html += `<div class='col-md-4 col-lg-2' style='margin-bottom:18px;'>
+          <div class='search-card' style='cursor:pointer;' onclick='mostrarDetalleCancion("${track.id}")'>
+            <h4 style='color:#5a189a;font-size:1.1rem;'>${track.name}</h4>
+            ${img ? `<img src='${img}' alt='cover' style='width:100px;height:100px;border-radius:12px;margin-bottom:8px;'>` : ""}
+            <p style='color:#ba01ff;font-size:0.95rem;'>${track.artists.map(a => a.name).join(", ")}</p>
+            <p style='font-size:0.9rem;'>🔥 Popularidad: ${track.popularity}</p>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+  }
+  cont.innerHTML = html || "<div style='text-align:center;color:#ba01ff;font-size:1.2rem;'>No se encontraron canciones populares.</div>";
+}
+
+// Muestra el detalle de la canción, calificación y comentario
+window.mostrarDetalleCancion = async function(id) {
+  const cont = document.getElementById("generos-canciones");
+  cont.innerHTML = `<div class='detalle-cancion-container' style='width:100%;height:100%;display:flex;justify-content:center;align-items:center;'><div class='search-card' id='detalle-cancion' style='max-width:500px;width:100%;margin:auto;'></div></div>`;
+  const detalle = document.getElementById('detalle-cancion');
+  detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
+  const res = await fetch(`https://attomusic.onrender.com/track/${id}`);
+  const track = await res.json();
+  let img = track.album?.images?.[0]?.url || "";
+  detalle.innerHTML = `
+    <button id='volver-btn' class='btn btn-outline-primary' style='margin-bottom:18px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;'>⟵ Volver</button>
+    <h2 style='color:#5a189a;'>${track.name}</h2>
+    ${img ? `<img src='${img}' alt='cover' style='width:180px;height:180px;border-radius:12px;margin-bottom:12px;'>` : ""}
+    <p style='color:#ba01ff;font-weight:700;'>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
+    <p>💿 Álbum: ${track.album?.name || ""}</p>
+    <p>📅 ${track.album?.release_date || ""}</p>
+    <p>🔥 Popularidad: ${track.popularity}</p>
+    <div style='margin-top:18px;'>
+      <h4 style='color:#ba01ff;'>Califica esta canción</h4>
+      <form id='calificar-form'>
+        <input type='number' id='calificacion' name='calificacion' min='1' max='5' required style='width:60px;border-radius:8px;border:1px solid #ba01ff;'>
+        <button type='submit' class='btn btn-primary' style='margin-left:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;'>Enviar</button>
+      </form>
+      <div id='calificacion-result'></div>
+      <div id='comentario-section' style='margin-top:32px;text-align:center;'>
+        <h4 style='color:#5a189a;font-weight:900;'>Deja un comentario</h4>
+        <form id='comentario-form' style='display:inline-block;margin-top:10px;width:100%;max-width:400px;'>
+          <textarea id='comentario' name='comentario' rows='3' required style='width:100%;border-radius:8px;border:1px solid #5a189a;padding:8px;'></textarea>
+          <button type='submit' class='btn btn-primary' style='margin-top:10px;background:linear-gradient(160deg,#5a189a,#00dffc);border:none;width:100%;'>Enviar comentario</button>
+        </form>
+        <div id='comentario-result' style='margin-top:10px;'></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('volver-btn').onclick = () => {
+    cargarCancionesPopulares();
+  };
+  document.getElementById("calificar-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const val = document.getElementById("calificacion").value;
+    document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
+  });
+  document.getElementById("comentario-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const comentario = document.getElementById("comentario").value.trim();
+    if (comentario) {
+      document.getElementById("comentario-result").innerHTML = `<p style='color:#5a189a;font-size:1.1rem;'>¡Gracias por tu comentario!</p><div style='background:#f3e8ff;border-radius:8px;padding:10px;margin-top:6px;color:#5a189a;'>${comentario}</div>`;
+      document.getElementById("comentario").value = "";
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', cargarCancionesPopulares);
+</script>
 
 </body>
 </html>
