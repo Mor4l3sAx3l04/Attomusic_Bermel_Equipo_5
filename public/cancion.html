@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle de Canción - AttoMusic</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="content container">
+    <div id="track-details"></div>
+    <div id="calificar-section">
+      <h3>Califica esta canción</h3>
+      <form id="calificar-form">
+        <label for="calificacion">Tu calificación (1-5):</label>
+        <input type="number" id="calificacion" name="calificacion" min="1" max="5" required>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </form>
+      <div id="calificacion-result"></div>
+    </div>
+  </div>
+  <script>
+    async function cargarCancion() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      if (!id) {
+        document.getElementById("track-details").innerHTML = "<p>No se especificó canción.</p>";
+        return;
+      }
+      const res = await fetch(`https://attomusic.onrender.com/track/${id}`);
+      const track = await res.json();
+      let img = track.album?.images?.[0]?.url || "";
+      document.getElementById("track-details").innerHTML = `
+        <div class="search-card" style="margin:auto;max-width:350px;">
+          <h2>${track.name}</h2>
+          ${img ? `<img src="${img}" alt="cover">` : ""}
+          <p>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
+          <p>💿 Álbum: ${track.album?.name || ""}</p>
+          <p>📅 ${track.album?.release_date || ""}</p>
+          <p>🔥 Popularidad: ${track.popularity}</p>
+          ${track.preview_url ? `<audio controls src="${track.preview_url}"></audio>` : `<p>⚠️ No hay preview disponible</p>`}
+        </div>
+      `;
+    }
+    cargarCancion();
+    document.getElementById("calificar-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const val = document.getElementById("calificacion").value;
+      document.getElementById("calificacion-result").innerHTML = `<p>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
+    });
+  </script>
+</body>
+</html>
