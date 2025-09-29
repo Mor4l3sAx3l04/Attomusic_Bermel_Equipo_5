@@ -59,7 +59,20 @@ const generos = [
 // Renderiza el navegador de géneros
 function renderNavGeneros() {
   const navDiv = document.querySelector('#nav-generos > div');
-  navDiv.innerHTML = generos.map(g => `<a href="#genero-${g.nombre.replace(/[^a-zA-Z0-9]/g,'')}" style="text-decoration:none;padding:7px 16px;border-radius:16px;background:linear-gradient(90deg,#ba01ff,#00dffc);color:white;font-weight:700;font-size:1rem;transition:background 0.2s;">${g.nombre}</a>`).join("");
+  navDiv.innerHTML = generos.map(g => `<a href="#genero-${g.nombre.replace(/[^a-zA-Z0-9]/g,'')}" class="nav-genero-link" style="text-decoration:none;padding:7px 16px;border-radius:16px;background:linear-gradient(90deg,#ba01ff,#00dffc);color:white;font-weight:700;font-size:1rem;transition:background 0.2s;">${g.nombre}</a>`).join("");
+  // Autoscroll suave al hacer click
+  setTimeout(() => {
+    document.querySelectorAll('.nav-genero-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').replace('#','');
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  }, 100);
 }
 renderNavGeneros();
 
