@@ -84,9 +84,10 @@ async function cargarCancionesPopulares() {
   for (const genero of generos) {
     const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(genero.query)}&type=track&limit=12`);
     const data = await res.json();
-    let tracks = (data.tracks?.items || []).filter(track => track.popularity > 94);
+    let tracks = (data.tracks?.items || []).filter(track => track.popularity >= 85);
+    html += `<h3 id='genero-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3>`;
     if (tracks.length > 0) {
-      html += `<h3 id='genero-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3><div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
+      html += `<div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
       tracks.forEach((track, idx) => {
         let img = track.album?.images?.[0]?.url || "";
         const cardId = `card-${genero.nombre.replace(/\s/g,'')}-${idx}`;
@@ -101,6 +102,8 @@ async function cargarCancionesPopulares() {
         allTracks.push({ cardId, track });
       });
       html += `</div>`;
+    } else {
+      html += `<div style='color:#5a189a;font-size:1.1rem;margin-bottom:32px;text-align:center;'>No hay canciones populares en este género.</div>`;
     }
   }
   cont.innerHTML = html || "<div style='text-align:center;color:#ba01ff;font-size:1.2rem;'>No se encontraron canciones populares.</div>";
