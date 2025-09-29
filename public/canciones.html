@@ -34,14 +34,17 @@ async function cargarCancionesPopulares() {
   let html = "";
   let allTracks = [];
   for (const genero of generos) {
-    const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(genero.query)}&type=track&limit=6`);
+    const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(genero.query)}&type=track&limit=12`);
     const data = await res.json();
-    const tracks = data.tracks?.items || [];
+    let tracks = data.tracks?.items || [];
+    // Filtra Reggaeton por popularidad > 0
+    if (genero.nombre === "Reggaeton") {
+      tracks = tracks.filter(track => track.popularity > 0);
+    }
     if (tracks.length > 0) {
-      html += `<h3 style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3><div class='row' style='margin-bottom:24px;'>`;
+      html += `<h3 style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3><div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
       tracks.forEach((track, idx) => {
         let img = track.album?.images?.[0]?.url || "";
-        // Asigna un id único a cada tarjeta
         const cardId = `card-${genero.nombre.replace(/\s/g,'')}-${idx}`;
         html += `<div class='col-md-4 col-lg-2' style='margin-bottom:18px;'>
           <div class='search-card' id='${cardId}' style='cursor:pointer;'>
