@@ -6,16 +6,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="content container">
-    <div id="track-details"></div>
-    <div id="calificar-section">
-      <h3>Califica esta canción</h3>
-      <form id="calificar-form">
-        <label for="calificacion">Tu calificación (1-5):</label>
-        <input type="number" id="calificacion" name="calificacion" min="1" max="5" required>
-        <button type="submit" class="btn btn-primary">Enviar</button>
+  <div class="content container" id="cancion-content" style="width:100%;max-width:1000px;margin:auto;">
+    <div id="track-details" style="padding:32px 0 0 0;"></div>
+    <div id="calificar-section" style="margin-top:32px;text-align:center;">
+      <h2 style="color:#ba01ff;font-weight:900;">Califica esta canción</h2>
+      <form id="calificar-form" style="display:inline-block;margin-top:10px;">
+        <input type="number" id="calificacion" name="calificacion" min="1" max="5" required style="width:60px;border-radius:8px;border:1px solid #ba01ff;">
+        <button type="submit" class="btn btn-primary" style="margin-left:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;">Enviar</button>
       </form>
-      <div id="calificacion-result"></div>
+      <div id="calificacion-result" style="margin-top:10px;"></div>
     </div>
   </div>
   <script>
@@ -23,28 +22,33 @@
       const params = new URLSearchParams(window.location.search);
       const id = params.get("id");
       if (!id) {
-        document.getElementById("track-details").innerHTML = "<p>No se especificó canción.</p>";
+        document.getElementById("track-details").innerHTML = "<p style='color:#ba01ff;font-size:1.5rem;'>No se especificó canción.</p>";
         return;
       }
       const res = await fetch(`https://attomusic.onrender.com/track/${id}`);
       const track = await res.json();
       let img = track.album?.images?.[0]?.url || "";
       document.getElementById("track-details").innerHTML = `
-        <div">
-          <h2>${track.name}</h2>
-          ${img ? `<img src="${img}" alt="cover">` : ""}
-          <p>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
-          <p>💿 Álbum: ${track.album?.name || ""}</p>
-          <p>📅 ${track.album?.release_date || ""}</p>
-          <p>🔥 Popularidad: ${track.popularity}</p>
+        <button id='volver-btn' class='btn btn-outline-primary' style='margin-bottom:24px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;font-weight:700;'>⟵ Volver a resultados</button>
+        <h1 style='color:#5a189a;font-size:2.5rem;font-weight:900;text-align:center;margin-bottom:18px;'>${track.name}</h1>
+        <div style='display:flex;flex-direction:column;align-items:center;'>
+          ${img ? `<img src='${img}' alt='cover' style='width:220px;height:220px;border-radius:18px;margin-bottom:18px;box-shadow:0 4px 16px rgba(90,24,154,0.12),0 1.5px 6px rgba(0,223,252,0.10);'>` : ""}
+          <p style='color:#ba01ff;font-weight:700;font-size:1.2rem;margin-bottom:8px;'>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
+          <p style='color:#5a189a;font-size:1.1rem;margin-bottom:8px;'>💿 Álbum: ${track.album?.name || ""}</p>
+          <p style='color:#5a189a;font-size:1.1rem;margin-bottom:8px;'>📅 ${track.album?.release_date || ""}</p>
+          <p style='color:#ff9100;font-size:1.1rem;margin-bottom:8px;'>🔥 Popularidad: ${track.popularity}</p>
+          ${track.preview_url ? `<audio controls src='${track.preview_url}' style='width:100%;margin-top:10px;'></audio>` : `<p style='color:#ba01ff;'>⚠️ No hay preview disponible</p>`}
         </div>
       `;
+      document.getElementById('volver-btn').onclick = () => {
+        window.history.back();
+      };
     }
     cargarCancion();
     document.getElementById("calificar-form").addEventListener("submit", function(e) {
       e.preventDefault();
       const val = document.getElementById("calificacion").value;
-      document.getElementById("calificacion-result").innerHTML = `<p>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
+      document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;font-size:1.2rem;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
     });
   </script>
 </body>
