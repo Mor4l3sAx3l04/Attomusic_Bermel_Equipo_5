@@ -84,7 +84,6 @@
           <p>💿 Álbum: ${track.album?.name || ""}</p>
           <p>📅 ${track.album?.release_date || ""}</p>
           <p>🔥 Popularidad: ${track.popularity}</p>
-          ${track.preview_url ? `<audio controls src='${track.preview_url}' style='width:100%;margin-top:10px;'></audio>` : `<p>⚠️ No hay preview disponible</p>`}
           <div style='margin-top:18px;'>
             <h4 style='color:#ba01ff;'>Califica esta canción</h4>
             <form id='calificar-form'>
