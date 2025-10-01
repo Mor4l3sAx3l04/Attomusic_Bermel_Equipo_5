@@ -1,3 +1,16 @@
+require("dotenv").config();
+console.log("Client ID:", process.env.SPOTIFY_CLIENT_ID);
+console.log("Client Secret:", process.env.SPOTIFY_CLIENT_SECRET);
+const express = require("express");
+const axios = require("axios");
+const cors = require("cors");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.static("public"));
+
 // === Noticias musicales desde TheNewsAPI ===
 // Debes poner tu API key de TheNewsAPI en el archivo .env como THENEWSAPI_KEY=...
 app.get('/music-news', async (req, res) => {
@@ -14,18 +27,6 @@ app.get('/music-news', async (req, res) => {
     res.status(500).json({ error: 'Error obteniendo noticias musicales' });
   }
 });
-require("dotenv").config();
-console.log("Client ID:", process.env.SPOTIFY_CLIENT_ID);
-console.log("Client Secret:", process.env.SPOTIFY_CLIENT_SECRET);
-const express = require("express");
-const axios = require("axios");
-const cors = require("cors");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.static("public"));
 
 // --- Función para obtener access token con Client Credentials ---
 let accessToken = null;
