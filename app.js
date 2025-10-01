@@ -1,3 +1,19 @@
+// === Noticias musicales desde TheNewsAPI ===
+// Debes poner tu API key de TheNewsAPI en el archivo .env como THENEWSAPI_KEY=...
+app.get('/music-news', async (req, res) => {
+  const apiKey = process.env.THENEWSAPI_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Falta THENEWSAPI_KEY en .env' });
+  }
+  const url = `https://api.thenewsapi.com/v1/news/all?api_token=${apiKey}&language=es&categories=music&limit=8`;
+  try {
+    const response = await axios.get(url);
+    res.json(response.data);
+  } catch (err) {
+    console.error(err.response?.data || err);
+    res.status(500).json({ error: 'Error obteniendo noticias musicales' });
+  }
+});
 require("dotenv").config();
 console.log("Client ID:", process.env.SPOTIFY_CLIENT_ID);
 console.log("Client Secret:", process.env.SPOTIFY_CLIENT_SECRET);
