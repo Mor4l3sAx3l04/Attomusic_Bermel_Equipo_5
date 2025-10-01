@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const res = await fetch(url);
     const data = await res.json();
+    if (data.error) {
+      newsList.innerHTML = `<div class="normaltext">Error: ${data.error}<br>${data.details ? JSON.stringify(data.details) : ''}</div>`;
+      return;
+    }
     if (!data.data || data.data.length === 0) {
       newsList.innerHTML = '<div class="normaltext">No se encontraron noticias recientes de música.</div>';
       return;
@@ -24,13 +28,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           <img src="${article.image_url || 'images/iconogray.png'}" alt="Noticia musical" style="height: 180px; object-fit: cover;">
           <h3 style="font-size: 1.1rem; color: #5a189a;">${article.title}</h3>
           <p style="font-size: 0.95rem; color: #333;">${article.description ? article.description.substring(0, 120) + '...' : ''}</p>
-// ...existing code...
           <a href="${article.url}" target="_blank" class="btn btn-sm" style="background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; margin-top: 10px;">Leer más</a>
           <div style="font-size: 0.8rem; color: #b3b3b3; margin-top: 8px;">${new Date(article.published_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
         </div>
       </div>
     `).join('');
   } catch (e) {
-    newsList.innerHTML = '<div class="normaltext">Error al cargar noticias. Intenta más tarde.</div>';
+    newsList.innerHTML = `<div class="normaltext">Error al cargar noticias. Intenta más tarde.<br>${e.message || e}</div>`;
   }
 });
