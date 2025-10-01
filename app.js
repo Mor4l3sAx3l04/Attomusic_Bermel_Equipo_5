@@ -16,15 +16,21 @@ app.use(express.static("public"));
 app.get('/music-news', async (req, res) => {
   const apiKey = process.env.THENEWSAPI_KEY;
   if (!apiKey) {
+    console.error('Falta THENEWSAPI_KEY en .env');
     return res.status(500).json({ error: 'Falta THENEWSAPI_KEY en .env' });
   }
   const url = `https://api.thenewsapi.com/v1/news/all?api_token=${apiKey}&language=es&categories=music&limit=8`;
+  console.log('[MUSIC-NEWS] Consultando:', url);
   try {
     const response = await axios.get(url);
+    console.log('[MUSIC-NEWS] Respuesta:', JSON.stringify(response.data));
+    if (!response.data || !response.data.data || response.data.data.length === 0) {
+      console.warn('[MUSIC-NEWS] No se encontraron noticias musicales.');
+    }
     res.json(response.data);
   } catch (err) {
-    console.error(err.response?.data || err);
-    res.status(500).json({ error: 'Error obteniendo noticias musicales' });
+    console.error('[MUSIC-NEWS] Error:', err.response?.data || err.message || err);
+    res.status(500).json({ error: 'Error obteniendo noticias musicales', details: err.response?.data || err.message || err });
   }
 });
 
