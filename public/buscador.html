@@ -19,6 +19,8 @@
     async function runSearch() {
       // Usa window._searchParams si existe (SPA), si no usa window.location.search (acceso directo)
       const searchStr = typeof window._searchParams === 'string' ? window._searchParams : window.location.search;
+      // Guarda los parámetros de búsqueda globalmente para restaurar después
+      window._searchParams = searchStr;
       const params = new URLSearchParams(searchStr);
       const q = params.get("q");
       const type = params.get("type") || "track,artist,album";
@@ -30,7 +32,7 @@
         return;
       }
 
-  const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(q)}&type=${type}`);
+      const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(q)}&type=${type}`);
       const data = await res.json();
 
       mostrarTracks(data.tracks?.items || []);
@@ -172,8 +174,24 @@
             </div>
           `;
           document.getElementById('volver-btn').onclick = () => {
-            // Recargar resultados de búsqueda y restaurar el buscador
-            window.location.reload();
+            // Restaurar los resultados de búsqueda usando los parámetros guardados
+            const mainContent = document.getElementById("main-content") || document.body;
+            if (window._searchParams) {
+              // Limpia el mainContent y vuelve a ejecutar la búsqueda
+              mainContent.innerHTML = `
+                <h2 class=\"search-results-title\">🔎 Resultados de búsqueda</h2>
+                <h3 class=\"search-section-title\">Canciones</h3>
+                <div id=\"results-tracks\" class=\"search-results\"></div>
+                <h3 class=\"search-section-title\">Artistas</h3>
+                <div id=\"results-artists\" class=\"search-results\"></div>
+                <h3 class=\"search-section-title\">Álbumes</h3>
+                <div id=\"results-albums\" class=\"search-results\"></div>
+              `;
+              runSearch();
+            } else {
+              // Si no hay parámetros, recarga la página (fallback)
+              window.location.reload();
+            }
           };
           document.getElementById("calificar-form").addEventListener("submit", function(e) {
             e.preventDefault();
