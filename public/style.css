@@ -28,21 +28,81 @@
   box-sizing: border-box;
 }
 
+/* Tarjeta de canción más ancha y con layout horizontal en pantallas grandes */
 .search-card {
   background: #fff;
-  padding: 18px 18px 12px 18px;
+  padding: 22px 28px 18px 22px;
   border-radius: 18px;
-  text-align: center;
+  text-align: left;
   box-shadow: 0 4px 16px rgba(90,24,154,0.12), 0 1.5px 6px rgba(0,223,252,0.10);
-  transition: transform 0.2s, box-shadow 0.2s;
-  width: 210px;
-  min-height: 320px;
+  width: 100%;
+  max-width: 520px;
+  min-height: 180px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
+  gap: 28px;
+  margin: 0 auto 18px auto;
   cursor: pointer;
   transition: transform 0.35s cubic-bezier(.4,2,.6,1), box-shadow 0.25s, opacity 0.3s;
+}
+
+@media (max-width: 700px) {
+  .search-card {
+    flex-direction: column;
+    max-width: 98vw;
+    min-height: 320px;
+    gap: 10px;
+    text-align: center;
+  }
+}
+
+.search-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 0;
+  box-shadow: 0 2px 8px rgba(90,24,154,0.10);
+}
+
+.search-card .card-info {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.search-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #5a189a;
+  margin-bottom: 4px;
+  margin-top: 0;
+  text-shadow: 0 1px 2px #e0e0e0;
+}
+.search-card p {
+  font-size: 1.05rem;
+  color: #333;
+  margin: 2px 0;
+}
+
+/* Modo oscuro para tarjetas de canciones */
+[data-bs-theme="dark"] .search-card {
+  background: #23272f;
+  color: #e0e0e0;
+  box-shadow: 0 4px 16px rgba(90,24,154,0.22), 0 1.5px 6px rgba(0,223,252,0.18);
+}
+[data-bs-theme="dark"] .search-card h3 {
+  color: #b983ff !important;
+  text-shadow: none;
+}
+[data-bs-theme="dark"] .search-card p {
+  color: #e0e0e0 !important;
+}
+[data-bs-theme="dark"] .search-card audio {
+  background: #23272f;
 }
 
 .search-card.selected {
