@@ -66,6 +66,28 @@
         container.appendChild(div);
       });
 
+      // Animación al seleccionar una tarjeta
+      const allCards = Array.from(container.querySelectorAll('.search-card'));
+      allCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+          // Evita doble animación si ya está seleccionada
+          if (this.classList.contains('selected')) return;
+          allCards.forEach(c => {
+            if (c === this) {
+              c.classList.add('selected');
+              c.classList.remove('faded');
+            } else {
+              c.classList.remove('selected');
+              c.classList.add('faded');
+            }
+          });
+          // Espera la animación antes de mostrar el detalle
+          setTimeout(() => {
+            mostrarDetalleCancion(items[allCards.indexOf(this)].id);
+          }, 350);
+        });
+      });
+
       // Función para mostrar detalle de canción en el mismo div
       async function mostrarDetalleCancion(id) {
         // Ocupa todo el espacio del contenedor principal
