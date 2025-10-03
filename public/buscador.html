@@ -53,11 +53,13 @@
         else if (item.images?.[0]?.url) img = item.images[0].url;
         if (img && img.startsWith('icono')) img = 'images/' + img;
         div.innerHTML = `
-          <h3>${item.name}</h3>
-          ${img ? `<img src="${img}" alt="cover">` : ""}
-          ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
-          ${item.album?.release_date ? `<p>📅 ${item.album.release_date}</p>` : ""}
-          ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
+          <img src="${img}" alt="cover">
+          <div class="card-info">
+            <h3>${item.name}</h3>
+            ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
+            ${item.album?.release_date ? `<p>📅 ${item.album.release_date}</p>` : ""}
+            ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
+          </div>
         `;
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
