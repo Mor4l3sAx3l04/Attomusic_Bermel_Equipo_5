@@ -75,7 +75,6 @@
 }
 body {
   font-family: "Ubuntu", sans-serif;
-  background-color: #f9f9f9;
   margin: 0;
 }
 
@@ -318,4 +317,7 @@ input[type="submit"]{
 
 .registrate a:hover {
     text-decoration: underline;
+}
+i{
+    color: white;
 }
