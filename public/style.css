@@ -1,3 +1,17 @@
+/* Tarjetas verticales para detalle, artistas y álbumes en buscador.html */
+.vertical-card {
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  max-width: 340px !important;
+  min-width: 220px !important;
+  margin: 0 auto 18px auto !important;
+  gap: 10px !important;
+}
+.vertical-card .card-info {
+  align-items: center !important;
+  justify-content: center !important;
+}
 /* Estilos para resultados de búsqueda */
 .search-results-title {
   color: #5a189a;

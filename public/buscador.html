@@ -47,7 +47,7 @@
       }
       items.forEach(item => {
         const div = document.createElement("div");
-        div.className = "search-card";
+        div.className = "search-card vertical-card";
         let img = "";
         if (item.album?.images?.[0]?.url) img = item.album.images[0].url;
         else if (item.images?.[0]?.url) img = item.images[0].url;
@@ -67,12 +67,10 @@
         });
         container.appendChild(div);
       });
-
       // Animación al seleccionar una tarjeta
       const allCards = Array.from(container.querySelectorAll('.search-card'));
       allCards.forEach(card => {
         card.addEventListener('click', function(e) {
-          // Evita doble animación si ya está seleccionada
           if (this.classList.contains('selected')) return;
           allCards.forEach(c => {
             if (c === this) {
@@ -83,65 +81,11 @@
               c.classList.add('faded');
             }
           });
-          // Espera la animación antes de mostrar el detalle
           setTimeout(() => {
             mostrarDetalleCancion(items[allCards.indexOf(this)].id);
           }, 350);
         });
       });
-
-      // Función para mostrar detalle de canción en el mismo div
-      async function mostrarDetalleCancion(id) {
-        // Ocupa todo el espacio del contenedor principal
-        const mainContent = document.getElementById("main-content") || document.body;
-        mainContent.innerHTML = `<div class='detalle-cancion-container' style='width:100%;height:100%;display:flex;justify-content:center;align-items:center;'><div class='search-card' id='detalle-cancion' style='max-width:500px;width:100%;margin:auto;'></div></div>`;
-        const detalle = document.getElementById('detalle-cancion');
-        detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
-        const res = await fetch(`https://attomusic.onrender.com/track/${id}`);
-        const track = await res.json();
-        let img = track.album?.images?.[0]?.url || "";
-        detalle.innerHTML = `
-          <button id='volver-btn' class='btn btn-outline-primary' style='margin-bottom:18px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;'>⟵ Volver a resultados</button>
-          <h2 style='color:#5a189a;'>${track.name}</h2>
-          ${img ? `<img src='${img}' alt='cover' style='width:180px;height:180px;border-radius:12px;margin-bottom:12px;'>` : ""}
-          <p style='color:#ba01ff;font-weight:700;'>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
-          <p>💿 Álbum: ${track.album?.name || ""}</p>
-          <p>📅 ${track.album?.release_date || ""}</p>
-          <p>🔥 Popularidad: ${track.popularity}</p>
-          <div style='margin-top:18px;'>
-            <h4 style='color:#ba01ff;'>Califica esta canción</h4>
-            <form id='calificar-form'>
-              <input type='number' id='calificacion' name='calificacion' min='1' max='5' required style='width:60px;border-radius:8px;border:1px solid #ba01ff;'>
-              <button type='submit' class='btn btn-primary' style='margin-left:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;'>Enviar</button>
-            </form>
-            <div id='calificacion-result'></div>
-          </div>
-        `;
-        document.getElementById('volver-btn').onclick = () => {
-          // Recargar resultados de búsqueda y restaurar el buscador
-          mainContent.innerHTML = `
-            <h2 class='search-results-title'>🔎 Resultados de búsqueda</h2>
-            <h3 class='search-section-title'>Canciones</h3>
-            <div id='results-tracks' class='search-results'></div>
-            <h3 class='search-section-title'>Artistas</h3>
-            <div id='results-artists' class='search-results'></div>
-            <h3 class='search-section-title'>Álbumes</h3>
-            <div id='results-albums' class='search-results'></div>
-          `;
-          runSearch();
-        };
-        document.getElementById("calificar-form").addEventListener("submit", function(e) {
-          e.preventDefault();
-          const val = document.getElementById("calificacion").value;
-          document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
-        });
-    // Permitir nuevas búsquedas al navegar entre secciones
-    document.addEventListener('DOMContentLoaded', () => {
-      if (document.getElementById('searchInput')) {
-        document.getElementById('searchInput').value = '';
-      }
-    });
-      }
     }
 
     function mostrarArtistas(items) {
@@ -153,7 +97,7 @@
       }
       items.forEach(item => {
         const div = document.createElement("div");
-        div.className = "search-card artist-card";
+        div.className = "search-card vertical-card";
         let img = "";
         if (item.images?.[0]?.url) img = item.images[0].url;
         if (img && img.startsWith('icono')) img = 'images/' + img;
@@ -161,7 +105,7 @@
           <img src="${img}" alt="cover">
           <div class="card-info">
             <h3>${item.name}</h3>
-            <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;">
+            <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center;">
               ${item.followers?.total ? `<span style='display:inline-flex;align-items:center;gap:4px;'><span style='font-size:1.2em;'>👥</span> Seguidores: ${item.followers.total}</span>` : ""}
               ${item.popularity !== undefined ? `<span style='display:inline-flex;align-items:center;gap:4px;'><span style='font-size:1.2em;'>🔥</span> Popularidad: ${item.popularity}</span>` : ""}
             </div>
@@ -180,15 +124,17 @@
       }
       items.forEach(item => {
         const div = document.createElement("div");
-        div.className = "search-card";
+        div.className = "search-card vertical-card";
         let img = "";
         if (item.images?.[0]?.url) img = item.images[0].url;
         if (img && img.startsWith('icono')) img = 'images/' + img;
         div.innerHTML = `
-          <h3>${item.name}</h3>
-          ${img ? `<img src="${img}" alt="cover">` : ""}
-          ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
-          ${item.release_date ? `<p>📅 ${item.release_date}</p>` : ""}
+          <img src="${img}" alt="cover">
+          <div class="card-info">
+            <h3>${item.name}</h3>
+            ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
+            ${item.release_date ? `<p>📅 ${item.release_date}</p>` : ""}
+          </div>
         `;
         container.appendChild(div);
       });
