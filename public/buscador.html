@@ -47,17 +47,19 @@
       }
       items.forEach(item => {
         const div = document.createElement("div");
-        div.className = "search-card";
+        div.className = "search-card vertical-card";
         let img = "";
         if (item.album?.images?.[0]?.url) img = item.album.images[0].url;
         else if (item.images?.[0]?.url) img = item.images[0].url;
         if (img && img.startsWith('icono')) img = 'images/' + img;
         div.innerHTML = `
           <img src="${img}" alt="cover">
-          <h3>${item.name}</h3>
-          ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
-          ${item.album?.release_date ? `<p>📅 ${item.album.release_date}</p>` : ""}
-          ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
+          <div class="card-info">
+            <h3>${item.name}</h3>
+            ${item.artists ? `<p>👩‍🎤 ${item.artists.map(a => a.name).join(", ")}</p>` : ""}
+            ${item.album?.release_date ? `<p>📅 ${item.album.release_date}</p>` : ""}
+            ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
+          </div>
         `;
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {

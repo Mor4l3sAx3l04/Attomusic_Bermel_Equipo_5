@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -95,18 +94,19 @@
         html += `<h3 id='genero-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3>`;
         if (tracks.length > 0) {
           html += `<div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
-          tracks.forEach((track, idx) => {
-            let img = track.album?.images?.[0]?.url || "";
-            const cardId = `card-${genero.nombre.replace(/\s/g,'')}-${idx}`;
-            // Tooltip agregado con title
-            html += `<div class='col-md-4 col-lg-2' style='margin-bottom:18px;'>
-              <div class='search-card' id='${cardId}' style='cursor:pointer;' title="🎵 ${track.name} - ${track.artists.map(a => a.name).join(", ")}">
-                <h4 style='color:#5a189a;font-size:1.1rem;'>${track.name}</h4>
-                ${img ? `<img src='${img}' alt='cover' style='width:100px;height:100px;border-radius:12px;margin-bottom:8px;'>` : ""}
-                <p style='color:#ba01ff;font-size:0.95rem;'>${track.artists.map(a => a.name).join(", ")}</p>
-                <p style='font-size:0.9rem;'>🔥 Popularidad: ${track.popularity}</p>
-              </div>
-            </div>`;
+            tracks.forEach((track, idx) => {
+              const cardId = `track-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}-${idx}`;
+              html += `
+                <div class='search-card vertical-card' id='${cardId}' style='margin-bottom:18px;'>
+                  <img src='${track.album?.images?.[0]?.url || ''}' alt='cover'>
+                  <div class='card-info'>
+                    <h3>${track.name}</h3>
+                    <p>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
+                    <p>📅 ${track.album?.release_date || ''}</p>
+                    <p>🔥 Popularidad: ${track.popularity}</p>
+                  </div>
+                </div>
+              `;
             allTracks.push({ cardId, track });
           });
           html += `</div>`;
@@ -127,7 +127,7 @@
     // Muestra el detalle de la canción, calificación y comentario
     window.mostrarDetalleCancion = async function(id) {
       const cont = document.getElementById("generos-canciones");
-      cont.innerHTML = `<div class='detalle-cancion-container' style='width:100%;height:100%;display:flex;justify-content:center;align-items:center;'><div class='search-card' id='detalle-cancion' style='max-width:500px;width:100%;margin:auto;'></div></div>`;
+      cont.innerHTML = `<div class='detalle-cancion-container' style='width:100%;height:100%;display:flex;justify-content:center;align-items:center;'><div class='search-card vertical-card' id='detalle-cancion' style='max-width:400px;width:100%;margin:auto;'></div></div>`;
       const detalle = document.getElementById('detalle-cancion');
       detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
       const res = await fetch(`https://attomusic.onrender.com/track/${id}`);
@@ -144,18 +144,18 @@
         <div style='margin-top:18px;'>
           <h4 style='color:#ba01ff;'>Califica esta canción</h4>
           <form id='calificar-form'>
-            <input type='number' id='calificacion' name='calificacion' min='1' max='5' required style='width:60px;border-radius:8px;border:1px solid #ba01ff;'>
+            <input type='number' id='calificacion' min='1' max='5' required style='width:60px;border-radius:8px;border:1px solid #ba01ff;'>
             <button type='submit' class='btn btn-primary' style='margin-left:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;'>Enviar</button>
           </form>
           <div id='calificacion-result'></div>
-          <div id='comentario-section' style='margin-top:32px;text-align:center;'>
-            <h4 style='color:#5a189a;font-weight:900;'>Deja un comentario</h4>
-            <form id='comentario-form' style='display:inline-block;margin-top:10px;width:100%;max-width:400px;'>
-              <textarea id='comentario' name='comentario' rows='3' required style='width:100%;border-radius:8px;border:1px solid #5a189a;padding:8px;'></textarea>
-              <button type='submit' class='btn btn-primary' style='margin-top:10px;background:linear-gradient(160deg,#5a189a,#00dffc);border:none;width:100%;'>Enviar comentario</button>
-            </form>
-            <div id='comentario-result' style='margin-top:10px;'></div>
-          </div>
+        </div>
+        <div style='margin-top:18px;'>
+          <h4 style='color:#5a189a;'>Deja un comentario</h4>
+          <form id='comentario-form'>
+            <textarea id='comentario' rows='3' required style='width:100%;border-radius:8px;border:1px solid #5a189a;padding:8px;'></textarea>
+            <button type='submit' class='btn btn-primary' style='margin-top:10px;background:linear-gradient(160deg,#5a189a,#00dffc);border:none;width:100%;'>Enviar comentario</button>
+          </form>
+          <div id='comentario-result'></div>
         </div>
       `;
       document.getElementById('volver-btn').onclick = () => {
@@ -170,7 +170,7 @@
         e.preventDefault();
         const comentario = document.getElementById("comentario").value.trim();
         if (comentario) {
-          document.getElementById("comentario-result").innerHTML = `<p style='color:#5a189a;font-size:1.1rem;'>¡Gracias por tu comentario!</p><div style='background:#f3e8ff;border-radius:8px;padding:10px;margin-top:6px;color:#5a189a;'>${comentario}</div>`;
+          document.getElementById("comentario-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias por tu comentario!</p><div style='background:#f3e8ff;border-radius:8px;padding:10px;margin-top:6px;color:#5a189a;'>${comentario}</div>`;
           document.getElementById("comentario").value = "";
         }
       });
