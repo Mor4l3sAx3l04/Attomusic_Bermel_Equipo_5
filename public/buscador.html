@@ -153,15 +153,19 @@
       }
       items.forEach(item => {
         const div = document.createElement("div");
-        div.className = "search-card";
+        div.className = "search-card artist-card";
         let img = "";
         if (item.images?.[0]?.url) img = item.images[0].url;
         if (img && img.startsWith('icono')) img = 'images/' + img;
         div.innerHTML = `
-          <h3>${item.name}</h3>
-          ${img ? `<img src="${img}" alt="cover">` : ""}
-          ${item.followers?.total ? `<p>👥 Seguidores: ${item.followers.total}</p>` : ""}
-          ${item.popularity !== undefined ? `<p>🔥 Popularidad: ${item.popularity}</p>` : ""}
+          <img src="${img}" alt="cover">
+          <div class="card-info">
+            <h3>${item.name}</h3>
+            <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;">
+              ${item.followers?.total ? `<span style='display:inline-flex;align-items:center;gap:4px;'><span style='font-size:1.2em;'>👥</span> Seguidores: ${item.followers.total}</span>` : ""}
+              ${item.popularity !== undefined ? `<span style='display:inline-flex;align-items:center;gap:4px;'><span style='font-size:1.2em;'>🔥</span> Popularidad: ${item.popularity}</span>` : ""}
+            </div>
+          </div>
         `;
         container.appendChild(div);
       });
