@@ -178,8 +178,26 @@ body {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   width: 100%;
-  /* overflow: hidden; REMOVER esta línea */
 }
+
+/* Modo oscuro para el contenedor principal */
+[data-bs-theme="dark"] .content {
+  background: #181a1b;
+  color: #e0e0e0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Ajuste para títulos y textos dentro de .content en modo oscuro */
+[data-bs-theme="dark"] .content .search-results-title,
+[data-bs-theme="dark"] .content h2,
+[data-bs-theme="dark"] .content h3 {
+  color: #b983ff !important;
+}
+[data-bs-theme="dark"] .content p,
+[data-bs-theme="dark"] .content .normaltext {
+  color: #e0e0e0 !important;
+}
+  /* overflow: hidden; REMOVER esta línea */
 
 .bodyII{
     background: linear-gradient(160deg, #ba01ff, #00dffc) ;
