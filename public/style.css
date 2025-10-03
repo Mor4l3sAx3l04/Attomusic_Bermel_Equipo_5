@@ -42,6 +42,23 @@
   align-items: center;
   justify-content: flex-start;
 }
+
+/* Modo oscuro para tarjetas de canciones */
+[data-bs-theme="dark"] .search-card {
+  background: #23272f;
+  color: #e0e0e0;
+  box-shadow: 0 4px 16px rgba(90,24,154,0.22), 0 1.5px 6px rgba(0,223,252,0.18);
+}
+[data-bs-theme="dark"] .search-card h3 {
+  color: #b983ff !important;
+  text-shadow: none;
+}
+[data-bs-theme="dark"] .search-card p {
+  color: #e0e0e0 !important;
+}
+[data-bs-theme="dark"] .search-card audio {
+  background: #23272f;
+}
 .search-card:hover {
   transform: translateY(-6px) scale(1.04);
   box-shadow: 0 8px 32px rgba(90,24,154,0.18), 0 3px 12px rgba(0,223,252,0.18);
@@ -197,7 +214,6 @@ body {
 [data-bs-theme="dark"] .content .normaltext {
   color: #e0e0e0 !important;
 }
-  /* overflow: hidden; REMOVER esta línea */
 
 .bodyII{
     background: linear-gradient(160deg, #ba01ff, #00dffc) ;
