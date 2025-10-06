@@ -12,56 +12,70 @@ let noticias = {
             .then(data => this.displayNoticias(data))
             .catch(() => this.displayError('No se pudieron cargar las noticias.'));
     },
-    displayNoticias: function(data){
-        //elimino todo si ha seleccionado un nuevo tema
-        if(pageInicial==0){
-            document.querySelector(".container-noticias").textContent ="";
+displayNoticias: function(data) {
+    const contenedor = document.querySelector(".container-noticias");
+    contenedor.innerHTML = "";
+
+    // Asegura que hay artículos válidos
+    const articulos = Array.isArray(data.articles) ? data.articles : [];
+    if (!articulos.length) {
+        contenedor.innerHTML = `<div style="color:#ba01ff;text-align:center;font-size:1.2rem;margin:32px 0;">No hay noticias disponibles.</div>`;
+        return;
+    }
+
+    // Crea filas de 3 noticias
+    let row;
+    articulos.slice(pageInicial, pageFinal + 1).forEach((articulo, idx) => {
+        if (idx % 3 === 0) {
+            row = document.createElement("div");
+            row.className = "row justify-content-center";
+            contenedor.appendChild(row);
         }
 
-
-        for(i=pageInicial;i<=pageFinal;i++){
-            const {title} = data.articles[i];
-            let h2 = document.createElement("h2");
-            h2.textContent = title;
-    
-            const {urlToImage} = data.articles[i];
-            let img = document.createElement("img");
-            img.setAttribute("src", urlToImage);
-
-            let info_item = document.createElement("div");
-            info_item.className = "info_item";
-            const {publishedAt} = data.articles[i];
-            let fecha = document.createElement("span");
-            let date = publishedAt;
-            date=date.split("T")[0].split("-").reverse().join("-");
-            fecha.className = "fecha";
-            fecha.textContent = date;
-
-            const {name} = data.articles[i].source;
-            let fuente = document.createElement("span");
-            fuente.className = "fuente";
-            fuente.textContent = name;
-
-            info_item.appendChild(fecha);
-            info_item.appendChild(fuente);
-
-            const {url} = data.articles[i];
-
-            let item = document.createElement("div");
-            item.className = "item";
-            item.appendChild(h2);
-            item.appendChild(img);
-            item.appendChild(info_item);
-            item.setAttribute("onclick", "location.href='"+url+"'");
-            document.querySelector(".container-noticias").appendChild(item);
+        // Datos seguros
+        const title = articulo.title || "Sin título";
+        const img = articulo.urlToImage || "https://via.placeholder.com/300x180?text=Sin+Imagen";
+        const desc = articulo.description || "";
+        const url = articulo.url || "#";
+        const fuente = (articulo.source && articulo.source.name) ? articulo.source.name : "Desconocida";
+        let fecha = "Sin fecha";
+        if (articulo.publishedAt) {
+            try {
+                const d = new Date(articulo.publishedAt);
+                fecha = d.toLocaleDateString("es-ES", { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch {}
         }
 
+        // Tarjeta tipo canción
+        const card = document.createElement("div");
+        card.className = "col-md-4 col-sm-6 mb-4 d-flex align-items-stretch";
+        card.innerHTML = `
+            <div class="search-card vertical-card" style="cursor:pointer;box-shadow:0 2px 12px #0001;" onclick="window.open('${url}','_blank')">
+                <img src="${img}" alt="noticia" style="width:100%;height:180px;object-fit:cover;border-radius:12px 12px 0 0;">
+                <div class="card-info" style="padding:16px;">
+                    <h3 style="color:#5a189a;font-size:1.1rem;font-weight:700;">${title}</h3>
+                    <p style="color:#333;font-size:0.98rem;">${desc.length > 120 ? desc.slice(0,120) + "..." : desc}</p>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+                        <span style="font-size:0.9rem;color:#ba01ff;"><i class="bi bi-calendar"></i> ${fecha}</span>
+                        <span style="font-size:0.9rem;color:#888;"><i class="bi bi-newspaper"></i> ${fuente}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        row.appendChild(card);
+    });
+
+    // Botón "Ver más" si hay más noticias
+    if (pageFinal + 1 < articulos.length) {
         let btnSiguiente = document.createElement("span");
         btnSiguiente.id = "btnSiguiente";
         btnSiguiente.textContent = "Ver más";
+        btnSiguiente.className = "btn btn-outline-primary";
+        btnSiguiente.style = "display:block;margin:32px auto 0 auto;";
         btnSiguiente.setAttribute("onclick","siguiente()");
-        document.querySelector(".container-noticias").appendChild(btnSiguiente);
+        contenedor.appendChild(btnSiguiente);
     }
+}
 }
 
 
