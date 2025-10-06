@@ -1,3 +1,4 @@
+
 let cantidadNoticias = 5;
 let pageFinal = cantidadNoticias;
 let pageInicial = 0;
@@ -66,22 +67,6 @@ let noticias = {
     }
 }
 
-function buscar(cat){
-    pageInicial = 0;
-    pageFinal = cantidadNoticias;
-    temaActual = cat;
-    noticias.fetchNoticias(cat);
-}
-
-function buscarTema(){
-    pageInicial = 0;
-    pageFinal = cantidadNoticias;
-
-    let tema = document.querySelector("#busqueda").value;
-    temaActual = tema;
-    noticias.fetchNoticias(temaActual);
-}
-
 function siguiente(){
     pageInicial = pageFinal + 1;
     pageFinal = pageFinal + cantidadNoticias + 1;
@@ -91,4 +76,13 @@ function siguiente(){
 
 }
 
-noticias.fetchNoticias(temaActual);
+window.mainNoticias = function() {
+    pageFinal = cantidadNoticias;
+    pageInicial = 0;
+    temaActual = "Music";
+    noticias.fetchNoticias(temaActual);
+};
+
+if (document.querySelector('.container-noticias')) {
+    window.mainNoticias();
+}
