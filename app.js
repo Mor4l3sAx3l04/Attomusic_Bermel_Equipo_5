@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.static("public"));
+// Servir archivos JS fuera de /public para frontend (noticias.js, temas.js)
+app.use('/noticias.js', express.static(__dirname + '/noticias.js'));
+app.use('/temas.js', express.static(__dirname + '/temas.js'));
 
 // === Noticias musicales desde TheNewsAPI ===
 // Debes poner tu API key de TheNewsAPI en el archivo .env como THENEWSAPI_KEY=...
