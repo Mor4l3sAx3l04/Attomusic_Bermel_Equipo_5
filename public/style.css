@@ -440,6 +440,20 @@ input[type="submit"]{
 .registrate a:hover {
     text-decoration: underline;
 }
+
 i{
     color: white;
+}
+
+/* NAV ICONS BIGGER & SIMPLE HOVER */
+.navbar-nav .nav-link i.bi {
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+.navbar-nav .nav-link:hover i.bi {
+  color: #ba01ff;
+  filter: drop-shadow(0 0 8px #2575fc88);
+}
+.navbar-nav .nav-link {
+  padding: 0.5rem 0.9rem;
 }
