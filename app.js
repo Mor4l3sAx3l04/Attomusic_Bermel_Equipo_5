@@ -22,12 +22,12 @@ app.get('/music-news', async (req, res) => {
     console.error('Falta THENEWSAPI_KEY en .env');
     return res.status(500).json({ error: 'Falta THENEWSAPI_KEY en .env' });
   }
-  const url = `https://api.thenewsapi.com/v1/news/all?api_token=${apiKey}&language=es&categories=music&limit=8`;
+  const url = `https://newsapi.org/v2/everything?q=music&language=es&apiKey=${apiKey}`;
   console.log('[MUSIC-NEWS] Consultando:', url);
   try {
     const response = await axios.get(url);
     console.log('[MUSIC-NEWS] Respuesta:', JSON.stringify(response.data));
-    if (!response.data || !response.data.data || response.data.data.length === 0) {
+    if (!response.data || !response.data.articles || response.data.articles.length === 0) {
       console.warn('[MUSIC-NEWS] No se encontraron noticias musicales.');
     }
     res.json(response.data);
