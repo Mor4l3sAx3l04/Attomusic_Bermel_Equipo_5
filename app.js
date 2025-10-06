@@ -158,3 +158,92 @@ const cambiarTema=()=>{
     }
 }
 
+/*API News
+let cantidadNoticias = 5;
+let pageFinal = cantidadNoticias;
+let pageInicial = 0;
+let temaActual = "Music";
+
+let noticias = {
+  "apiKey":"f3798e116eb342b2bae58e7f0cbd9c11",
+  fetchNoticias:function(temaActual){
+    fetch(
+      "https://newsapi.org/v2/everything?q="
+      +temaActual+
+      "&language=es&apiKey="+this.apiKey
+    )
+    .then((response)=>response.json())
+    .then((data)=>this.displayNoticias(data));
+  },
+  displayNoticias: function(data){
+    //elimino todo si ha seleccionado un nuevo tema
+    if(pageInicial==0){
+      document.querySelector(".container-noticias").textContent ="";
+    }
+    // Render en filas de 3, estilo tarjetas
+    let articles = data.articles || [];
+    let visible = articles.slice(pageInicial, pageFinal+1);
+    for(let i=0; i<visible.length; i+=3){
+      const row = document.createElement("div");
+      row.className = "row justify-content-center mb-4";
+      for(let j=0; j<3 && i+j<visible.length; j++){
+        const art = visible[i+j];
+        if(!art) continue;
+        const {title, urlToImage, publishedAt, source, url, description} = art;
+        const col = document.createElement("div");
+        col.className = "col-12 col-md-4 d-flex align-items-stretch";
+        const card = document.createElement("div");
+        card.className = "search-card vertical-card w-100";
+        card.style.cursor = "pointer";
+        card.onclick = function(){ window.open(url, '_blank'); };
+        card.innerHTML = `
+          <img src="${urlToImage || 'images/iconowhite.png'}" alt="noticia">
+          <div class="card-info">
+            <h3>${title || 'Sin título'}</h3>
+            ${description ? `<p>${description}</p>` : ''}
+            <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center;">
+              ${publishedAt ? `<span style='display:inline-flex;align-items:center;gap:4px;'><span style='font-size:1.2em;'>🗓️</span> ${publishedAt.split("T")[0].split("-").reverse().join("-")}</span>` : ''}
+              ${source?.name ? `<span style='display:inline-flex;align-items:center;gap:4px;'><span style='font-size:1.2em;'>📰</span> ${source.name}</span>` : ''}
+            </div>
+          </div>
+        `;
+        col.appendChild(card);
+        row.appendChild(col);
+      }
+      document.querySelector(".container-noticias").appendChild(row);
+    }
+    let btnSiguiente = document.createElement("span");
+    btnSiguiente.id = "btnSiguiente";
+    btnSiguiente.textContent = "Ver más";
+    btnSiguiente.setAttribute("onclick","siguiente()");
+    document.querySelector(".container-noticias").appendChild(btnSiguiente);
+  }
+}
+
+
+function buscar(cat){
+  pageInicial = 0;
+  pageFinal = cantidadNoticias;
+  temaActual = cat;
+  noticias.fetchNoticias(cat);
+}
+
+function buscarTema(){
+  pageInicial = 0;
+  pageFinal = cantidadNoticias;
+
+  let tema = document.querySelector("#busqueda").value;
+  temaActual = tema;
+  noticias.fetchNoticias(temaActual);
+}
+
+function siguiente(){
+  pageInicial = pageFinal + 1;
+  pageFinal = pageFinal + cantidadNoticias + 1;
+  //eliminamos el botón siguiente
+  document.querySelector("#btnSiguiente").remove();
+  noticias.fetchNoticias(temaActual);
+
+}
+
+noticias.fetchNoticias(temaActual);*/
