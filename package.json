@@ -10,7 +10,8 @@
     "axios": "^1.6.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "newsapi": "^2.4.1"
   },
   "devDependencies": {
     "@web/dev-server": "^0.4.6",

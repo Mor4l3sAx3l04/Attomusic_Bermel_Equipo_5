@@ -1,4 +1,3 @@
-
 let cantidadNoticias = 5;
 let pageFinal = cantidadNoticias;
 let pageInicial = 0;
