@@ -1,3 +1,4 @@
+
 let cantidadNoticias = 5;
 let pageFinal = cantidadNoticias;
 let pageInicial = 0;
@@ -8,72 +9,90 @@ let noticias = {
     fetchNoticias: function() {
         fetch('/music-news')
             .then(response => response.json())
-            .then(data => this.displayNoticias(data));
+            .then(data => this.displayNoticias(data))
+            .catch(() => this.displayError('No se pudieron cargar las noticias.'));
     },
-    displayNoticias: function(data) {
-        // Limpia el contenedor si es la primera página
-        if (pageInicial === 0) {
-            document.querySelector('.container-noticias').textContent = '';
+    displayNoticias: function(data){
+        //elimino todo si ha seleccionado un nuevo tema
+        if(pageInicial==0){
+            document.querySelector(".container-noticias").textContent ="";
         }
-        // La API devuelve las noticias en data.data (array)
-        const noticiasArr = data.data || [];
-        for (let i = pageInicial; i <= pageFinal && i < noticiasArr.length; i++) {
-            const noticia = noticiasArr[i];
-            let h2 = document.createElement('h2');
-            h2.textContent = noticia.title;
 
-            let img = document.createElement('img');
-            img.setAttribute('src', noticia.image_url || '');
 
-            let info_item = document.createElement('div');
-            info_item.className = 'info_item';
-            let fecha = document.createElement('span');
-            let date = noticia.published_at ? noticia.published_at.split('T')[0].split('-').reverse().join('-') : '';
-            fecha.className = 'fecha';
+        for(i=pageInicial;i<=pageFinal;i++){
+            const {title} = data.articles[i];
+            let h2 = document.createElement("h2");
+            h2.textContent = title;
+    
+            const {urlToImage} = data.articles[i];
+            let img = document.createElement("img");
+            img.setAttribute("src", urlToImage);
+
+            let info_item = document.createElement("div");
+            info_item.className = "info_item";
+            const {publishedAt} = data.articles[i];
+            let fecha = document.createElement("span");
+            let date = publishedAt;
+            date=date.split("T")[0].split("-").reverse().join("-");
+            fecha.className = "fecha";
             fecha.textContent = date;
 
-            let fuente = document.createElement('span');
-            fuente.className = 'fuente';
-            fuente.textContent = noticia.source || '';
+            const {name} = data.articles[i].source;
+            let fuente = document.createElement("span");
+            fuente.className = "fuente";
+            fuente.textContent = name;
 
             info_item.appendChild(fecha);
             info_item.appendChild(fuente);
 
-            let item = document.createElement('div');
-            item.className = 'item';
+            const {url} = data.articles[i];
+
+            let item = document.createElement("div");
+            item.className = "item";
             item.appendChild(h2);
-            if (noticia.image_url) item.appendChild(img);
+            item.appendChild(img);
             item.appendChild(info_item);
-            item.setAttribute('onclick', `location.href='${noticia.url}'`);
-            document.querySelector('.container-noticias').appendChild(item);
+            item.setAttribute("onclick", "location.href='"+url+"'");
+            document.querySelector(".container-noticias").appendChild(item);
         }
-        // Botón siguiente solo si hay más noticias
-        if (pageFinal < noticiasArr.length - 1) {
-            let btnSiguiente = document.createElement('span');
-            btnSiguiente.id = 'btnSiguiente';
-            btnSiguiente.textContent = 'Ver más';
-            btnSiguiente.setAttribute('onclick', 'siguiente()');
-            document.querySelector('.container-noticias').appendChild(btnSiguiente);
-        }
+
+        let btnSiguiente = document.createElement("span");
+        btnSiguiente.id = "btnSiguiente";
+        btnSiguiente.textContent = "Ver más";
+        btnSiguiente.setAttribute("onclick","siguiente()");
+        document.querySelector(".container-noticias").appendChild(btnSiguiente);
     }
 }
+
 
 function siguiente(){
     pageInicial = pageFinal + 1;
     pageFinal = pageFinal + cantidadNoticias + 1;
     //eliminamos el botón siguiente
-    document.querySelector("#btnSiguiente").remove();
-    noticias.fetchNoticias(temaActual);
-
+    const btn = document.querySelector("#btnSiguiente");
+    if (btn) btn.remove();
+    noticias.fetchNoticias();
 }
+
 
 window.mainNoticias = function() {
     pageFinal = cantidadNoticias;
     pageInicial = 0;
     temaActual = "Music";
-    noticias.fetchNoticias(temaActual);
+    noticias.fetchNoticias();
 };
 
 if (document.querySelector('.container-noticias')) {
     window.mainNoticias();
 }
+    
+    fetch('/music-news')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                noticias.displayError('Error: ' + (data.details || data.error));
+            } else {
+                noticias.displayNoticias(data);
+            }
+        })
+        .catch((err) => noticias.displayError('No se pudieron cargar las noticias. ' + (err?.message || '')));
