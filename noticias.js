@@ -4,66 +4,58 @@ let pageFinal = cantidadNoticias;
 let pageInicial = 0;
 let temaActual = "Music";
 
+
 let noticias = {
-    "apiKey":"f3798e116eb342b2bae58e7f0cbd9c11",
-    fetchNoticias:function(temaActual){
-        fetch(
-            "https://newsapi.org/v2/everything?q="
-            +temaActual+
-            "&language=es&apiKey="+this.apiKey
-        )
-        .then((response)=>response.json())
-        .then((data)=>this.displayNoticias(data));
+    fetchNoticias: function() {
+        fetch('/music-news')
+            .then(response => response.json())
+            .then(data => this.displayNoticias(data));
     },
-    displayNoticias: function(data){
-        //elimino todo si ha seleccionado un nuevo tema
-        if(pageInicial==0){
-            document.querySelector(".container-noticias").textContent ="";
+    displayNoticias: function(data) {
+        // Limpia el contenedor si es la primera página
+        if (pageInicial === 0) {
+            document.querySelector('.container-noticias').textContent = '';
         }
+        // La API devuelve las noticias en data.data (array)
+        const noticiasArr = data.data || [];
+        for (let i = pageInicial; i <= pageFinal && i < noticiasArr.length; i++) {
+            const noticia = noticiasArr[i];
+            let h2 = document.createElement('h2');
+            h2.textContent = noticia.title;
 
+            let img = document.createElement('img');
+            img.setAttribute('src', noticia.image_url || '');
 
-        for(i=pageInicial;i<=pageFinal;i++){
-            const {title} = data.articles[i];
-            let h2 = document.createElement("h2");
-            h2.textContent = title;
-    
-            const {urlToImage} = data.articles[i];
-            let img = document.createElement("img");
-            img.setAttribute("src", urlToImage);
-
-            let info_item = document.createElement("div");
-            info_item.className = "info_item";
-            const {publishedAt} = data.articles[i];
-            let fecha = document.createElement("span");
-            let date = publishedAt;
-            date=date.split("T")[0].split("-").reverse().join("-");
-            fecha.className = "fecha";
+            let info_item = document.createElement('div');
+            info_item.className = 'info_item';
+            let fecha = document.createElement('span');
+            let date = noticia.published_at ? noticia.published_at.split('T')[0].split('-').reverse().join('-') : '';
+            fecha.className = 'fecha';
             fecha.textContent = date;
 
-            const {name} = data.articles[i].source;
-            let fuente = document.createElement("span");
-            fuente.className = "fuente";
-            fuente.textContent = name;
+            let fuente = document.createElement('span');
+            fuente.className = 'fuente';
+            fuente.textContent = noticia.source || '';
 
             info_item.appendChild(fecha);
             info_item.appendChild(fuente);
 
-            const {url} = data.articles[i];
-
-            let item = document.createElement("div");
-            item.className = "item";
+            let item = document.createElement('div');
+            item.className = 'item';
             item.appendChild(h2);
-            item.appendChild(img);
+            if (noticia.image_url) item.appendChild(img);
             item.appendChild(info_item);
-            item.setAttribute("onclick", "location.href='"+url+"'");
-            document.querySelector(".container-noticias").appendChild(item);
+            item.setAttribute('onclick', `location.href='${noticia.url}'`);
+            document.querySelector('.container-noticias').appendChild(item);
         }
-
-        let btnSiguiente = document.createElement("span");
-        btnSiguiente.id = "btnSiguiente";
-        btnSiguiente.textContent = "Ver más";
-        btnSiguiente.setAttribute("onclick","siguiente()");
-        document.querySelector(".container-noticias").appendChild(btnSiguiente);
+        // Botón siguiente solo si hay más noticias
+        if (pageFinal < noticiasArr.length - 1) {
+            let btnSiguiente = document.createElement('span');
+            btnSiguiente.id = 'btnSiguiente';
+            btnSiguiente.textContent = 'Ver más';
+            btnSiguiente.setAttribute('onclick', 'siguiente()');
+            document.querySelector('.container-noticias').appendChild(btnSiguiente);
+        }
     }
 }
 
