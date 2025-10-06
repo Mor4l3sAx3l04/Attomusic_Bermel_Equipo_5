@@ -27,10 +27,26 @@
           <ul class="navbar-nav ms-auto align-items-center">
             <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal"> Iniciar Sesión </a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registroModal"> Registrarse </a></li>
-            <li class="nav-item"><a class="nav-link load-page" href="canciones.html">Canciones</a></li>
-            <li class="nav-item"><a class="nav-link load-page" href="playlists.html">Playlists</a></li>
-            <li class="nav-item"><a class="nav-link load-page" href="perfiles.html"> Perfiles </a></li>
-            <li class="nav-item"><a class="nav-link load-page" href="noticias.html"> Noticias </a></li>
+            <li class="nav-item">
+              <a class="nav-link load-page" href="canciones.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Canciones">
+                <i class="bi bi-music-note-list"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link load-page" href="playlists.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Playlists">
+                <i class="bi bi-music-player"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link load-page" href="perfiles.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Perfiles">
+                <i class="bi bi-people"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link load-page" href="noticias.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Noticias">
+                <i class="bi bi-newspaper"></i>
+              </a>
+            </li>
 
           <li class="nav-item d-flex align-items-center">
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar...">
@@ -130,6 +146,14 @@
   <script>
     const searchBtn = document.getElementById("searchBtn");
     const searchInput = document.getElementById("searchInput");
+
+    // Inicializar tooltips de Bootstrap
+    document.addEventListener('DOMContentLoaded', function () {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
 
     // Carga inicial
     window.addEventListener('DOMContentLoaded', () => {
