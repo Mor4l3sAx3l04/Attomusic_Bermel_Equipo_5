@@ -13,16 +13,12 @@
 </head>
 <body>
 
-<div class="content" style="background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.08); margin-top: 40px; padding: 20px 10px 10px 10px;">
   <div class="search-results-title" style="margin-bottom: 30px;">Últimas noticias de música</div>
-  <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:20px;">
-    <input id="busqueda" type="text" placeholder="Buscar tema de noticia..." style="border-radius:8px;border:1px solid #ba01ff;padding:6px 12px;max-width:220px;">
-    <button onclick="buscarTema()" class="btn btn-primary" style="background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;">Buscar</button>
-  </div>
   <div class="container-noticias"></div>
-</div>
 
-<script src="../noticias.js"></script>
-
+  <script src="../noticias.js"></script>
+  <script>
+    if (window.mainNoticias) window.mainNoticias();
+  </script>
 </body>
 </html>
