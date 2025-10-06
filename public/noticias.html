@@ -22,17 +22,7 @@
   <div class="container-noticias"></div>
 </div>
 
-<script src="../app.js"></script>
-<script>
-// Recargar noticias si el usuario regresa a la pestaña
-document.addEventListener('visibilitychange', function() {
-  if (!document.hidden) {
-    pageInicial = 0;
-    pageFinal = cantidadNoticias;
-    noticias.fetchNoticias(temaActual);
-  }
-});
-</script>
+<script src="noticias.js"></script>
 
 </body>
 </html>
