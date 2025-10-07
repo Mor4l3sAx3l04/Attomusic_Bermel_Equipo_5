@@ -124,9 +124,12 @@
             <label>Correo electrónico</label>
           </div>
 
-          <div class="username">
-            <input type="password" required>
+          <div class="username position-relative">
+            <input type="password" required id="registerPassword">
             <label>Contraseña</label>
+            <button type="button" tabindex="-1" class="btn-eye" id="togglePassword" aria-label="Mostrar/Ocultar contraseña">
+              <i class="bi bi-eye-slash"></i>
+            </button>
           </div>
 
           <div class="recordar">
@@ -142,45 +145,125 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    const searchBtn = document.getElementById("searchBtn");
-    const searchInput = document.getElementById("searchInput");
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    // Inicializar tooltips de Bootstrap
-    document.addEventListener('DOMContentLoaded', function () {
+  <script>
+    // --- Sanitización y validación global ---
+    function sanitizeInput(str) {
+      if (typeof str !== "string") return "";
+      str = str.replace(/<[^>]*>?/gm, "");
+      str = str.replace(/(javascript:|data:|vbscript:)/gi, "");
+      str = str.replace(/<\?(php)?[\s\S]*?\?>/gi, "");
+      str = str.replace(/<style[\s\S]*?<\/style>/gi, "");
+      str = str.replace(/<script[\s\S]*?<\/script>/gi, "");
+      str = str.trim().replace(/\s{2,}/g, " ");
+      return str;
+    }
+    function isNotEmpty(str) {
+      return typeof str === "string" && str.trim().length > 0;
+    }
+    function allowOnlyNumbers(e) {
+      if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
+        e.preventDefault();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // Inicializar tooltips de Bootstrap
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
       tooltipTriggerList.forEach(function (tooltipTriggerEl) {
         new bootstrap.Tooltip(tooltipTriggerEl);
       });
-    });
 
-    // Carga inicial
-    window.addEventListener('DOMContentLoaded', () => {
+      // Carga inicial
       loadPage('bienvenido.html');
-    });
 
-    // Animación desplegable y búsqueda
-    searchBtn.addEventListener("click", () => {
-      if (!searchInput.classList.contains("active")) {
-        searchInput.classList.add("active");
-        searchInput.focus();
-      } else {
-        const query = searchInput.value.trim();
-        if (query) {
-          loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
-        }
+      // --- Buscador ---
+      const searchBtn = document.getElementById("searchBtn");
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) {
+        searchInput.addEventListener("input", function () {
+          this.value = sanitizeInput(this.value);
+        });
       }
-    });
+      if (searchBtn && searchInput) {
+        searchBtn.addEventListener("click", () => {
+          if (!searchInput.classList.contains("active")) {
+            searchInput.classList.add("active");
+            searchInput.focus();
+          } else {
+            const query = sanitizeInput(searchInput.value.trim());
+            if (isNotEmpty(query)) {
+              loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
+            } else {
+              searchInput.classList.add("is-invalid");
+            }
+          }
+        });
+        searchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const query = sanitizeInput(searchInput.value.trim());
+            if (isNotEmpty(query)) {
+              loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
+            } else {
+              searchInput.classList.add("is-invalid");
+            }
+          }
+        });
+        searchInput.addEventListener("blur", function() {
+          if (isNotEmpty(this.value)) {
+            this.classList.remove("is-invalid");
+          }
+        });
+      }
 
-    searchInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const query = searchInput.value.trim();
-        if (query) {
-          loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
-        }
-      }
+      // --- Formularios de registro/login/comentarios ---
+      document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", function(e) {
+          let valid = true;
+          this.querySelectorAll("input, textarea").forEach(input => {
+            // Sanitiza
+            input.value = sanitizeInput(input.value);
+            // No permite campos vacíos o solo espacios
+            if (!isNotEmpty(input.value)) {
+              valid = false;
+              input.classList.add("is-invalid");
+              // Quitar el rojo después de 2 segundos
+              setTimeout(() => input.classList.remove("is-invalid"), 5000);
+            } else {
+              input.classList.remove("is-invalid");
+            }
+            // Solo números en inputs numéricos
+            if (input.type === "number") {
+              if (!/^\d+$/.test(input.value)) {
+                valid = false;
+                input.classList.add("is-invalid");
+                setTimeout(() => input.classList.remove("is-invalid"), 2000);
+              }
+            }
+          // Quitar el rojo si el usuario interactúa de nuevo
+          this.querySelectorAll("input, textarea").forEach(input => {
+            input.addEventListener("input", function() {
+              if (isNotEmpty(this.value)) {
+                this.classList.remove("is-invalid");
+              }
+            });
+            input.addEventListener("focus", function() {
+              this.classList.remove("is-invalid");
+            });
+          });
+          });
+          if (!valid) {
+            e.preventDefault();
+            alert("Por favor, completa todos los campos correctamente.");
+          }
+        });
+        // Solo números en inputs numéricos (en tiempo real)
+        form.querySelectorAll('input[type="number"]').forEach(input => {
+          input.addEventListener("keypress", allowOnlyNumbers);
+        });
+      });
     });
   </script>
 
