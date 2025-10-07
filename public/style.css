@@ -457,3 +457,49 @@ i{
 .navbar-nav .nav-link {
   padding: 0.5rem 0.9rem;
 }
+
+/*Efecto que tiene el campo donde hubo un error*/
+.is-invalid {
+  border: 2px solid #ff3b3b !important;
+  background: #fff0f0 !important;
+}
+/*Efectos para el ojo de la contraseña*/
+.btn-eye i{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #5a189a;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: color 0.2s;
+}
+.btn-eye:hover {
+  color: #ba01ff;
+  background: none;
+}
+
+.btn-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #5a189a;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: color 0.2s;
+  outline: none;
+  box-shadow: none;
+}
+.btn-eye:focus {
+  outline: none;
+  box-shadow: none;
+}
