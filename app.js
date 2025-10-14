@@ -22,7 +22,7 @@ app.get('/music-news', async (req, res) => {
     console.error('Falta THENEWSAPI_KEY en .env');
     return res.status(500).json({ error: 'Falta THENEWSAPI_KEY en .env' });
   }
-  const url = `https://newsapi.org/v2/everything?q=music&language=es&apiKey=${apiKey}`;
+  const url = `https://newsapi.org/v2/everything?q=music&language=es&sortBy=publishedAt&apiKey=${apiKey}`;
   console.log('[MUSIC-NEWS] Consultando:', url);
   try {
     const response = await axios.get(url);
