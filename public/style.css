@@ -502,3 +502,41 @@ i{
   outline: none;
   box-shadow: none;
 }
+/* Modo oscuro para los formularios */
+[data-bs-theme="dark"] .bi-eye-slash{
+  color: #e0e0e0 !important;
+}
+[data-bs-theme="dark"] .bi-eye{
+  color: #e0e0e0 !important;
+}
+[data-bs-theme="dark"] .modal-content {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+}
+
+[data-bs-theme="dark"] .modal-content .input-animated {
+  background: #23272f !important;
+  color: #e0e0e0 !important;
+  border-color: #b983ff !important;
+}
+
+[data-bs-theme="dark"] .modal-content .label-animated {
+  color: #999 !important;
+}
+
+[data-bs-theme="dark"] .modal-content .input-animated:focus,
+[data-bs-theme="dark"] .modal-content .input-animated:not(:placeholder-shown) {
+  background: #1a1a2e !important;
+  color: #b983ff !important;
+}
+
+[data-bs-theme="dark"] .modal-content p {
+  color: #e0e0e0 !important;
+}
+
+[data-bs-theme="dark"] .modal-content a {
+  color: #b983ff !important;
+}
+
+[data-bs-theme="dark"] .modal-content a:hover {
+  color: #00dffc !important;
+}
