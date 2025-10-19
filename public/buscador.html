@@ -7,23 +7,69 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Back to Top Button -->
   <button id="backToTopBtn" title="Volver arriba" style="display:none;position:fixed;bottom:32px;right:32px;z-index:9999;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:50%;width:52px;height:52px;box-shadow:0 2px 12px #0002;font-size:2rem;cursor:pointer;transition:opacity 0.3s;">
     <span style="display:inline-block;transform:translateY(-2px);">↑</span>
   </button>
-  <h2 class="search-results-title">🔎 Resultados de búsqueda</h2>
-  <h3 class="search-section-title">Canciones</h3>
-  <div id="results-tracks" class="search-results"></div>
-  <h3 class="search-section-title">Artistas</h3>
-  <div id="results-artists" class="search-results"></div>
-  <h3 class="search-section-title">Álbumes</h3>
-  <div id="results-albums" class="search-results"></div>
+  
+  <div id="main-content">
+    <h2 class="search-results-title">🔎 Resultados de búsqueda</h2>
+    <h3 class="search-section-title">Canciones</h3>
+    <div id="results-tracks" class="search-results"></div>
+    <h3 class="search-section-title">Artistas</h3>
+    <div id="results-artists" class="search-results"></div>
+    <h3 class="search-section-title">Álbumes</h3>
+    <div id="results-albums" class="search-results"></div>
+  </div>
 
   <script>
+    function crearEstrellas() {
+      return `
+        <div class="star-rating" style="display:flex;gap:8px;justify-content:flex-start;align-items:center;margin:12px 0;">
+          <span class="star" data-value="1" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
+          <span class="star" data-value="2" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
+          <span class="star" data-value="3" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
+          <span class="star" data-value="4" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
+          <span class="star" data-value="5" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
+        </div>
+        <input type="hidden" id="calificacion" value="0">
+      `;
+    }
+
+    function activarEstrellas() {
+      const stars = document.querySelectorAll('.star');
+      const inputCalificacion = document.getElementById('calificacion');
+      let selectedRating = 0;
+
+      stars.forEach(star => {
+        star.addEventListener('mouseenter', function() {
+          const value = parseInt(this.getAttribute('data-value'));
+          stars.forEach((s, idx) => {
+            if (idx < value) {
+              s.style.color = '#ffd700';
+            } else {
+              s.style.color = selectedRating > idx ? '#ba01ff' : '#ddd';
+            }
+          });
+        });
+
+        star.addEventListener('click', function() {
+          selectedRating = parseInt(this.getAttribute('data-value'));
+          inputCalificacion.value = selectedRating;
+          stars.forEach((s, idx) => {
+            s.style.color = idx < selectedRating ? '#ba01ff' : '#ddd';
+          });
+        });
+      });
+
+      document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+        stars.forEach((s, idx) => {
+          s.style.color = idx < selectedRating ? '#ba01ff' : '#ddd';
+        });
+      });
+    }
+
     async function runSearch() {
-      // Usa window._searchParams si existe (SPA), si no usa window.location.search (acceso directo)
       const searchStr = typeof window._searchParams === 'string' ? window._searchParams : window.location.search;
-      // Guarda los parámetros de búsqueda globalmente para restaurar después
       window._searchParams = searchStr;
       const params = new URLSearchParams(searchStr);
       const q = params.get("q");
@@ -69,22 +115,7 @@
         `;
         div.style.cursor = "pointer";
         div.addEventListener("click", () => {
-          // Animación: agranda la tarjeta seleccionada y desvanece las demás
-          const allCards = Array.from(container.querySelectorAll('.search-card'));
-          allCards.forEach(c => {
-            if (c === div) {
-              c.classList.add('selected');
-              c.classList.remove('faded');
-            } else {
-              c.classList.remove('selected');
-              c.classList.add('faded');
-            }
-          });
-          setTimeout(() => {
-            // Mostrar solo el detalle de la canción seleccionada
-            container.innerHTML = '';
-            mostrarDetalleCancion(item.id);
-          }, 350);
+          mostrarDetalleCancion(item.id);
         });
         container.appendChild(div);
       });
@@ -143,81 +174,127 @@
     }
 
     function mostrarDetalleCancion(id) {
-      // Ocupa todo el espacio del contenedor principal
-      const mainContent = document.getElementById("main-content") || document.body;
-      mainContent.innerHTML = `<div class='detalle-cancion-container' style='width:100%;height:100%;display:flex;justify-content:center;align-items:center;'><div class='search-card vertical-card' id='detalle-cancion' style='max-width:400px;width:100%;margin:auto;'></div></div>`;
+      const mainContent = document.getElementById("main-content");
+      const sections = mainContent.querySelectorAll('.search-section-title, .search-results-title');
+      sections.forEach(s => s.style.display = 'none');
+      
+      mainContent.innerHTML = `<div style='width:100%;padding:24px 0;'><div id='detalle-cancion'></div></div>`;
       const detalle = document.getElementById('detalle-cancion');
       detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
+      
       fetch(`https://attomusic.onrender.com/track/${id}`)
         .then(res => res.json())
         .then(track => {
           let img = track.album?.images?.[0]?.url || "";
+          
           detalle.innerHTML = `
-            <button id='volver-btn' class='btn btn-outline-primary' style='margin-bottom:18px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;'>⟵ Volver a resultados</button>
-            <h2 style='color:#5a189a;'>${track.name}</h2>
-            ${img ? `<img src='${img}' alt='cover' style='width:180px;height:180px;border-radius:12px;margin-bottom:12px;'>` : ""}
-            <p style='color:#ba01ff;font-weight:700;'>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
-            <p>💿 Álbum: ${track.album?.name || ""}</p>
-            <p>📅 ${track.album?.release_date || ""}</p>
-            <p>🔥 Popularidad: ${track.popularity}</p>
-            <div style='margin-top:18px;'>
-              <h4 style='color:#ba01ff;'>Califica esta canción</h4>
-              <form id='calificar-form'>
-                <input type='number' id='calificacion' min='1' max='5' required style='width:60px;border-radius:8px;border:1px solid #ba01ff;'>
-                <button type='submit' class='btn btn-primary' style='margin-left:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;'>Enviar</button>
-              </form>
-              <div id='calificacion-result'></div>
+            <button id='volver-btn' class='btn' style='margin-bottom:24px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;font-weight:700;padding:10px 24px;border-radius:12px;'>⟵ Volver a resultados</button>
+            
+            <div id='detalle-container' style='display:grid;grid-template-columns:300px 1fr;gap:32px;align-items:start;background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);padding:32px;border-radius:18px;box-shadow:0 4px 20px rgba(90,24,154,0.15);'>
+              
+              <div style='display:flex;flex-direction:column;align-items:center;'>
+                ${img ? `<img src='${img}' alt='cover' style='width:100%;max-width:280px;height:auto;border-radius:18px;margin-bottom:18px;box-shadow:0 8px 24px rgba(90,24,154,0.2);'>` : ""}
+              </div>
+              
+              <div style='display:flex;flex-direction:column;gap:16px;'>
+                <h1 class='detalle-title' style='color:#5a189a;font-size:2.5rem;font-weight:900;margin:0;'>${track.name}</h1>
+                
+                <div style='display:flex;flex-wrap:wrap;gap:24px;'>
+                  <p class='detalle-text' style='color:#ba01ff;font-weight:700;font-size:1.2rem;margin:0;'>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
+                  <p class='detalle-text' style='color:#5a189a;font-size:1.1rem;margin:0;'>💿 ${track.album?.name || ""}</p>
+                </div>
+                
+                <div style='display:flex;flex-wrap:wrap;gap:24px;'>
+                  <p class='detalle-text' style='color:#5a189a;font-size:1.1rem;margin:0;'>📅 ${track.album?.release_date || ""}</p>
+                  <p class='detalle-text' style='color:#ff9100;font-size:1.1rem;margin:0;'>🔥 Popularidad: ${track.popularity}</p>
+                </div>
+                
+                <div class='detalle-section' style='margin-top:24px;padding:24px;background:white;border-radius:12px;box-shadow:0 2px 12px rgba(90,24,154,0.08);'>
+                  <h4 style='color:#ba01ff;margin-bottom:16px;font-size:1.3rem;'>Califica esta canción</h4>
+                  <form id='calificar-form'>
+                    ${crearEstrellas()}
+                    <button type='submit' class='btn' style='margin-top:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;color:white;padding:8px 24px;border-radius:8px;font-weight:600;'>Enviar calificación</button>
+                  </form>
+                  <div id='calificacion-result' style='margin-top:12px;'></div>
+                </div>
+                
+                <div class='detalle-section' style='margin-top:16px;padding:24px;background:white;border-radius:12px;box-shadow:0 2px 12px rgba(90,24,154,0.08);'>
+                  <h4 style='color:#5a189a;margin-bottom:16px;font-size:1.3rem;'>Deja un comentario</h4>
+                  <form id='comentario-form'>
+                    <textarea id='comentario' rows='3' required class='detalle-textarea' style='width:100%;border-radius:8px;border:1px solid #5a189a;padding:12px;font-size:1rem;'></textarea>
+                    <button type='submit' class='btn' style='margin-top:10px;background:linear-gradient(160deg,#5a189a,#00dffc);border:none;width:100%;color:white;padding:10px;border-radius:8px;font-weight:600;'>Enviar comentario</button>
+                  </form>
+                  <div id='comentario-result' style='margin-top:12px;'></div>
+                </div>
+                
+              </div>
             </div>
-            <div style='margin-top:18px;'>
-              <h4 style='color:#5a189a;'>Deja un comentario</h4>
-              <form id='comentario-form'>
-                <textarea id='comentario' rows='3' required style='width:100%;border-radius:8px;border:1px solid #5a189a;padding:8px;'></textarea>
-                <button type='submit' class='btn btn-primary' style='margin-top:10px;background:linear-gradient(160deg,#5a189a,#00dffc);border:none;width:100%;'>Enviar comentario</button>
-              </form>
-              <div id='comentario-result'></div>
-            </div>
+            
+            <style>
+              /* Modo oscuro para detalle de canción */
+              [data-bs-theme="dark"] #detalle-container {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+              }
+              
+              [data-bs-theme="dark"] .detalle-title {
+                color: #b983ff !important;
+              }
+              
+              [data-bs-theme="dark"] .detalle-text {
+                color: #e0e0e0 !important;
+              }
+              
+              [data-bs-theme="dark"] .detalle-section {
+                background: #23272f !important;
+              }
+              
+              [data-bs-theme="dark"] .detalle-section h4 {
+                color: #b983ff !important;
+              }
+              
+              [data-bs-theme="dark"] .detalle-textarea {
+                background: #1a1a2e !important;
+                color: #e0e0e0 !important;
+                border-color: #b983ff !important;
+              }
+              
+              @media (max-width: 768px) {
+                #detalle-cancion > button + div {
+                  grid-template-columns: 1fr !important;
+                  text-align: center;
+                }
+                #detalle-cancion .star-rating {
+                  justify-content: center !important;
+                }
+              }
+            </style>
           `;
+          
+          activarEstrellas();
+          
           document.getElementById('volver-btn').onclick = () => {
-            // Restaurar los resultados de búsqueda usando los parámetros guardados
-            const mainContent = document.getElementById("main-content") || document.body;
-            if (window._searchParams) {
-              // Limpia el mainContent y vuelve a ejecutar la búsqueda
-              mainContent.innerHTML = `
-                <h2 class=\"search-results-title\">🔎 Resultados de búsqueda</h2>
-                <h3 class=\"search-section-title\">Canciones</h3>
-                <div id=\"results-tracks\" class=\"search-results\"></div>
-                <h3 class=\"search-section-title\">Artistas</h3>
-                <div id=\"results-artists\" class=\"search-results\"></div>
-                <h3 class=\"search-section-title\">Álbumes</h3>
-                <div id=\"results-albums\" class=\"search-results\"></div>
-              `;
-              runSearch();
-  // Back to Top functionality
-  const backToTopBtn = document.getElementById('backToTopBtn');
-  window.addEventListener('scroll', function() {
-    if (window.scrollY > 100) {
-      backToTopBtn.style.display = 'block';
-      backToTopBtn.style.opacity = '1';
-    } else {
-      backToTopBtn.style.opacity = '0';
-      setTimeout(() => {
-        if (window.scrollY <= 100) backToTopBtn.style.display = 'none';
-      }, 300);
-    }
-  });
-  backToTopBtn.addEventListener('click', function() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-            } else {
-              // Si no hay parámetros, recarga la página (fallback)
-              window.location.reload();
-            }
+            mainContent.innerHTML = `
+              <h2 class="search-results-title">🔎 Resultados de búsqueda</h2>
+              <h3 class="search-section-title">Canciones</h3>
+              <div id="results-tracks" class="search-results"></div>
+              <h3 class="search-section-title">Artistas</h3>
+              <div id="results-artists" class="search-results"></div>
+              <h3 class="search-section-title">Álbumes</h3>
+              <div id="results-albums" class="search-results"></div>
+            `;
+            runSearch();
           };
+          
           document.getElementById("calificar-form").addEventListener("submit", function(e) {
             e.preventDefault();
             const val = document.getElementById("calificacion").value;
-            document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
+            if (val > 0) {
+              document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
+            } else {
+              document.getElementById("calificacion-result").innerHTML = `<p style='color:#ff0000;'>Por favor selecciona una calificación</p>`;
+            }
           });
+          
           document.getElementById("comentario-form").addEventListener("submit", function(e) {
             e.preventDefault();
             const comentario = document.getElementById("comentario").value.trim();
