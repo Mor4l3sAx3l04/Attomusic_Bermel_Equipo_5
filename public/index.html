@@ -75,71 +75,164 @@
     <div id="main-content"></div>
   </div>
 
-  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+<!-- Modal de Login Mejorado -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-0 border-0 bg-transparent">
-      <div class="formulario">
-        <h1>ATTOMUSIC</h1>
-        <h2>Inicio de sesión</h2>
-        <form method="post">
-          <div class="username">
-            <input type="text" required>
-            <label>Usuario</label>
+    <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+      <div class="modal-body p-0">
+        <div style="padding: 48px 40px;">
+          <!-- Header con logo -->
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
+              <span style="font-size: 2.5rem; color: white;"><img alt="Icono" class="iconnavbar" src="images/iconowhite.png"></span>
+            </div>
+            <h1 style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">ATTOMUSIC</h1>
+            <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">Inicia sesión para continuar</p>
           </div>
-          <div class="username">
-            <input type="password" required>
-            <label>Contraseña</label>
-          </div>
-          <div class="recordar">¿Olvidó su Contraseña?</div>
-          <input type="submit" value="Iniciar Sesion">
-          <div class="registrate">
-            ¿No tienes una cuenta? <a href="#" data-bs-toggle="modal" data-bs-target="#registroModal" data-bs-dismiss="modal" class="aI">Regístrate</a>
-          </div>
-        </form>
+
+          <form method="post" id="loginForm">
+            <!-- Usuario -->
+            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+              <input type="text" required class="input-animated" id="loginUser"
+                style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+              <label class="label-animated" for="loginUser" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                Usuario
+              </label>
+              <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+              <input type="password" required class="input-animated" id="loginPassword"
+                style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+              <label class="label-animated" for="loginPassword" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                Contraseña
+              </label>
+              <i class="bi bi-lock-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <button type="button" class="btn-eye-login" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ba01ff; cursor: pointer; font-size: 1.2rem; z-index: 10;">
+                <i class="bi bi-eye-slash" style="color: #111;"></i>
+              </button>
+              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+            </div>
+
+            <!-- Olvidó contraseña -->
+            <div style="text-align: right; margin-bottom: 24px;">
+              <a href="#" style="color: #5a189a; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: color 0.3s;" onmouseover="this.style.color='#ba01ff'" onmouseout="this.style.color='#5a189a'">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
+            <!-- Botón submit -->
+            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(186,1,255,0.3);"
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
+              Iniciar Sesión
+            </button>
+
+            <!-- Registro -->
+            <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
+              <p style="color: #5a189a; margin: 0;">
+                ¿No tienes cuenta? 
+                <a href="#" data-bs-toggle="modal" data-bs-target="#registroModal" data-bs-dismiss="modal" 
+                  style="color: #ba01ff; text-decoration: none; font-weight: 700; transition: color 0.3s;"
+                  onmouseover="this.style.color='#00dffc'"
+                  onmouseout="this.style.color='#ba01ff'">
+                  Regístrate aquí
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Modal de Registro Mejorado -->
 <div class="modal fade" id="registroModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-0 border-0 bg-transparent">
-      <div class="formulario">
-        <h1>ATTOMUSIC</h1>
-        <h2>Registro</h2>
-        <form method="post">
-          
-          <div class="username">
-            <input type="text" required>
-            <label>Nombre</label>
+    <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+      <div class="modal-body p-0">
+        <div style="padding: 48px 40px;">
+          <!-- Header con logo -->
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
+              <span style="font-size: 2.5rem; color: white;"><img alt="Icono" class="iconnavbar" src="images/iconowhite.png"></span>
+            </div>
+            <h1 style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">ATTOMUSIC</h1>
+            <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">Crea tu cuenta</p>
           </div>
 
-          <div class="username">
-            <input type="number" min="1" max="120" required>
-            <label>Edad</label>
-          </div>
+          <form method="post" id="registroForm">
+            <!-- Nombre -->
+            <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
+              <input type="text" required class="input-animated" id="registerName"
+                style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+              <label class="label-animated" for="registerName" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                Nombre completo
+              </label>
+              <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+            </div>
 
-          <div class="username">
-            <input type="email" required>
-            <label>Correo electrónico</label>
-          </div>
+            <!-- Edad -->
+            <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
+              <input type="number" min="1" max="120" required class="input-animated" id="registerAge"
+                style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+              <label class="label-animated" for="registerAge" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                Edad
+              </label>
+              <i class="bi bi-calendar-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+            </div>
 
-          <div class="username position-relative">
-            <input type="password" required id="registerPassword">
-            <label>Contraseña</label>
-            <button type="button" tabindex="-1" class="btn-eye" id="togglePassword" aria-label="Mostrar/Ocultar contraseña">
-              <i class="bi bi-eye-slash"></i>
+            <!-- Correo -->
+            <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
+              <input type="email" required class="input-animated" id="registerEmail"
+                style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+              <label class="label-animated" for="registerEmail" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                Correo electrónico
+              </label>
+              <i class="bi bi-envelope-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+              <input type="password" required class="input-animated" id="registerPassword"
+                style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+              <label class="label-animated" for="registerPassword" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                Contraseña
+              </label>
+              <i class="bi bi-lock-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <button type="button" id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ba01ff; cursor: pointer; font-size: 1.2rem; z-index: 10;">
+                <i class="bi bi-eye-slash" style="color: #111;"></i>
+              </button>
+              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+            </div>
+
+            <!-- Botón submit -->
+            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(186,1,255,0.3);"
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
+              Crear Cuenta
             </button>
-          </div>
 
-          <div class="recordar">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal" class="aI">
-              ¿Ya tienes cuenta? Inicia sesión
-            </a>
-          </div>
-
-          <input type="submit" value="Registrarse">
-        </form>
+            <!-- Login -->
+            <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
+              <p style="color: #5a189a; margin: 0;">
+                ¿Ya tienes cuenta? 
+                <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal" 
+                  style="color: #ba01ff; text-decoration: none; font-weight: 700; transition: color 0.3s;"
+                  onmouseover="this.style.color='#00dffc'"
+                  onmouseout="this.style.color='#ba01ff'">
+                  Inicia sesión
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -148,201 +241,230 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // --- Sanitización y validación global ---
-    function sanitizeInput(str) {
-      if (typeof str !== "string") return "";
-      str = str.replace(/<[^>]*>?/gm, "");
-      str = str.replace(/(javascript:|data:|vbscript:)/gi, "");
-      str = str.replace(/<\?(php)?[\s\S]*?\?>/gi, "");
-      str = str.replace(/<style[\s\S]*?<\/style>/gi, "");
-      str = str.replace(/<script[\s\S]*?<\/script>/gi, "");
-      str = str.trim().replace(/\s{2,}/g, " ");
-      return str;
+  // --- Sanitización y validación global ---
+  function sanitizeInput(str) {
+    if (typeof str !== "string") return "";
+    str = str.replace(/<[^>]*>?/gm, "");
+    str = str.replace(/(javascript:|data:|vbscript:)/gi, "");
+    str = str.replace(/<\?(php)?[\s\S]*?\?>/gi, "");
+    str = str.replace(/<style[\s\S]*?<\/style>/gi, "");
+    str = str.replace(/<script[\s\S]*?<\/script>/gi, "");
+    str = str.trim().replace(/\s{2,}/g, " ");
+    return str;
+  }
+
+  function isNotEmpty(str) {
+    return typeof str === "string" && str.trim().length > 0;
+  }
+
+  function allowOnlyNumbers(e) {
+    if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
+      e.preventDefault();
     }
-    function isNotEmpty(str) {
-      return typeof str === "string" && str.trim().length > 0;
-    }
-    function allowOnlyNumbers(e) {
-      if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
-        e.preventDefault();
-      }
-    }
+  }
 
-    document.addEventListener("DOMContentLoaded", function () {
-      // Inicializar tooltips de Bootstrap
-      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-        new bootstrap.Tooltip(tooltipTriggerEl);
-      });
-
-      // Carga inicial
-      loadPage('bienvenido.html');
-
-      // --- Buscador ---
-      const searchBtn = document.getElementById("searchBtn");
-      const searchInput = document.getElementById("searchInput");
-      if (searchInput) {
-        searchInput.addEventListener("input", function () {
-          this.value = sanitizeInput(this.value);
-        });
-      }
-      if (searchBtn && searchInput) {
-        searchBtn.addEventListener("click", () => {
-          if (!searchInput.classList.contains("active")) {
-            searchInput.classList.add("active");
-            searchInput.focus();
-          } else {
-            const query = sanitizeInput(searchInput.value.trim());
-            if (isNotEmpty(query)) {
-              loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
-            } else {
-              searchInput.classList.add("is-invalid");
-            }
-          }
-        });
-        searchInput.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            const query = sanitizeInput(searchInput.value.trim());
-            if (isNotEmpty(query)) {
-              loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
-            } else {
-              searchInput.classList.add("is-invalid");
-            }
-          }
-        });
-        searchInput.addEventListener("blur", function() {
-          if (isNotEmpty(this.value)) {
-            this.classList.remove("is-invalid");
-          }
-        });
-      }
-
-      // --- Formularios de registro/login/comentarios ---
-      document.querySelectorAll("form").forEach(form => {
-        form.addEventListener("submit", function(e) {
-          let valid = true;
-          this.querySelectorAll("input, textarea").forEach(input => {
-            // Sanitiza
-            input.value = sanitizeInput(input.value);
-            // No permite campos vacíos o solo espacios
-            if (!isNotEmpty(input.value)) {
-              valid = false;
-              input.classList.add("is-invalid");
-              // Quitar el rojo después de 2 segundos
-              setTimeout(() => input.classList.remove("is-invalid"), 5000);
-            } else {
-              input.classList.remove("is-invalid");
-            }
-            // Solo números en inputs numéricos
-            if (input.type === "number") {
-              if (!/^\d+$/.test(input.value)) {
-                valid = false;
-                input.classList.add("is-invalid");
-                setTimeout(() => input.classList.remove("is-invalid"), 2000);
-              }
-            }
-          // Quitar el rojo si el usuario interactúa de nuevo
-          this.querySelectorAll("input, textarea").forEach(input => {
-            input.addEventListener("input", function() {
-              if (isNotEmpty(this.value)) {
-                this.classList.remove("is-invalid");
-              }
-            });
-            input.addEventListener("focus", function() {
-              this.classList.remove("is-invalid");
-            });
-          });
-          });
-          if (!valid) {
-            e.preventDefault();
-            alert("Por favor, completa todos los campos correctamente.");
-          }
-        });
-        // Solo números en inputs numéricos (en tiempo real)
-        form.querySelectorAll('input[type="number"]').forEach(input => {
-          input.addEventListener("keypress", allowOnlyNumbers);
-        });
-      });
+  document.addEventListener("DOMContentLoaded", function () {
+    // --- Inicializar tooltips de Bootstrap ---
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const togglePassword = document.getElementById("togglePassword");
-      const passwordInput = document.getElementById("registerPassword");
+    // --- Carga inicial ---
+    loadPage('bienvenido.html');
 
-      if (togglePassword && passwordInput) {
-        togglePassword.addEventListener("click", function () {
-          const isPassword = passwordInput.type === "password";
-          passwordInput.type = isPassword ? "text" : "password";
+    // --- Buscador ---
+    const searchBtn = document.getElementById("searchBtn");
+    const searchInput = document.getElementById("searchInput");
 
-          // Cambiar icono
-          const icon = this.querySelector("i");
-          if (isPassword) {
-            icon.classList.remove("bi-eye-slash");
-            icon.classList.add("bi-eye");
+    if (searchInput) {
+      searchInput.addEventListener("input", function () {
+        this.value = sanitizeInput(this.value);
+      });
+    }
+
+    if (searchBtn && searchInput) {
+      searchBtn.addEventListener("click", () => {
+        if (!searchInput.classList.contains("active")) {
+          searchInput.classList.add("active");
+          searchInput.focus();
+        } else {
+          const query = sanitizeInput(searchInput.value.trim());
+          if (isNotEmpty(query)) {
+            loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
           } else {
-            icon.classList.remove("bi-eye");
-            icon.classList.add("bi-eye-slash");
-          }
-        });
-      }
-    });
-  </script>
-
-  <script>
-      // Función para cargar páginas en el div
-      function loadPage(url) {
-        // Detecta si está en Live Server (ruta contiene /public/)
-        let pagePath = url;
-        if (!url.startsWith('http') && !url.startsWith('/')) {
-          // Si la URL no es absoluta, prepende 'public/' si está en Live Server
-          if (window.location.pathname.includes('/public/')) {
-            pagePath = 'public/' + url.replace(/^\/?/, '');
+            searchInput.classList.add("is-invalid");
           }
         }
-        // Extraer parámetros si existen
-        const urlObj = new URL(pagePath, window.location.origin);
-        const params = urlObj.search;
-        fetch(urlObj.pathname)
-          .then(res => res.text())
-          .then(html => {
-            const mainContent = document.getElementById('main-content');
-            mainContent.innerHTML = html;
-            window.scrollTo(0, 0);
+      });
 
-            // Ejecutar los scripts internos del HTML cargado y pasarle los parámetros
-            const scripts = mainContent.querySelectorAll('script');
-            scripts.forEach(oldScript => {
-              const newScript = document.createElement('script');
-              if (oldScript.src) {
-                newScript.src = oldScript.src;
-              } else {
-                // Si es buscador.html, inyecta los parámetros
-                if (urlObj.pathname.endsWith('buscador.html')) {
-                  newScript.textContent = `window._searchParams = '${params}';\n` + oldScript.textContent;
-                } else {
-                  newScript.textContent = oldScript.textContent;
-                }
-              }
-              document.body.appendChild(newScript);
-              setTimeout(() => newScript.remove(), 1000);
-            });
-          })
-          .catch(() => {
-            document.getElementById('main-content').innerHTML = '<div style="padding:40px;text-align:center;color:#ba01ff;font-size:2rem;">No se pudo cargar la página.</div>';
-          });
-      }
-
-      // Asignar evento a los links
-      document.querySelectorAll(".load-page").forEach(link => {
-        link.addEventListener("click", function(e) {
+      searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
           e.preventDefault();
-          const href = this.getAttribute("href");
-          if(href !== "#") {
-            loadPage(href);
+          const query = sanitizeInput(searchInput.value.trim());
+          if (isNotEmpty(query)) {
+            loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
+          } else {
+            searchInput.classList.add("is-invalid");
+          }
+        }
+      });
+
+      searchInput.addEventListener("blur", function() {
+        if (isNotEmpty(this.value)) {
+          this.classList.remove("is-invalid");
+        }
+      });
+    }
+
+    // --- Formularios (registro/login/comentarios) ---
+    document.querySelectorAll("form").forEach(form => {
+      form.addEventListener("submit", function(e) {
+        let valid = true;
+        this.querySelectorAll("input, textarea").forEach(input => {
+          input.value = sanitizeInput(input.value);
+          if (!isNotEmpty(input.value)) {
+            valid = false;
+            input.classList.add("is-invalid");
+            setTimeout(() => input.classList.remove("is-invalid"), 5000);
+          } else {
+            input.classList.remove("is-invalid");
+          }
+          if (input.type === "number" && !/^\d+$/.test(input.value)) {
+            valid = false;
+            input.classList.add("is-invalid");
+            setTimeout(() => input.classList.remove("is-invalid"), 2000);
           }
         });
+        if (!valid) {
+          e.preventDefault();
+          alert("Por favor, completa todos los campos correctamente.");
+        }
       });
-  </script>
+
+      // Validación en tiempo real para números
+      form.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener("keypress", allowOnlyNumbers);
+      });
+
+      // Quitar el rojo al interactuar
+      form.querySelectorAll("input, textarea").forEach(input => {
+        input.addEventListener("input", function() {
+          if (isNotEmpty(this.value)) this.classList.remove("is-invalid");
+        });
+        input.addEventListener("focus", function() {
+          this.classList.remove("is-invalid");
+        });
+      });
+    });
+
+    // --- Animación de labels y toggles de contraseñas ---
+    const inputs = document.querySelectorAll('.input-animated');
+    inputs.forEach(input => {
+      const label = input.parentElement.querySelector('.label-animated');
+      const border = input.parentElement.querySelector('.input-border');
+
+      input.addEventListener('focus', function() {
+        if (label) {
+          label.style.top = '-10px';
+          label.style.fontSize = '0.85rem';
+          label.style.color = '#ba01ff';
+          label.style.fontWeight = '600';
+        }
+        if (border) border.style.width = '100%';
+        this.style.borderColor = '#00dffc';
+        this.style.boxShadow = '0 0 0 3px rgba(0,223,252,0.1)';
+      });
+
+      input.addEventListener('blur', function() {
+        if (this.value === '' && label) {
+          label.style.top = '50%';
+          label.style.fontSize = '1rem';
+          label.style.color = '#999';
+          label.style.fontWeight = '400';
+        }
+        if (border) border.style.width = '0%';
+        this.style.borderColor = '#ba01ff';
+        this.style.boxShadow = 'none';
+      });
+
+      if (input.value !== '' && label) {
+        label.style.top = '-10px';
+        label.style.fontSize = '0.85rem';
+        label.style.color = '#ba01ff';
+        label.style.fontWeight = '600';
+      }
+    });
+
+    // --- Toggle de contraseñas (login y registro) ---
+    function setupPasswordToggle(buttonSelector, inputId) {
+      const btn = document.querySelector(buttonSelector);
+      const input = document.getElementById(inputId);
+      if (btn && input) {
+        btn.addEventListener('click', function() {
+          const isPassword = input.type === 'password';
+          input.type = isPassword ? 'text' : 'password';
+          const icon = this.querySelector('i');
+          icon.classList.toggle('bi-eye-slash');
+          icon.classList.toggle('bi-eye');
+        });
+      }
+    }
+    setupPasswordToggle('.btn-eye-login', 'loginPassword');
+    setupPasswordToggle('#togglePassword', 'registerPassword');
+  });
+
+  // --- Carga dinámica de páginas ---
+  function loadPage(url) {
+    let pagePath = url;
+    if (!url.startsWith('http') && !url.startsWith('/')) {
+      if (window.location.pathname.includes('/public/')) {
+        pagePath = 'public/' + url.replace(/^\/?/, '');
+      }
+    }
+
+    const urlObj = new URL(pagePath, window.location.origin);
+    const params = urlObj.search;
+
+    fetch(urlObj.pathname)
+      .then(res => res.text())
+      .then(html => {
+        const mainContent = document.getElementById('main-content');
+        mainContent.innerHTML = html;
+        window.scrollTo(0, 0);
+
+        const scripts = mainContent.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+          const newScript = document.createElement('script');
+          if (oldScript.src) {
+            newScript.src = oldScript.src;
+          } else {
+            if (urlObj.pathname.endsWith('buscador.html')) {
+              newScript.textContent = `window._searchParams = '${params}';\n` + oldScript.textContent;
+            } else {
+              newScript.textContent = oldScript.textContent;
+            }
+          }
+          document.body.appendChild(newScript);
+          setTimeout(() => newScript.remove(), 1000);
+        });
+      })
+      .catch(() => {
+        document.getElementById('main-content').innerHTML =
+          '<div style="padding:40px;text-align:center;color:#ba01ff;font-size:2rem;">No se pudo cargar la página.</div>';
+      });
+  }
+
+  // --- Asignar eventos a los links dinámicos ---
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".load-page").forEach(link => {
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        const href = this.getAttribute("href");
+        if (href !== "#") loadPage(href);
+      });
+    });
+  });
+</script>
 </body>
 </html>
