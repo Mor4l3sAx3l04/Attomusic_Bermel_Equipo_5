@@ -277,12 +277,6 @@
     const searchBtn = document.getElementById("searchBtn");
     const searchInput = document.getElementById("searchInput");
 
-    if (searchInput) {
-      searchInput.addEventListener("input", function () {
-        this.value = sanitizeInput(this.value);
-      });
-    }
-
     if (searchBtn && searchInput) {
       searchBtn.addEventListener("click", () => {
         if (!searchInput.classList.contains("active")) {
@@ -301,7 +295,7 @@
       searchInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
-          const query = sanitizeInput(searchInput.value.trim());
+          const query = sanitizeInput(searchInput.value);
           if (isNotEmpty(query)) {
             loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
           } else {
