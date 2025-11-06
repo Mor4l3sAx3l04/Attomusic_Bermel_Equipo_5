@@ -1,6 +1,4 @@
-// ===============================
 // app.js
-// ===============================
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -10,23 +8,20 @@ const axios = require("axios");
 
 // 👇 IMPORTA las rutas de Spotify
 const spotifyRoutes = require("./routes/spotify");
+const newsRoutes = require("./routes/news");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ===============================
-// CONFIGURACIONES BÁSICAS
-// ===============================
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
 // Usa las rutas Spotify en /spotify
 app.use("/spotify", spotifyRoutes);
+app.use("/music-news", newsRoutes);
 
-// ===============================
 // CONEXIÓN A POSTGRESQL
-// ===============================
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -36,9 +31,7 @@ pool.connect()
   .then(() => console.log("✅ Conectado a PostgreSQL"))
   .catch(err => console.error("❌ Error de conexión:", err));
 
-// ===============================
 // RUTA: Registro de usuario
-// ===============================
 app.post("/register", async (req, res) => {
   const { usuario, correo, contrasena } = req.body;
 
@@ -74,9 +67,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// ===============================
 // RUTA: Inicio de sesión
-// ===============================
 app.post("/login", async (req, res) => {
   const { usuario, contrasena } = req.body;
 
@@ -114,27 +105,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// ===============================
-// 📰 Noticias musicales
-// ===============================
-app.get('/music-news', async (req, res) => {
-  const apiKey = process.env.THENEWSAPI_KEY;
-  if (!apiKey)
-    return res.status(500).json({ error: 'Falta THENEWSAPI_KEY en .env' });
-
-  const url = `https://newsapi.org/v2/everything?q=music&language=es&sortBy=publishedAt&apiKey=${apiKey}`;
-
-  try {
-    const response = await axios.get(url);
-    res.json(response.data);
-  } catch (err) {
-    res.status(500).json({ error: 'Error obteniendo noticias musicales' });
-  }
-});
-
-// ===============================
 // 🚀 Servidor
-// ===============================
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
