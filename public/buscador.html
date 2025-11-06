@@ -82,7 +82,7 @@
         return;
       }
 
-      const res = await fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(q)}&type=${type}`);
+      const res = await fetch(`https://attomusic.onrender.com/spotify/search?q=${encodeURIComponent(q)}&type=${type}`);
       const data = await res.json();
 
       mostrarTracks(data.tracks?.items || []);
@@ -182,7 +182,7 @@
       const detalle = document.getElementById('detalle-cancion');
       detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
       
-      fetch(`https://attomusic.onrender.com/track/${id}`)
+      fetch(`https://attomusic.onrender.com/spotify/track/${id}`)
         .then(res => res.json())
         .then(track => {
           let img = track.album?.images?.[0]?.url || "";
