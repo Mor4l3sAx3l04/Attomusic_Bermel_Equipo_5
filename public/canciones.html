@@ -124,7 +124,7 @@
       let allTracks = [];
 
       const peticiones = generos.map(genero =>
-        fetch(`https://attomusic.onrender.com/search?q=${encodeURIComponent(genero.query)}&type=track&limit=12`)
+        fetch(`https://attomusic.onrender.com/spotify/search?q=${encodeURIComponent(genero.query)}&type=track&limit=12`)
           .then(res => res.json())
           .then(data => ({ genero, data }))
       );
@@ -174,7 +174,7 @@
       const detalle = document.getElementById('detalle-cancion');
       detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
       
-      const res = await fetch(`https://attomusic.onrender.com/track/${id}`);
+      const res = await fetch(`https://attomusic.onrender.com/spotify/track/${id}`);
       const track = await res.json();
       let img = track.album?.images?.[0]?.url || "";
       
