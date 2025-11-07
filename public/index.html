@@ -25,8 +25,8 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto align-items-center">
-            <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal"> Iniciar Sesión </a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registroModal"> Registrarse </a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" id="btn-login"> Iniciar Sesión </a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registroModal" id="btn-register"> Registrarse </a></li>
             <li class="nav-item">
               <a class="nav-link load-page" href="canciones.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Canciones">
                 <i class="bi bi-music-note-list"></i>
@@ -55,15 +55,19 @@
             </button>
           </li>
 
-          <li class="nav-item dropdown ms-3">
+          <li class="nav-item dropdown ms-3" id="perfil-container" style="display: none;">
             <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-bs-toggle="dropdown">
               <img src="https://i.pravatar.cc/150?img=12" alt="Perfil" class="profile-pic">
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <!-- Aquí se mostrará el nombre del usuario -->
+                <span class="dropdown-item-text fw-bold" id="perfil-nombre"></span>
+              </li>
               <li><a class="dropdown-item load-page" href="perfil.html">Ver Perfil</a></li>
               <li><a class="dropdown-item load-page" href="#">Configuración</a></li>
               <li><hr class="dropdown-divider load-page"></li>
-              <li><a class="dropdown-item text-danger load-page" href="#">Cerrar Sesión</a></li>
+              <li><a class="dropdown-item text-danger load-page" href="#" id="btn-logout">Cerrar Sesión</a></li>
             </ul>
           </li>
         </ul>
