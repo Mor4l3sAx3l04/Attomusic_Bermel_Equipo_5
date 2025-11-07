@@ -1,7 +1,4 @@
 // app.js
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -16,6 +13,7 @@ const newsRoutes = require("./routes/news");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
