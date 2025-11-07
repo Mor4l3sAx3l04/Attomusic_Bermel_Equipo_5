@@ -540,3 +540,26 @@ i{
 [data-bs-theme="dark"] .modal-content a:hover {
   color: #00dffc !important;
 }
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #222;
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s, transform 0.4s;
+  transform: translateY(20px);
+  z-index: 9999;
+  font-size: 0.95rem;
+}
+.toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.toast.success { background: #28a745; }
+.toast.error { background: #dc3545; }
