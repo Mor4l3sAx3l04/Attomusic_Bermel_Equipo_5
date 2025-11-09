@@ -178,10 +178,8 @@ setupPasswordToggle('#togglePassword', 'registerPassword');
 // --- Carga dinámica de páginas ---
 function loadPage(url) {
 let pagePath = url;
-if (!url.startsWith('http') && !url.startsWith('/')) {
-    if (window.location.pathname.includes('/public/')) {
-    pagePath = 'public/' + url.replace(/^\/?/, '');
-    }
+if (!url.startsWith('http')) {
+    pagePath = '/' + url.replace(/^\/?/, '');
 }
 
 const urlObj = new URL(pagePath, window.location.origin);
@@ -256,7 +254,7 @@ try {
     bootstrap.Modal.getInstance(document.getElementById("registroModal")).hide();
     this.reset();
 
-    localStorage.setItem("usuario", JSON.stringify({ usuario }));
+    localStorage.setItem("usuario", JSON.stringify({ usuario, correo }));
     actualizarInterfaz();
 
     } else {
@@ -297,7 +295,7 @@ if (formLogin) {
         bootstrap.Modal.getInstance(document.getElementById("loginModal")).hide();
         this.reset();
 
-        localStorage.setItem("usuario", JSON.stringify({ usuario }));
+        localStorage.setItem("usuario", JSON.stringify({ usuario: data.user.usuario, correo: data.user.correo }));
         actualizarInterfaz();
 
         } else {

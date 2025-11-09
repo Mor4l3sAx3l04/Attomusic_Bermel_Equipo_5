@@ -563,3 +563,100 @@ i{
 }
 .toast.success { background: #28a745; }
 .toast.error { background: #dc3545; }
+
+.btn-publicar {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(186, 1, 255, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1050;
+}
+
+.btn-publicar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(186, 1, 255, 0.4);
+}
+
+/* ===== Estilos específicos de publicacion.html ===== */
+.publicacion-card {
+  background: var(--bs-body-bg);
+  border: 2px solid rgba(186,1,255,0.25);
+  border-radius: 14px;
+  transition: background 0.4s ease, border 0.4s ease;
+}
+
+.textarea-pub {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--bs-body-color);
+  resize: none;
+}
+[data-bs-theme="light"] .textarea-pub {
+  background: #f8f9fa;
+  color: #111;
+  border-color: rgba(0,0,0,0.15);
+}
+.textarea-pub:focus {
+  border-color: #ba01ff;
+  box-shadow: 0 0 8px rgba(186,1,255,0.3);
+}
+
+.btn-gradient {
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(186,1,255,0.4);
+}
+
+.feed-publicaciones article {
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #ba01ff;
+  transition: background 0.3s, transform 0.2s;
+}
+.feed-publicaciones article:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+}
+[data-bs-theme="light"] .feed-publicaciones article {
+  background: #f7f7f7;
+  border-left: 4px solid #5a189a;
+}
+
+.feed-publicaciones strong {
+  color: #b983ff;
+}
+[data-bs-theme="light"] .feed-publicaciones strong {
+  color: #5a189a;
+}
+
+.transition-bg {
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

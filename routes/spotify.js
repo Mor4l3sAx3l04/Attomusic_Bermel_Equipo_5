@@ -106,4 +106,14 @@ router.get("/album/:id", withToken, async (req, res) => {
   }
 });
 
+router.get("/token", async (req, res) => {
+  try {
+    const token = await getAccessToken();
+    res.json({ access_token: token });
+  } catch (err) {
+    console.error("Error obteniendo token:", err);
+    res.status(500).json({ error: "No se pudo obtener el token" });
+  }
+});
+
 module.exports = router;
