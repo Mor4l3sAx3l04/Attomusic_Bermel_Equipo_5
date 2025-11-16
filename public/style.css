@@ -660,3 +660,359 @@ i{
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ===== ESTILOS PARA PUBLICACIONES ===== */
+
+.publicacion-item {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(90, 24, 154, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(90, 24, 154, 0.1);
+}
+
+.publicacion-item:hover {
+  box-shadow: 0 4px 20px rgba(90, 24, 154, 0.15);
+  transform: translateY(-2px);
+}
+
+[data-bs-theme="dark"] .publicacion-item {
+  background: #1e2128;
+  border-color: rgba(185, 131, 255, 0.2);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .publicacion-item:hover {
+  box-shadow: 0 4px 20px rgba(185, 131, 255, 0.25);
+}
+
+/* Header de la publicación */
+.pub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.pub-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pub-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ba01ff, #00dffc);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.pub-username {
+  color: #5a189a;
+  font-size: 1rem;
+  font-weight: 600;
+  display: block;
+}
+
+[data-bs-theme="dark"] .pub-username {
+  color: #b983ff;
+}
+
+.pub-fecha {
+  color: #999;
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 2px;
+}
+
+[data-bs-theme="dark"] .pub-fecha {
+  color: #777;
+}
+
+/* Contenido de la publicación */
+.pub-content {
+  margin-bottom: 15px;
+}
+
+.pub-text {
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+[data-bs-theme="dark"] .pub-text {
+  color: #e0e0e0;
+}
+
+/* Canción en la publicación */
+.pub-cancion {
+  background: linear-gradient(135deg, rgba(186, 1, 255, 0.05), rgba(0, 223, 252, 0.05));
+  border: 1px solid rgba(186, 1, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.pub-cancion:hover {
+  background: linear-gradient(135deg, rgba(186, 1, 255, 0.08), rgba(0, 223, 252, 0.08));
+  border-color: rgba(186, 1, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .pub-cancion {
+  background: linear-gradient(135deg, rgba(186, 1, 255, 0.1), rgba(0, 223, 252, 0.1));
+  border-color: rgba(185, 131, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .pub-cancion:hover {
+  background: linear-gradient(135deg, rgba(186, 1, 255, 0.15), rgba(0, 223, 252, 0.15));
+  border-color: rgba(185, 131, 255, 0.4);
+}
+
+.pub-cancion-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pub-cancion-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pub-cancion-nombre {
+  color: #5a189a;
+  font-size: 1rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-bs-theme="dark"] .pub-cancion-nombre {
+  color: #b983ff;
+}
+
+.pub-cancion-artista {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-bs-theme="dark"] .pub-cancion-artista {
+  color: #aaa;
+}
+
+.pub-cancion-album {
+  color: #999;
+  font-size: 0.8rem;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-bs-theme="dark"] .pub-cancion-album {
+  color: #888;
+}
+
+/* Acciones (like, comentar) */
+.pub-actions {
+  display: flex;
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .pub-actions {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.pub-btn {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.pub-btn:hover {
+  background: rgba(186, 1, 255, 0.08);
+  color: #ba01ff;
+}
+
+[data-bs-theme="dark"] .pub-btn {
+  color: #aaa;
+}
+
+[data-bs-theme="dark"] .pub-btn:hover {
+  background: rgba(185, 131, 255, 0.15);
+  color: #b983ff;
+}
+
+.pub-btn i {
+  font-size: 1.2rem;
+}
+
+.pub-btn-like.liked {
+  color: #ff3b5c;
+}
+
+.pub-btn-like.liked:hover {
+  color: #ff1a3f;
+  background: rgba(255, 59, 92, 0.1);
+}
+
+.pub-count {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Sección de comentarios */
+.pub-comentarios {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .pub-comentarios {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.comentarios-lista {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.comentario-item {
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+[data-bs-theme="dark"] .comentario-item {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.comentario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.comentario-header strong {
+  color: #5a189a;
+  font-size: 0.9rem;
+}
+
+[data-bs-theme="dark"] .comentario-header strong {
+  color: #b983ff;
+}
+
+.comentario-header small {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.comentario-text {
+  color: #333;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+[data-bs-theme="dark"] .comentario-text {
+  color: #e0e0e0;
+}
+
+.comentario-form textarea {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #333;
+  border-radius: 8px;
+  resize: none;
+}
+
+.comentario-form textarea:focus {
+  border-color: #ba01ff;
+  box-shadow: 0 0 0 0.2rem rgba(186, 1, 255, 0.15);
+}
+
+[data-bs-theme="dark"] .comentario-form textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .comentario-form textarea:focus {
+  border-color: #b983ff;
+  box-shadow: 0 0 0 0.2rem rgba(185, 131, 255, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .publicacion-item {
+    padding: 15px;
+  }
+  
+  .pub-cancion {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .pub-cancion-img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  
+  .pub-actions {
+    justify-content: center;
+  }
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
