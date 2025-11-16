@@ -1016,3 +1016,437 @@ i{
 .fade-in {
   animation: fadeIn 0.5s ease;
 }
+
+/* ===== ESTILOS DE PERFIL ===== */
+
+.perfil-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.perfil-header {
+  background: linear-gradient(135deg, rgba(186, 1, 255, 0.05), rgba(0, 223, 252, 0.05));
+  border: 2px solid rgba(186, 1, 255, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 20px rgba(90, 24, 154, 0.1);
+}
+
+[data-bs-theme="dark"] .perfil-header {
+  background: linear-gradient(135deg, rgba(186, 1, 255, 0.1), rgba(0, 223, 252, 0.1));
+  border-color: rgba(185, 131, 255, 0.3);
+}
+
+.perfil-foto-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.perfil-foto {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ba01ff;
+  box-shadow: 0 4px 16px rgba(186, 1, 255, 0.3);
+}
+
+.perfil-foto-edit {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.perfil-foto-edit:hover {
+  transform: scale(1.1);
+}
+
+.perfil-info {
+  flex: 1;
+}
+
+.perfil-nombre {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #5a189a;
+  margin: 0 0 10px 0;
+}
+
+[data-bs-theme="dark"] .perfil-nombre {
+  color: #b983ff;
+}
+
+.perfil-correo {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0 0 10px 0;
+}
+
+[data-bs-theme="dark"] .perfil-correo {
+  color: #aaa;
+}
+
+.perfil-fecha {
+  color: #999;
+  font-size: 0.95rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #5a189a;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+[data-bs-theme="dark"] .section-title {
+  color: #b983ff;
+}
+
+.publicaciones-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.pub-actions-inline {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-icon-action {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 1.1rem;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.btn-icon-action:hover {
+  background: rgba(186, 1, 255, 0.1);
+  color: #ba01ff;
+}
+
+[data-bs-theme="dark"] .btn-icon-action {
+  color: #aaa;
+}
+
+[data-bs-theme="dark"] .btn-icon-action:hover {
+  background: rgba(185, 131, 255, 0.15);
+  color: #b983ff;
+}
+
+.pub-stats {
+  display: flex;
+  gap: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  color: #999;
+  font-size: 0.9rem;
+}
+
+[data-bs-theme="dark"] .pub-stats {
+  border-top-color: rgba(255, 255, 255, 0.1);
+  color: #777;
+}
+
+.pub-stats i {
+  margin-right: 5px;
+}
+
+/* Modal de cámara */
+.camera-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.camera-container {
+  text-align: center;
+}
+
+.camera-controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .perfil-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+  }
+
+  .perfil-foto {
+    width: 120px;
+    height: 120px;
+  }
+
+  .perfil-nombre {
+    font-size: 1.5rem;
+  }
+}
+
+/* Avatar con imagen */
+.pub-avatar-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(186, 1, 255, 0.3);
+}
+
+/* Foto de perfil en el navbar */
+.profile-pic {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+/* ===== CORRECCIÓN DE COLORES DE ICONOS (FORZADO) ===== */
+
+/* Iconos del perfil en modo claro - SIEMPRE VISIBLES */
+[data-bs-theme="light"] .perfil-fecha i,
+[data-bs-theme="light"] .section-title i {
+  color: #5a189a !important;
+}
+
+/* Botones de editar/borrar en modo claro */
+[data-bs-theme="light"] .btn-icon-action {
+  color: #5a189a !important;
+}
+
+[data-bs-theme="light"] .btn-icon-action:hover {
+  background: rgba(186, 1, 255, 0.1) !important;
+  color: #ba01ff !important;
+}
+
+[data-bs-theme="light"] .btn-icon-action.text-danger {
+  color: #dc3545 !important;
+}
+
+[data-bs-theme="light"] .btn-icon-action.text-danger:hover {
+  background: rgba(220, 53, 69, 0.1) !important;
+  color: #c82333 !important;
+}
+
+/* Botones de like y comentar en modo claro */
+[data-bs-theme="light"] .pub-btn {
+  color: #5a189a !important;
+}
+
+[data-bs-theme="light"] .pub-btn:hover {
+  background: rgba(186, 1, 255, 0.1) !important;
+  color: #ba01ff !important;
+}
+
+[data-bs-theme="light"] .pub-btn i {
+  color: inherit !important;
+}
+
+/* Like activo en modo claro */
+[data-bs-theme="light"] .pub-btn-like.liked {
+  color: #ff3b5c !important;
+}
+
+[data-bs-theme="light"] .pub-btn-like.liked:hover {
+  color: #ff1a3f !important;
+  background: rgba(255, 59, 92, 0.1) !important;
+}
+
+/* Stats del perfil en modo claro */
+[data-bs-theme="light"] .pub-stats {
+  color: #666 !important;
+}
+
+[data-bs-theme="light"] .pub-stats i {
+  color: #5a189a !important;
+}
+
+/* ICONOS EN MODO CLARO - SIN TEMA DE BOOTSTRAP */
+body:not([data-bs-theme="dark"]) .btn-icon-action {
+  color: #5a189a !important;
+}
+
+body:not([data-bs-theme="dark"]) .pub-btn {
+  color: #5a189a !important;
+}
+
+body:not([data-bs-theme="dark"]) .pub-stats i {
+  color: #5a189a !important;
+}
+
+body:not([data-bs-theme="dark"]) .perfil-fecha i,
+body:not([data-bs-theme="dark"]) .section-title i {
+  color: #5a189a !important;
+}
+
+/* Botón de editar foto en modo claro - mantener gradiente visible */
+.perfil-foto-edit {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border: none;
+  color: white !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.perfil-foto-edit i {
+  color: white !important;
+}
+
+/* Asegurar que el título de sección tenga buen contraste */
+[data-bs-theme="light"] .section-title {
+  color: #5a189a;
+}
+
+/* Iconos del header de publicación en modo claro */
+[data-bs-theme="light"] .pub-fecha {
+  color: #666;
+}
+
+/* Placeholder de imagen de canción - siempre visible */
+.pub-cancion-img-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ba01ff, #00dffc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Asegurar que los iconos de bootstrap sean visibles */
+[data-bs-theme="light"] .bi {
+  color: inherit;
+}
+
+/* Botones con gradiente - siempre visibles */
+.btn-gradient {
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border: none;
+  color: #fff !important;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-gradient i {
+  color: white !important;
+}
+
+/* Avatar con inicial - siempre con gradiente visible */
+.pub-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ba01ff, #00dffc);
+  color: white !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ===== MEJORAS ADICIONALES DE VISIBILIDAD ===== */
+
+/* Iconos de comentarios en modo claro */
+[data-bs-theme="light"] .comentario-header strong {
+  color: #5a189a;
+}
+
+[data-bs-theme="light"] .comentario-header small {
+  color: #666;
+}
+
+/* Contador de likes/comentarios más visible */
+.pub-count {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+/* Separador más visible en modo claro */
+[data-bs-theme="light"] .pub-actions {
+  border-top-color: rgba(90, 24, 154, 0.1);
+}
+
+[data-bs-theme="light"] .pub-comentarios {
+  border-top-color: rgba(90, 24, 154, 0.1);
+}
+
+/* Mejorar contraste del texto en publicaciones */
+[data-bs-theme="light"] .pub-text {
+  color: #222;
+}
+
+[data-bs-theme="light"] .pub-username {
+  color: #5a189a;
+  font-weight: 700;
+}
+
+/* Botón flotante de publicar - siempre visible */
+.btn-publicar {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  color: white !important;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(186, 1, 255, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1050;
+}
+
+.btn-publicar i {
+  color: white !important;
+}

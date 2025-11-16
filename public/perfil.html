@@ -3,20 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AttoMusic</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Mi Perfil - AttoMusic</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="shortcut icon" href="images/icono.png" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
+  <div class="container my-5">
+    <div class="perfil-container">
+      <!-- Header del perfil -->
+      <div class="perfil-header">
+        <div class="perfil-foto-container">
+          <img id="perfilFoto" src="https://i.pravatar.cc/150?img=12" alt="Foto de perfil" class="perfil-foto">
+          <button class="perfil-foto-edit" id="btnCambiarFoto">
+            <i class="bi bi-camera"></i>
+          </button>
+          <input type="file" id="inputFoto" accept="image/*" style="display:none">
+        </div>
+        
+        <div class="perfil-info">
+          <h1 class="perfil-nombre" id="perfilNombre">Cargando...</h1>
+          <p class="perfil-correo" id="perfilCorreo">correo@ejemplo.com</p>
+          <p class="perfil-fecha"><i class="bi bi-calendar"></i> Miembro desde <span id="perfilFecha">2024</span></p>
+          <button class="btn btn-gradient mt-3" data-bs-toggle="modal" data-bs-target="#editarPerfilModal">
+            <i class="bi bi-pencil"></i> Editar Perfil
+          </button>
+        </div>
+      </div>
 
-<p class="normaltext"> aca será lo más importante, estará el numero de canciones reseñadas y ESCUCHADAS (esto es muy importante,
-    ya que siempre será muy diferente, porque podran decir que ya la escucharon o que la tienen escuchada y cuantas estrellas, no necesariemente
-    tendran que darle un comentario o algo asi) las que recomienda y las mejores calificadas por la persona, las ultimas calificadas, como de fecha
-y cuales son sus ultimas reseñas. </p>
+      <!-- Publicaciones del usuario -->
+      <div class="perfil-publicaciones">
+        <h2 class="section-title">
+          <i class="bi bi-postcard"></i> Mis Publicaciones
+        </h2>
+        <div id="misPublicaciones" class="publicaciones-grid">
+          <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Modal Editar Perfil -->
+  <div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+        <div class="modal-body p-0">
+          <div style="padding: 48px 40px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <h2 style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Editar Perfil</h2>
+            </div>
+
+            <form id="formEditarPerfil">
+              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
+                <input type="text" required class="input-animated" id="editNombre" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
+                <label class="label-animated" for="editNombre" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">Nombre de usuario</label>
+                <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              </div>
+
+              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+                <input type="email" required class="input-animated" id="editCorreo" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
+                <label class="label-animated" for="editCorreo" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">Correo electrónico</label>
+                <i class="bi bi-envelope-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              </div>
+
+              <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
+                Guardar Cambios
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Publicación -->
+  <div class="modal fade" id="editarPublicacionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+        <div class="modal-body p-0">
+          <div style="padding: 48px 40px;">
+            <h2 style="text-align: center; font-size: 1.8rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 32px;">Editar Publicación</h2>
+
+            <form id="formEditarPublicacion">
+              <input type="hidden" id="editPubId">
+              <textarea class="form-control mb-3" id="editPubTexto" rows="4" style="border: 2px solid #ba01ff; border-radius: 12px; background: white; color: #333;" placeholder="¿Qué estás pensando?"></textarea>
+              
+              <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
+                Guardar Cambios
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Inicializar perfil cuando se cargue
+  window.cargarPerfil();
+  window.inicializarPerfil();
+</script>
 </body>
 </html>

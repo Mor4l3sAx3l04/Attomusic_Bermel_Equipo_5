@@ -9,6 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <script src="js/utils.js"></script>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg fixed-top">
@@ -179,35 +180,36 @@
           </div>
 
           <form id="resetForm">
-            <!-- Nombre -->
+
             <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
               <input type="text" required class="input-animated" id="resetName" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
               <label class="label-animated" for="resetName" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%);color: #999; font-size: 1rem; transition: all 0.3s;">
-                Nombre
+                Nombre de usuario
               </label>
-              <i class="bi bi-person-fill"  style="position: absolute; left: 14px; top: 50%;transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-              <span class="input-border"
-                    style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc);transition: width 0.3s;">
-              </span>
+              <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%;transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
             </div>
 
-            <!-- Correo -->
-            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+            <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
               <input type="email" required class="input-animated" id="resetEmail" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
               <label class="label-animated" for="resetEmail" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
                 Correo electrónico
               </label>
-              <i class="bi bi-envelope-fill"
-                style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;">
-              </i>
-              <span class="input-border"
-                    style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;">
-              </span>
+              <i class="bi bi-envelope-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
             </div>
 
-            <button type="submit"
-              style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc);color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
-              Enviar Solicitud
+            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+              <input type="password" required class="input-animated" id="resetPassword" style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
+              <label class="label-animated" for="resetPassword" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
+                Nueva contraseña
+              </label>
+              <i class="bi bi-lock-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <button type="button" class="btn-eye-reset" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; z-index: 10;">
+                <i class="bi bi-eye-slash" style="color: #111;"></i>
+              </button>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc);color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
+              Restablecer Contraseña
             </button>
           </form>
 
