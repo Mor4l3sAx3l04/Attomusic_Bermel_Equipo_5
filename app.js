@@ -41,7 +41,6 @@ app.post("/register", async (req, res) => {
   }
 
   try {
-    // Verificar si ya existe usuario o correo
     const existe = await pool.query(
       "SELECT * FROM usuario WHERE usuario = $1 OR correo = $2",
       [usuario, correo]
@@ -51,10 +50,8 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Usuario o correo ya registrado" });
     }
 
-    // Hashear contraseña
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
-    // Insertar nuevo usuario
     await pool.query(
       `INSERT INTO usuario (usuario, correo, contrasena, fecha_reg, rol, estado)
       VALUES ($1, $2, $3, CURRENT_DATE, 'usuario', 'activo')`,
@@ -77,7 +74,6 @@ app.post("/login", async (req, res) => {
   }
 
   try {
-    // Buscar usuario
     const result = await pool.query("SELECT * FROM usuario WHERE usuario = $1", [usuario]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Usuario no encontrado" });
@@ -85,7 +81,6 @@ app.post("/login", async (req, res) => {
 
     const user = result.rows[0];
 
-    // Comparar contraseñas
     const match = await bcrypt.compare(contrasena, user.contrasena);
     if (!match) {
       return res.status(401).json({ error: "Contraseña incorrecta" });
@@ -106,14 +101,14 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// RUTA: Crear publicación
 app.post("/api/publicacion", async (req, res) => {
   try {
-    const { correo, idCancion, publicacion, fechaHora } = req.body;
+    const { correo, idCancion, publicacion } = req.body;
 
     if (!correo || !publicacion)
       return res.status(400).json({ error: "Datos incompletos" });
 
-    // Verificar usuario por correo
     const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
     if (userResult.rowCount === 0)
       return res.status(404).json({ error: "Usuario no encontrado" });
@@ -121,36 +116,43 @@ app.post("/api/publicacion", async (req, res) => {
     const id_usuario = userResult.rows[0].id_usuario;
     let id_cancion_final = null;
 
-    // Si hay canción, verificar si existe, y si no, traerla desde Spotify
     if (idCancion) {
       const cancionExiste = await pool.query("SELECT id_cancion FROM cancion WHERE id_cancion = $1", [idCancion]);
 
       if (cancionExiste.rowCount === 0) {
-        // Obtener token temporal de Spotify (usa la ruta auxiliar)
         const tokenResp = await axios.get("http://localhost:3000/spotify/token");
         const token = tokenResp.data.access_token;
 
-        // Obtener info de la canción
         const trackResp = await axios.get(`https://api.spotify.com/v1/tracks/${idCancion}`, {
           headers: { Authorization: "Bearer " + token },
         });
         const track = trackResp.data;
 
+        const imagenUrl = track.album?.images?.[1]?.url || track.album?.images?.[0]?.url || null;
+        console.log("📸 URL de imagen:", imagenUrl);
+
         await pool.query(
-          `INSERT INTO cancion (id_cancion, nombre, artista, album, url_preview)
-          VALUES ($1, $2, $3, $4, $5)`,
-          [track.id, track.name, track.artists[0].name, track.album.name, track.preview_url]
+          `INSERT INTO cancion (id_cancion, nombre, artista, album, url_preview, imagen_url)
+          VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            track.id, 
+            track.name, 
+            track.artists[0].name, 
+            track.album.name, 
+            track.preview_url,
+            imagenUrl
+          ]
         );
       }
 
       id_cancion_final = idCancion;
     }
 
-    // Insertar publicación
+    // Usar NOW() para obtener timestamp exacto
     await pool.query(
       `INSERT INTO publicacion (id_usuario, id_cancion, publicacion, fecha_pub)
-      VALUES ($1, $2, $3, $4)`,
-      [id_usuario, id_cancion_final, publicacion, fechaHora]
+      VALUES ($1, $2, $3, NOW())`,
+      [id_usuario, id_cancion_final, publicacion]
     );
 
     res.json({ message: "Publicación creada con éxito" });
@@ -160,12 +162,14 @@ app.post("/api/publicacion", async (req, res) => {
   }
 });
 
-//RUTA PARA MOSTRAR PUBLICACIONES
+// RUTA: Obtener publicaciones con info de canción
 app.get("/api/publicaciones", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT p.id_publicacion, u.usuario, u.correo, p.publicacion, p.fecha_pub,
-            c.nombre AS cancion, c.artista, c.album, c.url_preview
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
       FROM publicacion p
       JOIN usuario u ON p.id_usuario = u.id_usuario
       LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
@@ -179,8 +183,100 @@ app.get("/api/publicaciones", async (req, res) => {
   }
 });
 
+// RUTA: Dar like a una publicación
+app.post("/api/publicacion/:id/like", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { correo } = req.body;
 
-//Servidor
+    if (!correo) {
+      return res.status(400).json({ error: "Usuario no autenticado" });
+    }
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    // Verificar si ya dio like
+    const existingLike = await pool.query(
+      "SELECT * FROM reaccion WHERE id_publicacion = $1 AND id_usuario = $2 AND tipo = 'like'",
+      [id, id_usuario]
+    );
+
+    if (existingLike.rowCount > 0) {
+      // Quitar like
+      await pool.query(
+        "DELETE FROM reaccion WHERE id_publicacion = $1 AND id_usuario = $2 AND tipo = 'like'",
+        [id, id_usuario]
+      );
+      res.json({ message: "Like removido", liked: false });
+    } else {
+      // Dar like
+      await pool.query(
+        "INSERT INTO reaccion (id_publicacion, id_usuario, tipo) VALUES ($1, $2, 'like')",
+        [id, id_usuario]
+      );
+      res.json({ message: "Like agregado", liked: true });
+    }
+  } catch (err) {
+    console.error("Error en like:", err);
+    res.status(500).json({ error: "Error al procesar like" });
+  }
+});
+
+// RUTA: Agregar comentario
+app.post("/api/publicacion/:id/comentario", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { correo, comentario } = req.body;
+
+    if (!correo || !comentario) {
+      return res.status(400).json({ error: "Datos incompletos" });
+    }
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    await pool.query(
+      "INSERT INTO comentario (id_publicacion, id_usuario, comentario, fecha_com) VALUES ($1, $2, $3, NOW())",
+      [id, id_usuario, comentario]
+    );
+
+    res.json({ message: "Comentario agregado" });
+  } catch (err) {
+    console.error("Error en comentario:", err);
+    res.status(500).json({ error: "Error al agregar comentario" });
+  }
+});
+
+// RUTA: Obtener comentarios de una publicación
+app.get("/api/publicacion/:id/comentarios", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await pool.query(`
+      SELECT c.id_comentario, c.comentario, c.fecha_com, u.usuario
+      FROM comentario c
+      JOIN usuario u ON c.id_usuario = u.id_usuario
+      WHERE c.id_publicacion = $1
+      ORDER BY c.fecha_com DESC
+    `, [id]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo comentarios:", err);
+    res.status(500).json({ error: "Error obteniendo comentarios" });
+  }
+});
+
+// Servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
