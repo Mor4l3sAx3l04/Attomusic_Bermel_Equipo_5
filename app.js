@@ -101,6 +101,46 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// RUTA: Restablecer contraseña (versión simple)
+app.post("/reset-password", async (req, res) => {
+  const { nombre, correo, nuevaContrasena } = req.body;
+
+  if (!nombre || !correo || !nuevaContrasena) {
+    return res.status(400).json({ error: "Faltan datos obligatorios" });
+  }
+
+  if (nuevaContrasena.length < 6) {
+    return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+  }
+
+  try {
+    // Verificar que el usuario y correo coincidan
+    const userResult = await pool.query(
+      "SELECT id_usuario FROM usuario WHERE usuario = $1 AND correo = $2",
+      [nombre, correo]
+    );
+
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario o correo incorrectos" });
+    }
+
+    // Hashear nueva contraseña
+    const hashedPassword = await bcrypt.hash(nuevaContrasena, 10);
+
+    // Actualizar contraseña
+    await pool.query(
+      "UPDATE usuario SET contrasena = $1 WHERE correo = $2",
+      [hashedPassword, correo]
+    );
+
+    res.json({ message: "Contraseña actualizada correctamente" });
+
+  } catch (err) {
+    console.error("Error en reset-password:", err);
+    res.status(500).json({ error: "Error al actualizar la contraseña" });
+  }
+});
+
 // RUTA: Crear publicación
 app.post("/api/publicacion", async (req, res) => {
   try {
@@ -166,7 +206,7 @@ app.post("/api/publicacion", async (req, res) => {
 app.get("/api/publicaciones", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT p.id_publicacion, u.usuario, u.correo, p.publicacion, p.fecha_pub,
+      SELECT p.id_publicacion, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
             c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
@@ -273,6 +313,189 @@ app.get("/api/publicacion/:id/comentarios", async (req, res) => {
   } catch (err) {
     console.error("Error obteniendo comentarios:", err);
     res.status(500).json({ error: "Error obteniendo comentarios" });
+  }
+});
+
+// RUTA: Obtener perfil del usuario
+app.get("/api/perfil/:correo", async (req, res) => {
+  try {
+    const { correo } = req.params;
+
+    const userResult = await pool.query(
+      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado 
+       FROM usuario WHERE correo = $1`,
+      [correo]
+    );
+
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json(userResult.rows[0]);
+  } catch (err) {
+    console.error("Error obteniendo perfil:", err);
+    res.status(500).json({ error: "Error obteniendo perfil" });
+  }
+});
+
+// RUTA: Actualizar perfil del usuario
+app.put("/api/perfil", async (req, res) => {
+  try {
+    const { correo, nuevoUsuario, nuevoCorreo, foto } = req.body;
+
+    if (!correo) {
+      return res.status(400).json({ error: "Correo es obligatorio" });
+    }
+
+    // Verificar si el nuevo correo ya existe (si es diferente al actual)
+    if (nuevoCorreo && nuevoCorreo !== correo) {
+      const existe = await pool.query(
+        "SELECT id_usuario FROM usuario WHERE correo = $1",
+        [nuevoCorreo]
+      );
+      if (existe.rowCount > 0) {
+        return res.status(400).json({ error: "El correo ya está en uso" });
+      }
+    }
+
+    // Verificar si el nuevo usuario ya existe (si es diferente al actual)
+    if (nuevoUsuario) {
+      const userActual = await pool.query(
+        "SELECT usuario FROM usuario WHERE correo = $1",
+        [correo]
+      );
+      
+      if (userActual.rows[0].usuario !== nuevoUsuario) {
+        const existe = await pool.query(
+          "SELECT id_usuario FROM usuario WHERE usuario = $1",
+          [nuevoUsuario]
+        );
+        if (existe.rowCount > 0) {
+          return res.status(400).json({ error: "El nombre de usuario ya está en uso" });
+        }
+      }
+    }
+
+    // Actualizar perfil
+    const updates = [];
+    const values = [];
+    let paramCounter = 1;
+
+    if (nuevoUsuario) {
+      updates.push(`usuario = $${paramCounter++}`);
+      values.push(nuevoUsuario);
+    }
+    if (nuevoCorreo) {
+      updates.push(`correo = $${paramCounter++}`);
+      values.push(nuevoCorreo);
+    }
+    if (foto !== undefined) {
+      updates.push(`foto = $${paramCounter++}`);
+      values.push(foto);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: "No hay datos para actualizar" });
+    }
+
+    values.push(correo);
+    const query = `UPDATE usuario SET ${updates.join(", ")} WHERE correo = $${paramCounter}`;
+
+    await pool.query(query, values);
+
+    res.json({ message: "Perfil actualizado correctamente" });
+  } catch (err) {
+    console.error("Error actualizando perfil:", err);
+    res.status(500).json({ error: "Error actualizando perfil" });
+  }
+});
+
+// RUTA: Obtener publicaciones del usuario
+app.get("/api/perfil/:correo/publicaciones", async (req, res) => {
+  try {
+    const { correo } = req.params;
+
+    const result = await pool.query(`
+      SELECT p.id_publicacion, p.publicacion, p.fecha_pub,
+             c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.imagen_url AS imagen_cancion,
+             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      WHERE u.correo = $1
+      ORDER BY p.fecha_pub DESC
+    `, [correo]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo publicaciones del usuario:", err);
+    res.status(500).json({ error: "Error obteniendo publicaciones" });
+  }
+});
+
+// RUTA: Eliminar publicación
+app.delete("/api/publicacion/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { correo } = req.body;
+
+    if (!correo) {
+      return res.status(400).json({ error: "Usuario no autenticado" });
+    }
+
+    // Verificar que la publicación pertenezca al usuario
+    const checkResult = await pool.query(`
+      SELECT p.id_publicacion 
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      WHERE p.id_publicacion = $1 AND u.correo = $2
+    `, [id, correo]);
+
+    if (checkResult.rowCount === 0) {
+      return res.status(403).json({ error: "No tienes permiso para eliminar esta publicación" });
+    }
+
+    await pool.query("DELETE FROM publicacion WHERE id_publicacion = $1", [id]);
+
+    res.json({ message: "Publicación eliminada correctamente" });
+  } catch (err) {
+    console.error("Error eliminando publicación:", err);
+    res.status(500).json({ error: "Error eliminando publicación" });
+  }
+});
+
+// RUTA: Editar publicación
+app.put("/api/publicacion/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { correo, publicacion } = req.body;
+
+    if (!correo || !publicacion) {
+      return res.status(400).json({ error: "Datos incompletos" });
+    }
+
+    // Verificar que la publicación pertenezca al usuario
+    const checkResult = await pool.query(`
+      SELECT p.id_publicacion 
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      WHERE p.id_publicacion = $1 AND u.correo = $2
+    `, [id, correo]);
+
+    if (checkResult.rowCount === 0) {
+      return res.status(403).json({ error: "No tienes permiso para editar esta publicación" });
+    }
+
+    await pool.query(
+      "UPDATE publicacion SET publicacion = $1 WHERE id_publicacion = $2",
+      [publicacion, id]
+    );
+
+    res.json({ message: "Publicación actualizada correctamente" });
+  } catch (err) {
+    console.error("Error actualizando publicación:", err);
+    res.status(500).json({ error: "Error actualizando publicación" });
   }
 });
 

@@ -177,39 +177,57 @@ setupPasswordToggle('#togglePassword', 'registerPassword');
 
 // --- Carga dinámica de páginas ---
 function loadPage(url) {
-let pagePath = url;
-if (!url.startsWith('http')) {
+  let pagePath = url;
+  if (!url.startsWith('http')) {
     pagePath = '/' + url.replace(/^\/?/, '');
-}
+  }
 
-const urlObj = new URL(pagePath, window.location.origin);
-const params = urlObj.search;
+  const urlObj = new URL(pagePath, window.location.origin);
+  const params = urlObj.search;
 
-fetch(urlObj.pathname)
+  fetch(urlObj.pathname)
     .then(res => res.text())
     .then(html => {
-    const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = html;
-    window.scrollTo(0, 0);
+      const mainContent = document.getElementById('main-content');
+      mainContent.innerHTML = html;
+      window.scrollTo(0, 0);
 
-    const scripts = mainContent.querySelectorAll('script');
-    scripts.forEach(oldScript => {
+    setTimeout(() => {
+        if (typeof aplicarColoresIconos === 'function') {
+            aplicarColoresIconos();
+        }
+    }, 300);
+
+      const scripts = mainContent.querySelectorAll('script');
+      scripts.forEach(oldScript => {
         const newScript = document.createElement('script');
         if (oldScript.src) {
-        newScript.src = oldScript.src;
+          newScript.src = oldScript.src;
         } else {
-        if (urlObj.pathname.endsWith('buscador.html')) {
+          if (urlObj.pathname.endsWith('buscador.html')) {
             newScript.textContent = `window._searchParams = '${params}';\n` + oldScript.textContent;
-        } else {
+          } else {
             newScript.textContent = oldScript.textContent;
-        }
+          }
         }
         document.body.appendChild(newScript);
         setTimeout(() => newScript.remove(), 1000);
-    });
+      });
+
+      // ⬇️ AGREGAR ESTO: Forzar colores después de cargar
+      setTimeout(() => {
+        const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        const colorIconos = isDark ? '#aaa' : '#5a189a';
+        
+        document.querySelectorAll('.btn-icon-action, .pub-btn, .pub-stats i, .perfil-fecha i, .section-title i').forEach(el => {
+          if (!el.closest('.pub-btn-like.liked')) {
+            el.style.color = colorIconos;
+          }
+        });
+      }, 200);
     })
     .catch(() => {
-    document.getElementById('main-content').innerHTML =
+      document.getElementById('main-content').innerHTML =
         '<div style="padding:40px;text-align:center;color:#ba01ff;font-size:2rem;">No se pudo cargar la página.</div>';
     });
 }
@@ -311,40 +329,60 @@ if (formLogin) {
 // ==== RESTABLECER CONTRASEÑA ====
 const formReset = document.getElementById("resetForm");
 if (formReset) {
-formReset.addEventListener("submit", async function (e) {
-e.preventDefault();
+    formReset.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-const correo = document.getElementById("resetEmail").value.trim();
+    const nombre = document.getElementById("resetName").value.trim();
+    const correo = document.getElementById("resetEmail").value.trim();
+    const nuevaContrasena = document.getElementById("resetPassword").value.trim();
 
-if (!correo) {
-    showToast("Por favor ingresa tu correo electrónico.", "error");
-    return;
-}
+    if (!nombre || !correo || !nuevaContrasena) {
+        showToast("Por favor completa todos los campos.", "error");
+        return;
+    }
 
-try {
-    const response = await fetch("/reset-password", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ correo }),
+    if (nuevaContrasena.length < 6) {
+        showToast("La contraseña debe tener al menos 6 caracteres.", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch("/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, correo, nuevaContrasena }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showToast(data.message || "Contraseña actualizada correctamente", "success");
+            bootstrap.Modal.getInstance(document.getElementById("resetModal")).hide();
+            this.reset();
+        } else {
+            showToast(data.error || "No se pudo actualizar la contraseña", "error");
+        }
+        } catch (err) {
+        console.error(err);
+        showToast("Error de conexión con el servidor", "error");
+        }
     });
 
-    const data = await response.json();
-
-    if (response.ok) {
-    showToast(data.message || "Revisa tu correo para restablecer la contraseña", "success");
-    bootstrap.Modal.getInstance(document.getElementById("resetModal")).hide();
-    this.reset();
-    } else {
-    showToast(data.error || "No se pudo enviar el correo de recuperación", "error");
+  // Toggle para mostrar/ocultar contraseña
+    const btnEyeReset = document.querySelector('.btn-eye-reset');
+    const resetPasswordInput = document.getElementById('resetPassword');
+    if (btnEyeReset && resetPasswordInput) {
+    btnEyeReset.addEventListener('click', function() {
+        const isPassword = resetPasswordInput.type === 'password';
+        resetPasswordInput.type = isPassword ? 'text' : 'password';
+        const icon = this.querySelector('i');
+        icon.classList.toggle('bi-eye-slash');
+        icon.classList.toggle('bi-eye');
+    });
     }
-} catch (err) {
-    console.error(err);
-    showToast("Error de conexión con el servidor", "error");
-}
-});
 }
 
-function actualizarInterfaz() {
+async function actualizarInterfaz() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
 
   const btnLogin = document.getElementById("btn-login");
@@ -353,6 +391,22 @@ function actualizarInterfaz() {
   const perfilNombre = document.getElementById("perfil-nombre");
 
   if (usuario) {
+    // Obtener foto del usuario desde el backend
+    try {
+      const res = await fetch(`/api/perfil/${usuario.correo}`);
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Actualizar foto en el dropdown
+        const perfilPic = perfilContainer.querySelector('.profile-pic');
+        if (perfilPic && data.foto) {
+          perfilPic.src = data.foto;
+        }
+      }
+    } catch (err) {
+      console.warn("No se pudo cargar la foto del perfil");
+    }
+
     // Mostrar perfil y ocultar botones
     btnLogin.style.display = "none";
     btnRegister.style.display = "none";
@@ -375,3 +429,376 @@ document.getElementById("btn-logout").addEventListener("click", () => {
 
 // Al cargar la página, verificar sesión
 window.addEventListener("DOMContentLoaded", actualizarInterfaz);
+
+// ===== GESTIÓN DE PERFIL =====
+window.cargarPerfil = async function() {
+  const usuarioActual = window.getUsuarioActual();
+  
+  if (!usuarioActual || !usuarioActual.correo) {
+    window.mostrarToast("Debes iniciar sesión para ver tu perfil", "error");
+    setTimeout(() => loadPage('bienvenido.html'), 2000);
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/perfil/${usuarioActual.correo}`);
+    const data = await res.json();
+
+    if (res.ok) {
+      document.getElementById("perfilNombre").textContent = data.usuario;
+      document.getElementById("perfilCorreo").textContent = data.correo;
+      
+      const fecha = new Date(data.fecha_reg);
+      document.getElementById("perfilFecha").textContent = fecha.toLocaleDateString('es-MX', { 
+        year: 'numeric', 
+        month: 'long' 
+      });
+
+      if (data.foto) {
+        document.getElementById("perfilFoto").src = data.foto;
+      }
+
+      document.getElementById("editNombre").value = data.usuario;
+      document.getElementById("editCorreo").value = data.correo;
+
+      setTimeout(actualizarLabelsInput, 100);
+      
+      // Cargar publicaciones del usuario
+      window.cargarPublicaciones(usuarioActual.correo);
+    } else {
+      window.mostrarToast(data.error || "Error al cargar perfil", "error");
+    }
+  } catch (err) {
+    console.error("Error cargando perfil:", err);
+    window.mostrarToast("Error de conexión", "error");
+  }
+}
+
+window.inicializarPerfil = function() {
+  const usuarioActual = window.getUsuarioActual();
+  
+  if (!usuarioActual) return;
+
+  // Cambiar foto
+  const btnCambiarFoto = document.getElementById("btnCambiarFoto");
+  const inputFoto = document.getElementById("inputFoto");
+  
+  if (btnCambiarFoto && inputFoto) {
+    btnCambiarFoto.onclick = () => {
+      const opcion = confirm("¿Deseas tomar una foto con la cámara?\n\nAcepta: Cámara\nCancelar: Seleccionar archivo");
+      if (opcion) {
+        abrirCamara();
+      } else {
+        inputFoto.click();
+      }
+    };
+
+    inputFoto.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) await subirFoto(file);
+    };
+  }
+
+  // Editar perfil
+  const formEditarPerfil = document.getElementById("formEditarPerfil");
+  if (formEditarPerfil) {
+    formEditarPerfil.onsubmit = async (e) => {
+      e.preventDefault();
+      await actualizarPerfil();
+    };
+  }
+
+  // Editar publicación
+  const formEditarPublicacion = document.getElementById("formEditarPublicacion");
+  if (formEditarPublicacion) {
+    formEditarPublicacion.onsubmit = async (e) => {
+      e.preventDefault();
+      await guardarEdicionPublicacion();
+    };
+  }
+
+  setupInputAnimations();
+}
+
+async function subirFoto(file) {
+  const usuarioActual = window.getUsuarioActual();
+  
+  if (!file.type.startsWith('image/')) {
+    window.mostrarToast("Por favor selecciona una imagen válida", "error");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    window.mostrarToast("La imagen no puede superar 5MB", "error");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const fotoBase64 = e.target.result;
+    
+    try {
+      const res = await fetch("/api/perfil", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          correo: usuarioActual.correo,
+          foto: fotoBase64
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById("perfilFoto").src = fotoBase64;
+        window.mostrarToast("Foto actualizada correctamente", "success");
+      } else {
+        window.mostrarToast(data.error || "Error al actualizar foto", "error");
+      }
+    } catch (err) {
+      console.error("Error subiendo foto:", err);
+      window.mostrarToast("Error de conexión", "error");
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function abrirCamara() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    
+    const modal = document.createElement('div');
+    modal.className = 'camera-modal';
+    modal.innerHTML = `
+      <div class="camera-container">
+        <video id="videoCamera" autoplay playsinline style="width:100%;max-width:500px;border-radius:12px;"></video>
+        <div class="camera-controls">
+          <button class="btn btn-gradient" id="btnCapturar">
+            <i class="bi bi-camera"></i> Capturar
+          </button>
+          <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const video = document.getElementById('videoCamera');
+    video.srcObject = stream;
+
+    document.getElementById('btnCapturar').onclick = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      
+      canvas.toBlob(async (blob) => {
+        await subirFoto(blob);
+        stream.getTracks().forEach(track => track.stop());
+        modal.remove();
+      }, 'image/jpeg', 0.8);
+    };
+
+    document.getElementById('btnCancelar').onclick = () => {
+      stream.getTracks().forEach(track => track.stop());
+      modal.remove();
+    };
+
+  } catch (err) {
+    console.error("Error accediendo a la cámara:", err);
+    window.mostrarToast("No se pudo acceder a la cámara", "error");
+  }
+}
+
+async function actualizarPerfil() {
+  const usuarioActual = window.getUsuarioActual();
+  const nuevoUsuario = document.getElementById("editNombre").value.trim();
+  const nuevoCorreo = document.getElementById("editCorreo").value.trim();
+
+  if (!nuevoUsuario || !nuevoCorreo) {
+    window.mostrarToast("Completa todos los campos", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/perfil", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        correo: usuarioActual.correo,
+        nuevoUsuario,
+        nuevoCorreo
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      localStorage.setItem("usuario", JSON.stringify({ usuario: nuevoUsuario, correo: nuevoCorreo }));
+      window.mostrarToast("Perfil actualizado correctamente", "success");
+      bootstrap.Modal.getInstance(document.getElementById("editarPerfilModal")).hide();
+      await window.cargarPerfil();
+      actualizarInterfaz();
+    } else {
+      window.mostrarToast(data.error || "Error al actualizar perfil", "error");
+    }
+  } catch (err) {
+    console.error("Error actualizando perfil:", err);
+    window.mostrarToast("Error de conexión", "error");
+  }
+}
+
+window.editarPublicacion = function(id, texto) {
+  document.getElementById("editPubId").value = id;
+  document.getElementById("editPubTexto").value = texto;
+  new bootstrap.Modal(document.getElementById("editarPublicacionModal")).show();
+}
+
+async function guardarEdicionPublicacion() {
+  const usuarioActual = window.getUsuarioActual();
+  const id = document.getElementById("editPubId").value;
+  const texto = document.getElementById("editPubTexto").value.trim();
+
+  if (!texto) {
+    window.mostrarToast("Escribe algo para publicar", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/publicacion/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        correo: usuarioActual.correo,
+        publicacion: texto
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      window.mostrarToast("Publicación actualizada", "success");
+      bootstrap.Modal.getInstance(document.getElementById("editarPublicacionModal")).hide();
+      window.cargarPublicaciones(usuarioActual.correo);
+    } else {
+      window.mostrarToast(data.error || "Error al actualizar", "error");
+    }
+  } catch (err) {
+    console.error("Error actualizando publicación:", err);
+    window.mostrarToast("Error de conexión", "error");
+  }
+}
+
+window.eliminarPublicacion = async function(id) {
+  const usuarioActual = window.getUsuarioActual();
+  
+  if (!confirm("¿Estás seguro de eliminar esta publicación?")) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/publicacion/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ correo: usuarioActual.correo })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      window.mostrarToast("Publicación eliminada", "success");
+      window.cargarPublicaciones(usuarioActual.correo);
+    } else {
+      window.mostrarToast(data.error || "Error al eliminar", "error");
+    }
+  } catch (err) {
+    console.error("Error eliminando publicación:", err);
+    window.mostrarToast("Error de conexión", "error");
+  }
+}
+
+function setupInputAnimations() {
+  document.querySelectorAll('.input-animated').forEach(input => {
+    const label = input.parentElement?.querySelector('.label-animated');
+    
+    if (!label) return;
+    
+    input.addEventListener('focus', function() {
+      label.style.top = '-10px';
+      label.style.fontSize = '0.85rem';
+      label.style.color = '#ba01ff';
+      label.style.fontWeight = '600';
+    });
+
+    input.addEventListener('blur', function() {
+      if (this.value === '') {
+        label.style.top = '50%';
+        label.style.fontSize = '1rem';
+        label.style.color = '#999';
+        label.style.fontWeight = '400';
+      }
+    });
+
+    if (input.value !== '') {
+      label.style.top = '-10px';
+      label.style.fontSize = '0.85rem';
+      label.style.color = '#ba01ff';
+      label.style.fontWeight = '600';
+    }
+  });
+}
+
+function actualizarLabelsInput() {
+  document.querySelectorAll('.input-animated').forEach(input => {
+    const label = input.parentElement?.querySelector('.label-animated');
+    if (input.value && label) {
+      label.style.top = '-10px';
+      label.style.fontSize = '0.85rem';
+      label.style.color = '#ba01ff';
+      label.style.fontWeight = '600';
+    }
+  });
+}
+
+// ===== FORZAR COLORES AL CARGAR Y CAMBIAR DE PÁGINA =====
+function aplicarColoresIconos() {
+  const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+  const colorIconos = isDark ? '#aaa' : '#5a189a';
+  
+  // Aplicar colores a todos los iconos de acciones
+  document.querySelectorAll('.btn-icon-action, .pub-btn, .pub-stats i, .perfil-fecha i, .section-title i').forEach(el => {
+    if (!el.closest('.pub-btn-like.liked')) {
+      el.style.color = colorIconos;
+    }
+  });
+}
+
+// Ejecutar al cargar
+window.addEventListener('DOMContentLoaded', () => {
+  aplicarColoresIconos();
+  
+  // Observar cambios en el tema
+  const observer = new MutationObserver(() => {
+    aplicarColoresIconos();
+  });
+  
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-bs-theme']
+  });
+});
+
+// Ejecutar cada vez que se carga una página nueva
+const originalLoadPage = loadPage;
+window.loadPage = function(url) {
+  originalLoadPage(url);
+  setTimeout(() => {
+    aplicarColoresIconos();
+  }, 100);
+};
+
+// Dentro de loadPage, después de mainContent.innerHTML = html;
+setTimeout(() => {
+    if (window.aplicarColoresIconos) {
+        window.aplicarColoresIconos();
+    }
+}, 300);
