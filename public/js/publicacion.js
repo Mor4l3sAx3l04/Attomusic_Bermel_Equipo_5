@@ -1,5 +1,4 @@
 // publicacion.js
-console.log("✅ publicacion.js cargado correctamente");
 
 function inicializarPublicaciones() {
   const inputBuscar = document.getElementById("busquedaCancion");
@@ -10,16 +9,16 @@ function inicializarPublicaciones() {
   const mensaje = document.getElementById("mensajePub");
   const feed = document.getElementById("feedPublicaciones");
 
-  // sanity checks con retry
+// sanity checks con retry
   if (!inputBuscar || !botonBuscar || !resultados || !form) {
-    console.warn("⚠️ Elementos no encontrados, reintentando en 200ms...");
+    console.warn("Elementos no encontrados, reintentando en 200ms...");
     setTimeout(inicializarPublicaciones, 200);
     return;
   }
 
-  console.log("🎵 Elementos del buscador listos.");
+  console.log("Elementos del buscador listos.");
 
-  // ===== Debounce para búsquedas mientras escribe =====
+//Debounce para búsquedas mientras escribe
   let timeout = null;
   inputBuscar.addEventListener("input", () => {
     const q = inputBuscar.value.trim();
@@ -31,7 +30,7 @@ function inicializarPublicaciones() {
     timeout = setTimeout(() => buscarCanciones(q), 500);
   });
 
-  // ===== Buscar al hacer clic =====
+//Buscar al hacer clic
   botonBuscar.addEventListener("click", () => {
     const q = inputBuscar.value.trim();
     if (!q) {
@@ -41,14 +40,14 @@ function inicializarPublicaciones() {
     buscarCanciones(q);
   });
 
-  // ===== Función para buscar canciones =====
+//Función para buscar canciones
   async function buscarCanciones(query) {
     try {
       resultados.innerHTML = `<p style="color:#c9b6ff">Buscando "${escapeHtml(query)}" ...</p>`;
 
       const res = await fetch(`/spotify/search?q=${encodeURIComponent(query)}&type=track&limit=6`);
       if (!res.ok) {
-        console.error("❌ Error al consultar /spotify/search:", res.status);
+        console.error("Error al consultar /spotify/search:", res.status);
         resultados.innerHTML = `<p style="color:#f8d7da">Error al buscar canciones (status ${res.status})</p>`;
         return;
       }
@@ -94,7 +93,7 @@ function inicializarPublicaciones() {
     }
   }
 
-  // ===== Enviar publicación al backend =====
+//Enviar publicación al backend
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const texto = document.getElementById("textoPublicacion").value.trim();
@@ -142,7 +141,7 @@ function inicializarPublicaciones() {
     }
   });
 
-  // ===== Cargar publicaciones =====
+//Cargar publicaciones
   async function cargasPublicaciones() {
     if (!feed) return;
     try {
@@ -184,7 +183,7 @@ function inicializarPublicaciones() {
     }
   }
 
-  // Utilidad para escapar HTML
+// Utilidad para escapar HTML
   function escapeHtml(str) {
     if (!str && str !== 0) return "";
     return String(str)
@@ -195,14 +194,14 @@ function inicializarPublicaciones() {
       .replace(/'/g, "&#039;");
   }
 
-  // iniciar feed
+// iniciar feed
   cargasPublicaciones();
 }
 
-// ✅ Ejecutar inicialización (con soporte para carga dinámica)
+//Ejecutar inicialización (con soporte para carga dinámica)
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", inicializarPublicaciones);
 } else {
-  // Ya está cargado, ejecutar con delay
+// Ya está cargado, ejecutar con delay
   setTimeout(inicializarPublicaciones, 100);
 }

@@ -1,4 +1,4 @@
-// ==== Función para mostrar notificaciones ====
+//Función para mostrar notificaciones
 function showToast(message, type = "success") {
 const toast = document.getElementById("toast");
 toast.textContent = message;
@@ -8,7 +8,7 @@ toast.className = "toast";
 }, 3000);
 }
 
-// --- Sanitización y validación global ---
+//Sanitización y validación global
 function sanitizeInput(str) {
 if (typeof str !== "string") return "";
 str = str.replace(/<[^>]*>?/gm, "");
@@ -31,16 +31,16 @@ if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-// --- Inicializar tooltips de Bootstrap ---
+//Inicializar tooltips de Bootstrap
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 tooltipTriggerList.forEach(function (tooltipTriggerEl) {
     new bootstrap.Tooltip(tooltipTriggerEl);
 });
 
-// --- Carga inicial ---
+//Carga inicial
 loadPage('bienvenido.html');
 
-// --- Buscador ---
+//Buscador
 const searchBtn = document.getElementById("searchBtn");
 const searchInput = document.getElementById("searchInput");
 
@@ -78,7 +78,7 @@ if (searchBtn && searchInput) {
     });
 }
 
-// --- Formularios (registro/login/comentarios) ---
+//Formularios (registro/login/comentarios) 
 document.querySelectorAll("form").forEach(form => {
     form.addEventListener("submit", function(e) {
     let valid = true;
@@ -103,12 +103,12 @@ document.querySelectorAll("form").forEach(form => {
     }
     });
 
-    // Validación en tiempo real para números
+// Validación en tiempo real para números
     form.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener("keypress", allowOnlyNumbers);
     });
 
-    // Quitar el rojo al interactuar
+// Quitar el rojo al interactuar
     form.querySelectorAll("input, textarea").forEach(input => {
     input.addEventListener("input", function() {
         if (isNotEmpty(this.value)) this.classList.remove("is-invalid");
@@ -119,7 +119,7 @@ document.querySelectorAll("form").forEach(form => {
     });
 });
 
-// --- Animación de labels y toggles de contraseñas ---
+//Animación de labels y toggles de contraseñas
 const inputs = document.querySelectorAll('.input-animated');
 inputs.forEach(input => {
     const label = input.parentElement.querySelector('.label-animated');
@@ -157,7 +157,7 @@ inputs.forEach(input => {
     }
 });
 
-// --- Toggle de contraseñas (login y registro) ---
+//Toggle de contraseñas (login y registro)
 function setupPasswordToggle(buttonSelector, inputId) {
     const btn = document.querySelector(buttonSelector);
     const input = document.getElementById(inputId);
@@ -175,7 +175,7 @@ setupPasswordToggle('.btn-eye-login', 'loginPassword');
 setupPasswordToggle('#togglePassword', 'registerPassword');
 });
 
-// --- Carga dinámica de páginas ---
+//Carga dinámica de páginas
 function loadPage(url) {
   let pagePath = url;
   if (!url.startsWith('http')) {
@@ -214,7 +214,7 @@ function loadPage(url) {
         setTimeout(() => newScript.remove(), 1000);
       });
 
-      // ⬇️ AGREGAR ESTO: Forzar colores después de cargar
+//Forzar colores después de cargar
       setTimeout(() => {
         const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
         const colorIconos = isDark ? '#aaa' : '#5a189a';
@@ -232,7 +232,7 @@ function loadPage(url) {
     });
 }
 
-// --- Asignar eventos a los links dinámicos ---
+//Asignar eventos a los links dinámicos
 document.addEventListener("DOMContentLoaded", function () {
 document.querySelectorAll(".load-page").forEach(link => {
     link.addEventListener("click", function(e) {
@@ -243,7 +243,7 @@ document.querySelectorAll(".load-page").forEach(link => {
 });
 });
 
-// ==== REGISTRO ====
+//REGISTRO
 const formRegistro = document.getElementById("registroForm");
 if (formRegistro) {
 formRegistro.addEventListener("submit", async function (e) {
@@ -285,7 +285,7 @@ try {
 });
 }
 
-// ==== LOGIN ====
+//LOGIN
 const formLogin = document.getElementById("loginForm");
 if (formLogin) {
     formLogin.addEventListener("submit", async function (e) {
@@ -326,7 +326,7 @@ if (formLogin) {
     });
 }
 
-// ==== RESTABLECER CONTRASEÑA ====
+//RESTABLECER CONTRASEÑA
 const formReset = document.getElementById("resetForm");
 if (formReset) {
     formReset.addEventListener("submit", async function (e) {
@@ -368,7 +368,7 @@ if (formReset) {
         }
     });
 
-  // Toggle para mostrar/ocultar contraseña
+// Toggle para mostrar/ocultar contraseña
     const btnEyeReset = document.querySelector('.btn-eye-reset');
     const resetPasswordInput = document.getElementById('resetPassword');
     if (btnEyeReset && resetPasswordInput) {
@@ -391,13 +391,13 @@ async function actualizarInterfaz() {
   const perfilNombre = document.getElementById("perfil-nombre");
 
   if (usuario) {
-    // Obtener foto del usuario desde el backend
+// Obtener foto del usuario desde el backend
     try {
       const res = await fetch(`/api/perfil/${usuario.correo}`);
       if (res.ok) {
         const data = await res.json();
         
-        // Actualizar foto en el dropdown
+// Actualizar foto en el dropdown
         const perfilPic = perfilContainer.querySelector('.profile-pic');
         if (perfilPic && data.foto) {
           perfilPic.src = data.foto;
@@ -407,13 +407,13 @@ async function actualizarInterfaz() {
       console.warn("No se pudo cargar la foto del perfil");
     }
 
-    // Mostrar perfil y ocultar botones
+// Mostrar perfil y ocultar botones
     btnLogin.style.display = "none";
     btnRegister.style.display = "none";
     perfilContainer.style.display = "inline-block";
     perfilNombre.textContent = usuario.usuario;
   } else {
-    // Mostrar botones, ocultar perfil
+// Mostrar botones, ocultar perfil
     btnLogin.style.display = "inline-block";
     btnRegister.style.display = "inline-block";
     perfilContainer.style.display = "none";
@@ -430,7 +430,7 @@ document.getElementById("btn-logout").addEventListener("click", () => {
 // Al cargar la página, verificar sesión
 window.addEventListener("DOMContentLoaded", actualizarInterfaz);
 
-// ===== GESTIÓN DE PERFIL =====
+//GESTIÓN DE PERFIL
 window.cargarPerfil = async function() {
   const usuarioActual = window.getUsuarioActual();
   
@@ -463,7 +463,7 @@ window.cargarPerfil = async function() {
 
       setTimeout(actualizarLabelsInput, 100);
       
-      // Cargar publicaciones del usuario
+// Cargar publicaciones del usuario
       window.cargarPublicaciones(usuarioActual.correo);
     } else {
       window.mostrarToast(data.error || "Error al cargar perfil", "error");
@@ -479,7 +479,7 @@ window.inicializarPerfil = function() {
   
   if (!usuarioActual) return;
 
-  // Cambiar foto
+// Cambiar foto
   const btnCambiarFoto = document.getElementById("btnCambiarFoto");
   const inputFoto = document.getElementById("inputFoto");
   
@@ -499,7 +499,7 @@ window.inicializarPerfil = function() {
     };
   }
 
-  // Editar perfil
+// Editar perfil
   const formEditarPerfil = document.getElementById("formEditarPerfil");
   if (formEditarPerfil) {
     formEditarPerfil.onsubmit = async (e) => {
@@ -508,7 +508,7 @@ window.inicializarPerfil = function() {
     };
   }
 
-  // Editar publicación
+// Editar publicación
   const formEditarPublicacion = document.getElementById("formEditarPublicacion");
   if (formEditarPublicacion) {
     formEditarPublicacion.onsubmit = async (e) => {
@@ -759,12 +759,12 @@ function actualizarLabelsInput() {
   });
 }
 
-// ===== FORZAR COLORES AL CARGAR Y CAMBIAR DE PÁGINA =====
+//FORZAR COLORES AL CARGAR Y CAMBIAR DE PÁGINA
 function aplicarColoresIconos() {
   const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
   const colorIconos = isDark ? '#aaa' : '#5a189a';
   
-  // Aplicar colores a todos los iconos de acciones
+// Aplicar colores a todos los iconos de acciones
   document.querySelectorAll('.btn-icon-action, .pub-btn, .pub-stats i, .perfil-fecha i, .section-title i').forEach(el => {
     if (!el.closest('.pub-btn-like.liked')) {
       el.style.color = colorIconos;
@@ -776,7 +776,7 @@ function aplicarColoresIconos() {
 window.addEventListener('DOMContentLoaded', () => {
   aplicarColoresIconos();
   
-  // Observar cambios en el tema
+// Observar cambios en el tema
   const observer = new MutationObserver(() => {
     aplicarColoresIconos();
   });
@@ -802,3 +802,169 @@ setTimeout(() => {
         window.aplicarColoresIconos();
     }
 }, 300);
+
+// ===== SISTEMA DE SEGUIDORES (VERSIÓN CORREGIDA) =====
+window.mostrarSeguidores = async function() {
+  const usuarioActual = window.getUsuarioActual();
+  if (!usuarioActual) return;
+
+  document.getElementById('seguidoresModalTitle').textContent = 'Seguidores';
+  const modal = new bootstrap.Modal(document.getElementById('seguidoresModal'));
+  modal.show();
+
+  const lista = document.getElementById('seguidoresLista');
+  lista.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div></div>';
+
+  try {
+    const res = await fetch(`/api/usuario/${usuarioActual.correo}/seguidores`);
+    const usuarios = await res.json();
+
+    if (usuarios.length === 0) {
+      lista.innerHTML = '<p class="text-muted text-center p-4">Aún no tienes seguidores</p>';
+      return;
+    }
+
+    lista.innerHTML = '';
+    const promesas = usuarios.map(user => crearItemUsuario(user));
+    const items = await Promise.all(promesas);
+    items.forEach(item => lista.appendChild(item));
+  } catch (err) {
+    console.error('Error cargando seguidores:', err);
+    lista.innerHTML = '<p class="text-danger text-center p-4">Error al cargar seguidores</p>';
+  }
+}
+
+window.mostrarSeguidos = async function() {
+  const usuarioActual = window.getUsuarioActual();
+  if (!usuarioActual) return;
+
+  document.getElementById('seguidoresModalTitle').textContent = 'Siguiendo';
+  const modal = new bootstrap.Modal(document.getElementById('seguidoresModal'));
+  modal.show();
+
+  const lista = document.getElementById('seguidoresLista');
+  lista.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div></div>';
+
+  try {
+    const res = await fetch(`/api/usuario/${usuarioActual.correo}/seguidos`);
+    const usuarios = await res.json();
+
+    if (usuarios.length === 0) {
+      lista.innerHTML = '<p class="text-muted text-center p-4">Aún no sigues a nadie</p>';
+      return;
+    }
+
+    lista.innerHTML = '';
+    const promesas = usuarios.map(user => crearItemUsuario(user));
+    const items = await Promise.all(promesas);
+    items.forEach(item => lista.appendChild(item));
+  } catch (err) {
+    console.error('Error cargando seguidos:', err);
+    lista.innerHTML = '<p class="text-danger text-center p-4">Error al cargar seguidos</p>';
+  }
+}
+
+async function crearItemUsuario(user) {
+  const usuarioActual = window.getUsuarioActual();
+  const div = document.createElement('div');
+  div.className = 'user-list-item';
+
+  const esTuPerfil = usuarioActual && user.correo === usuarioActual.correo;
+
+  let siguiendo = false;
+  if (!esTuPerfil && usuarioActual) {
+    try {
+      const res = await fetch(`/api/siguiendo/${user.id_usuario}?correo=${encodeURIComponent(usuarioActual.correo)}`);
+      const data = await res.json();
+      siguiendo = data.siguiendo;
+    } catch (err) {
+      console.error('Error verificando seguimiento:', err);
+    }
+  }
+
+  div.innerHTML = `
+    <div class="user-item-content">
+      ${user.foto ? 
+        `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="user-item-avatar">` :
+        `<div class="user-item-avatar-text">${user.usuario.charAt(0).toUpperCase()}</div>`
+      }
+      <div class="user-item-info">
+        <strong>${window.escapeHtml(user.usuario)}</strong>
+        <small>${window.escapeHtml(user.correo)}</small>
+      </div>
+    </div>
+    ${!esTuPerfil && usuarioActual ? `
+      <button class="btn-seguir-modal ${siguiendo ? 'siguiendo' : ''}" data-id="${user.id_usuario}">
+        <i class="bi bi-person-${siguiendo ? 'check-fill' : 'plus'}"></i>
+        <span>${siguiendo ? 'Siguiendo' : 'Seguir'}</span>
+      </button>
+    ` : ''}
+  `;
+
+  const btnSeguir = div.querySelector('.btn-seguir-modal');
+  if (btnSeguir) {
+    btnSeguir.addEventListener('click', async () => {
+      await toggleSeguirModal(user.id_usuario, btnSeguir);
+    });
+  }
+
+  return div;
+}
+
+async function toggleSeguirModal(idUsuario, btnElement) {
+  const usuarioActual = window.getUsuarioActual();
+  if (!usuarioActual) return;
+
+  try {
+    const res = await fetch(`/api/seguir/${idUsuario}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ correo: usuarioActual.correo })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      if (data.siguiendo) {
+        btnElement.classList.add('siguiendo');
+        btnElement.querySelector('i').className = 'bi bi-person-check-fill';
+        btnElement.querySelector('span').textContent = 'Siguiendo';
+      } else {
+        btnElement.classList.remove('siguiendo');
+        btnElement.querySelector('i').className = 'bi bi-person-plus';
+        btnElement.querySelector('span').textContent = 'Seguir';
+      }
+      
+      cargarStatsSeguidores(); // SIN AWAIT
+    }
+  } catch (err) {
+    console.error('Error al seguir:', err);
+  }
+}
+
+async function cargarStatsSeguidores() {
+  const usuarioActual = window.getUsuarioActual();
+  if (!usuarioActual) return;
+
+  try {
+    const res = await fetch(`/api/usuario/${usuarioActual.correo}/stats`);
+    const data = await res.json();
+
+    const numSeguidores = document.getElementById('numSeguidores');
+    const numSeguidos = document.getElementById('numSeguidos');
+    
+    if (numSeguidores) numSeguidores.textContent = data.seguidores;
+    if (numSeguidos) numSeguidos.textContent = data.seguidos;
+  } catch (err) {
+    console.error('Error cargando stats:', err);
+  }
+}
+
+// Modificar window.cargarPerfil para agregar stats
+const cargarPerfilOriginal = window.cargarPerfil;
+window.cargarPerfil = async function() {
+  await cargarPerfilOriginal();
+  setTimeout(() => {
+    cargarStatsSeguidores(); // SIN AWAIT
+  }, 500);
+}

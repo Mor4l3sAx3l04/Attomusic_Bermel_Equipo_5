@@ -1,9 +1,7 @@
-
 let cantidadNoticias = 5;
 let pageFinal = cantidadNoticias;
 let pageInicial = 0;
 let temaActual = "Music";
-
 
 let noticias = {
     fetchNoticias: function() {
@@ -16,14 +14,14 @@ let noticias = {
         const contenedor = document.querySelector(".container-noticias");
         contenedor.innerHTML = "";
 
-        // Asegura que hay artículos válidos
+// Asegura que hay artículos válidos
         const articulos = Array.isArray(data.articles) ? data.articles : [];
         if (!articulos.length) {
             contenedor.innerHTML = `<div style="color:#ba01ff;text-align:center;font-size:1.2rem;margin:32px 0;">No hay noticias disponibles.</div>`;
             return;
         }
 
-        // Crea filas de 3 noticias
+// Crea filas de 3 noticias
         let row;
         articulos.slice(pageInicial, pageFinal + 1).forEach((articulo, idx) => {
             if (idx % 3 === 0) {
@@ -32,7 +30,7 @@ let noticias = {
                 contenedor.appendChild(row);
             }
 
-            // Datos seguros
+// Datos seguros
             const title = articulo.title || "Sin título";
             const img = articulo.urlToImage || "https://via.placeholder.com/300x180?text=Sin+Imagen";
             const desc = articulo.description || "";
@@ -46,7 +44,7 @@ let noticias = {
                 } catch {}
             }
 
-            // Tarjeta tipo canción
+// Tarjeta tipo canción
             const card = document.createElement("div");
             card.className = "col-md-4 col-sm-6 mb-4 d-flex align-items-stretch";
             card.innerHTML = `
@@ -65,7 +63,7 @@ let noticias = {
         row.appendChild(card);
     });
 
-    // Botón "Ver más" si hay más noticias
+// Botón "Ver más" si hay más noticias
     if (pageFinal + 1 < articulos.length) {
         let btnSiguiente = document.createElement("span");
         btnSiguiente.id = "btnSiguiente";
@@ -82,7 +80,7 @@ let noticias = {
 function siguiente(){
     pageInicial = pageFinal + 1;
     pageFinal = pageFinal + cantidadNoticias + 1;
-    //eliminamos el botón siguiente
+//eliminamos el botón siguiente
     const btn = document.querySelector("#btnSiguiente");
     if (btn) btn.remove();
     noticias.fetchNoticias();

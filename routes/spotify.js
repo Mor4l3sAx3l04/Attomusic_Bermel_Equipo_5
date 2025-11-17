@@ -1,16 +1,14 @@
-// ===============================
-// spotify.js - rutas relacionadas con la API de Spotify
-// ===============================
+// spotify.js
 const express = require("express");
 const axios = require("axios");
 
 const router = express.Router();
 
-// --- Variables para el token ---
+//Variables para el token
 let accessToken = null;
 let tokenExpiresAt = 0;
 
-// --- Función para obtener nuevo token ---
+//Función para obtener nuevo token
 async function getAccessToken() {
   const now = Date.now();
   if (accessToken && now < tokenExpiresAt) return accessToken;
@@ -35,7 +33,7 @@ async function getAccessToken() {
   return accessToken;
 }
 
-// --- Middleware para añadir token a cada request ---
+//Middleware para añadir token a cada request
 async function withToken(req, res, next) {
   try {
     const token = await getAccessToken();
@@ -47,9 +45,7 @@ async function withToken(req, res, next) {
   }
 }
 
-// ===============================
 // RUTAS SPOTIFY
-// ===============================
 
 // 🔎 Buscar
 router.get("/search", withToken, async (req, res) => {
@@ -67,7 +63,7 @@ router.get("/search", withToken, async (req, res) => {
   }
 });
 
-// 🎵 Track por ID
+// Track por ID
 router.get("/track/:id", withToken, async (req, res) => {
   try {
     const response = await axios.get(
@@ -80,7 +76,7 @@ router.get("/track/:id", withToken, async (req, res) => {
   }
 });
 
-// 👩‍🎤 Artista por ID
+// Artista por ID
 router.get("/artist/:id", withToken, async (req, res) => {
   try {
     const response = await axios.get(
@@ -93,7 +89,7 @@ router.get("/artist/:id", withToken, async (req, res) => {
   }
 });
 
-// 💿 Álbum por ID
+//Álbum por ID
 router.get("/album/:id", withToken, async (req, res) => {
   try {
     const response = await axios.get(
