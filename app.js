@@ -206,7 +206,7 @@ app.post("/api/publicacion", async (req, res) => {
 app.get("/api/publicaciones", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT p.id_publicacion, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
             c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
@@ -323,7 +323,7 @@ app.get("/api/perfil/:correo", async (req, res) => {
 
     const userResult = await pool.query(
       `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado 
-       FROM usuario WHERE correo = $1`,
+      FROM usuario WHERE correo = $1`,
       [correo]
     );
 
@@ -417,9 +417,9 @@ app.get("/api/perfil/:correo/publicaciones", async (req, res) => {
 
     const result = await pool.query(`
       SELECT p.id_publicacion, p.publicacion, p.fecha_pub,
-             c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.imagen_url AS imagen_cancion,
-             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
-             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.imagen_url AS imagen_cancion,
+            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
       FROM publicacion p
       JOIN usuario u ON p.id_usuario = u.id_usuario
       LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
@@ -496,6 +496,173 @@ app.put("/api/publicacion/:id", async (req, res) => {
   } catch (err) {
     console.error("Error actualizando publicación:", err);
     res.status(500).json({ error: "Error actualizando publicación" });
+  }
+});
+
+// RUTA: Seguir/Dejar de seguir usuario
+app.post("/api/seguir/:id_usuario", async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+    const { correo } = req.body;
+
+    if (!correo) {
+      return res.status(400).json({ error: "Usuario no autenticado" });
+    }
+
+    // Obtener ID del usuario actual
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_seguidor = userResult.rows[0].id_usuario;
+
+    // No puede seguirse a sí mismo
+    if (parseInt(id_seguidor) === parseInt(id_usuario)) {
+      return res.status(400).json({ error: "No puedes seguirte a ti mismo" });
+    }
+
+    // Verificar si ya lo sigue
+    const existeSeguimiento = await pool.query(
+      "SELECT * FROM seguimiento WHERE id_usuario_seguidor = $1 AND id_usuario_seguido = $2",
+      [id_seguidor, id_usuario]
+    );
+
+    if (existeSeguimiento.rowCount > 0) {
+      // Dejar de seguir
+      await pool.query(
+        "DELETE FROM seguimiento WHERE id_usuario_seguidor = $1 AND id_usuario_seguido = $2",
+        [id_seguidor, id_usuario]
+      );
+      res.json({ message: "Dejaste de seguir", siguiendo: false });
+    } else {
+      // Seguir
+      await pool.query(
+        "INSERT INTO seguimiento (id_usuario_seguidor, id_usuario_seguido) VALUES ($1, $2)",
+        [id_seguidor, id_usuario]
+      );
+      res.json({ message: "Ahora sigues a este usuario", siguiendo: true });
+    }
+  } catch (err) {
+    console.error("Error en seguir/dejar de seguir:", err);
+    res.status(500).json({ error: "Error al procesar solicitud" });
+  }
+});
+
+// RUTA: Verificar si sigue a un usuario
+app.get("/api/siguiendo/:id_usuario", async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+    const { correo } = req.query;
+
+    if (!correo) {
+      return res.json({ siguiendo: false });
+    }
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.json({ siguiendo: false });
+    }
+
+    const id_seguidor = userResult.rows[0].id_usuario;
+
+    const result = await pool.query(
+      "SELECT * FROM seguimiento WHERE id_usuario_seguidor = $1 AND id_usuario_seguido = $2",
+      [id_seguidor, id_usuario]
+    );
+
+    res.json({ siguiendo: result.rowCount > 0 });
+  } catch (err) {
+    console.error("Error verificando seguimiento:", err);
+    res.status(500).json({ error: "Error verificando seguimiento" });
+  }
+});
+
+// RUTA: Obtener estadísticas de seguidores
+app.get("/api/usuario/:correo/stats", async (req, res) => {
+  try {
+    const { correo } = req.params;
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    // Contar seguidores
+    const seguidores = await pool.query(
+      "SELECT COUNT(*) FROM seguimiento WHERE id_usuario_seguido = $1",
+      [id_usuario]
+    );
+
+    // Contar seguidos
+    const seguidos = await pool.query(
+      "SELECT COUNT(*) FROM seguimiento WHERE id_usuario_seguidor = $1",
+      [id_usuario]
+    );
+
+    res.json({
+      seguidores: parseInt(seguidores.rows[0].count),
+      seguidos: parseInt(seguidos.rows[0].count)
+    });
+  } catch (err) {
+    console.error("Error obteniendo stats:", err);
+    res.status(500).json({ error: "Error obteniendo estadísticas" });
+  }
+});
+
+// RUTA: Obtener lista de seguidores
+app.get("/api/usuario/:correo/seguidores", async (req, res) => {
+  try {
+    const { correo } = req.params;
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    const result = await pool.query(`
+      SELECT u.id_usuario, u.usuario, u.correo, u.foto
+      FROM seguimiento s
+      JOIN usuario u ON s.id_usuario_seguidor = u.id_usuario
+      WHERE s.id_usuario_seguido = $1
+      ORDER BY s.id_seguimiento DESC
+    `, [id_usuario]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo seguidores:", err);
+    res.status(500).json({ error: "Error obteniendo seguidores" });
+  }
+});
+
+// RUTA: Obtener lista de seguidos
+app.get("/api/usuario/:correo/seguidos", async (req, res) => {
+  try {
+    const { correo } = req.params;
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    const result = await pool.query(`
+      SELECT u.id_usuario, u.usuario, u.correo, u.foto
+      FROM seguimiento s
+      JOIN usuario u ON s.id_usuario_seguido = u.id_usuario
+      WHERE s.id_usuario_seguidor = $1
+      ORDER BY s.id_seguimiento DESC
+    `, [id_usuario]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo seguidos:", err);
+    res.status(500).json({ error: "Error obteniendo seguidos" });
   }
 });
 

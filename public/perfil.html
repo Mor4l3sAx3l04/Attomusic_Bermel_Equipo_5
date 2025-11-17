@@ -24,6 +24,16 @@
           <h1 class="perfil-nombre" id="perfilNombre">Cargando...</h1>
           <p class="perfil-correo" id="perfilCorreo">correo@ejemplo.com</p>
           <p class="perfil-fecha"><i class="bi bi-calendar"></i> Miembro desde <span id="perfilFecha">2024</span></p>
+          <div class="perfil-stats mt-3">
+            <button class="stat-item" onclick="mostrarSeguidores()">
+              <span class="stat-number" id="numSeguidores">0</span>
+              <span class="stat-label">Seguidores</span>
+            </button>
+            <button class="stat-item" onclick="mostrarSeguidos()">
+              <span class="stat-number" id="numSeguidos">0</span>
+              <span class="stat-label">Siguiendo</span>
+            </button>
+          </div>
           <button class="btn btn-gradient mt-3" data-bs-toggle="modal" data-bs-target="#editarPerfilModal">
             <i class="bi bi-pencil"></i> Editar Perfil
           </button>
@@ -95,6 +105,23 @@
                 Guardar Cambios
               </button>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Seguidores/Seguidos -->
+  <div class="modal fade" id="seguidoresModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-header" style="background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none;">
+          <h5 class="modal-title" id="seguidoresModalTitle">Seguidores</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0" id="seguidoresLista">
+          <div class="text-center p-4">
+            <div class="spinner-border text-primary" role="status"></div>
           </div>
         </div>
       </div>

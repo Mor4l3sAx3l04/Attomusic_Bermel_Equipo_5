@@ -67,27 +67,33 @@
     article.innerHTML = `
       <div class="pub-header">
         ${esPerfilPropio ? `
-            <small class="pub-fecha">${fechaFormateada}</small>
-            <div class="pub-actions-inline">
-                <button class="btn-icon-action" onclick="editarPublicacion(${pub.id_publicacion}, '${window.escapeHtml(pub.publicacion).replace(/'/g, "\\'")}')">
-                <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn-icon-action text-danger" onclick="eliminarPublicacion(${pub.id_publicacion})">
-                <i class="bi bi-trash"></i>
-                </button>
+          <small class="pub-fecha">${fechaFormateada}</small>
+          <div class="pub-actions-inline">
+            <button class="btn-icon-action" onclick="editarPublicacion(${pub.id_publicacion}, '${window.escapeHtml(pub.publicacion).replace(/'/g, "\\'")}')">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn-icon-action text-danger" onclick="eliminarPublicacion(${pub.id_publicacion})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        ` : `
+          <div class="pub-user-info">
+            ${pub.foto ? 
+              `<img src="${pub.foto}" alt="${window.escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
+              `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
+            }
+            <div style="flex: 1;">
+              <strong class="pub-username">@${window.escapeHtml(pub.usuario)}</strong>
+              <small class="pub-fecha">${fechaFormateada}</small>
             </div>
-            ` : `
-            <div class="pub-user-info">
-                ${pub.foto ? 
-                `<img src="${pub.foto}" alt="${window.escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
-                `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
-                }
-                <div>
-                <strong class="pub-username">@${window.escapeHtml(pub.usuario)}</strong>
-                <small class="pub-fecha">${fechaFormateada}</small>
-                </div>
-            </div>
-            `}
+            ${correoActual && pub.correo !== correoActual ? `
+              <button class="btn-seguir" data-id-usuario="${pub.id_usuario}" data-correo="${pub.correo}">
+                <i class="bi bi-person-plus"></i>
+                <span>Seguir</span>
+              </button>
+            ` : ''}
+          </div>
+        `}
       </div>
       
       <div class="pub-content">
@@ -148,6 +154,15 @@
       
       if (btnComment) {
         btnComment.addEventListener('click', () => toggleComentarios(pub.id_publicacion));
+      }
+    }
+
+    // Event listener para botón de seguir
+    if (!esPerfilPropio) {
+      const btnSeguir = article.querySelector('.btn-seguir');
+      if (btnSeguir) {
+        verificarSiguiendo(pub.id_usuario, btnSeguir);
+        btnSeguir.addEventListener('click', () => toggleSeguir(pub.id_usuario, btnSeguir));
       }
     }
     
@@ -279,7 +294,7 @@
     }
   }
 
-  // Auto-ejecutar si existe el feed
+// Auto-ejecutar si existe el feed
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       if (document.getElementById("feedPublicaciones")) {
@@ -291,5 +306,57 @@
       window.cargarPublicaciones();
     }
   }
+
+  async function verificarSiguiendo(idUsuario, btnElement) {
+  if (!correoActual) return;
+
+  try {
+    const res = await fetch(`/api/siguiendo/${idUsuario}?correo=${encodeURIComponent(correoActual)}`);
+    const data = await res.json();
+
+    if (data.siguiendo) {
+      btnElement.classList.add('siguiendo');
+      btnElement.querySelector('i').className = 'bi bi-person-check-fill';
+      btnElement.querySelector('span').textContent = 'Siguiendo';
+    }
+  } catch (err) {
+    console.error('Error verificando seguimiento:', err);
+  }
+}
+
+async function toggleSeguir(idUsuario, btnElement) {
+  if (!correoActual) {
+    window.mostrarToast('Debes iniciar sesión para seguir usuarios', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/seguir/${idUsuario}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ correo: correoActual })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      if (data.siguiendo) {
+        btnElement.classList.add('siguiendo');
+        btnElement.querySelector('i').className = 'bi bi-person-check-fill';
+        btnElement.querySelector('span').textContent = 'Siguiendo';
+      } else {
+        btnElement.classList.remove('siguiendo');
+        btnElement.querySelector('i').className = 'bi bi-person-plus';
+        btnElement.querySelector('span').textContent = 'Seguir';
+      }
+      window.mostrarToast(data.message, 'success');
+    } else {
+      window.mostrarToast(data.error || 'Error al seguir', 'error');
+    }
+  } catch (err) {
+    console.error('Error al seguir:', err);
+    window.mostrarToast('Error de conexión', 'error');
+  }
+}
 
 })();
