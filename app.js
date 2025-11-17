@@ -9,7 +9,6 @@ const axios = require("axios");
 // IMPORTA las rutas de Spotify
 const spotifyRoutes = require("./routes/spotify");
 const newsRoutes = require("./routes/news");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 

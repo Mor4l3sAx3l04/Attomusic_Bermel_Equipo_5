@@ -6,6 +6,40 @@
   let usuarioActual = window.getUsuarioActual();
   const correoActual = usuarioActual?.correo || null;
 
+  // Cache de likes y seguidos del usuario
+  let userLikesCache = new Set();
+  let usuariosSeguidosCache = new Set();
+
+  // Cargar likes del usuario
+  async function cargarLikesCache() {
+    if (!correoActual) return;
+    
+    try {
+      const res = await fetch(`/api/usuario/likes?correo=${encodeURIComponent(correoActual)}`);
+      if (res.ok) {
+        const data = await res.json();
+        userLikesCache = new Set(data.likes);
+      }
+    } catch (err) {
+      console.error('Error cargando likes:', err);
+    }
+  }
+
+  // Cargar usuarios seguidos
+  async function cargarUsuariosSeguidosCache() {
+    if (!correoActual) return;
+    
+    try {
+      const res = await fetch(`/api/usuario/${correoActual}/seguidos`);
+      if (res.ok) {
+        const data = await res.json();
+        usuariosSeguidosCache = new Set(data.map(u => u.id_usuario));
+      }
+    } catch (err) {
+      console.error('Error cargando seguidos:', err);
+    }
+  }
+
   window.cargarPublicaciones = async function(filtroCorreo = null) {
     const feed = document.getElementById("feedPublicaciones") || document.getElementById("misPublicaciones");
     
@@ -63,6 +97,7 @@
     
     const fecha = new Date(pub.fecha_pub);
     const fechaFormateada = window.formatearFecha(fecha);
+    const yaLeDioLike = userLikesCache.has(pub.id_publicacion);
 
     article.innerHTML = `
       <div class="pub-header">
@@ -121,8 +156,8 @@
         </div>
       ` : `
         <div class="pub-actions">
-          <button class="pub-btn pub-btn-like" data-id="${pub.id_publicacion}">
-            <i class="bi bi-heart"></i>
+          <button class="pub-btn pub-btn-like ${yaLeDioLike ? 'liked' : ''}" data-id="${pub.id_publicacion}">
+            <i class="bi bi-heart${yaLeDioLike ? '-fill' : ''}"></i>
             <span class="pub-count">${pub.likes || 0}</span>
           </button>
           
@@ -190,10 +225,12 @@
         const currentCount = parseInt(count.textContent) || 0;
         
         if (data.liked) {
+          userLikesCache.add(idPublicacion);
           btnElement.classList.add('liked');
           icon.className = 'bi bi-heart-fill';
           count.textContent = currentCount + 1;
         } else {
+          userLikesCache.delete(idPublicacion);
           btnElement.classList.remove('liked');
           icon.className = 'bi bi-heart';
           count.textContent = Math.max(0, currentCount - 1);
@@ -294,69 +331,104 @@
     }
   }
 
-// Auto-ejecutar si existe el feed
+  // Auto-ejecutar si existe el feed
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       if (document.getElementById("feedPublicaciones")) {
+        await cargarLikesCache();
+        await cargarUsuariosSeguidosCache();
         window.cargarPublicaciones();
       }
     });
   } else {
     if (document.getElementById("feedPublicaciones")) {
-      window.cargarPublicaciones();
+      (async () => {
+        await cargarLikesCache();
+        await cargarUsuariosSeguidosCache();
+        window.cargarPublicaciones();
+      })();
     }
   }
 
   async function verificarSiguiendo(idUsuario, btnElement) {
-  if (!correoActual) return;
+    if (!correoActual) return;
 
-  try {
-    const res = await fetch(`/api/siguiendo/${idUsuario}?correo=${encodeURIComponent(correoActual)}`);
-    const data = await res.json();
-
-    if (data.siguiendo) {
+    // Primero revisar cache
+    if (usuariosSeguidosCache.has(idUsuario)) {
       btnElement.classList.add('siguiendo');
       btnElement.querySelector('i').className = 'bi bi-person-check-fill';
       btnElement.querySelector('span').textContent = 'Siguiendo';
+      return;
     }
-  } catch (err) {
-    console.error('Error verificando seguimiento:', err);
-  }
-}
 
-async function toggleSeguir(idUsuario, btnElement) {
-  if (!correoActual) {
-    window.mostrarToast('Debes iniciar sesión para seguir usuarios', 'error');
-    return;
-  }
+    try {
+      const res = await fetch(`/api/siguiendo/${idUsuario}?correo=${encodeURIComponent(correoActual)}`);
+      const data = await res.json();
 
-  try {
-    const res = await fetch(`/api/seguir/${idUsuario}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ correo: correoActual })
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
       if (data.siguiendo) {
+        usuariosSeguidosCache.add(idUsuario);
         btnElement.classList.add('siguiendo');
         btnElement.querySelector('i').className = 'bi bi-person-check-fill';
         btnElement.querySelector('span').textContent = 'Siguiendo';
-      } else {
-        btnElement.classList.remove('siguiendo');
-        btnElement.querySelector('i').className = 'bi bi-person-plus';
-        btnElement.querySelector('span').textContent = 'Seguir';
       }
-      window.mostrarToast(data.message, 'success');
-    } else {
-      window.mostrarToast(data.error || 'Error al seguir', 'error');
+    } catch (err) {
+      console.error('Error verificando seguimiento:', err);
     }
-  } catch (err) {
-    console.error('Error al seguir:', err);
-    window.mostrarToast('Error de conexión', 'error');
   }
-}
+
+  async function toggleSeguir(idUsuario, btnElement) {
+    if (!correoActual) {
+      window.mostrarToast('Debes iniciar sesión para seguir usuarios', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/seguir/${idUsuario}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: correoActual })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Actualizar cache
+        if (data.siguiendo) {
+          usuariosSeguidosCache.add(idUsuario);
+        } else {
+          usuariosSeguidosCache.delete(idUsuario);
+        }
+
+        // Actualizar TODOS los botones de seguir de este usuario
+        document.querySelectorAll(`.btn-seguir[data-id-usuario="${idUsuario}"]`).forEach(btn => {
+          if (data.siguiendo) {
+            btn.classList.add('siguiendo');
+            btn.querySelector('i').className = 'bi bi-person-check-fill';
+            btn.querySelector('span').textContent = 'Siguiendo';
+          } else {
+            btn.classList.remove('siguiendo');
+            btn.querySelector('i').className = 'bi bi-person-plus';
+            btn.querySelector('span').textContent = 'Seguir';
+          }
+        });
+
+        window.mostrarToast(data.message, 'success');
+      } else {
+        window.mostrarToast(data.error || 'Error al seguir', 'error');
+      }
+    } catch (err) {
+      console.error('Error al seguir:', err);
+      window.mostrarToast('Error de conexión', 'error');
+    }
+  }
+
+  // Exportar función para actualizar cache desde otras páginas
+  window.actualizarCacheSeguidos = function(idUsuario, siguiendo) {
+    if (siguiendo) {
+      usuariosSeguidosCache.add(idUsuario);
+    } else {
+      usuariosSeguidosCache.delete(idUsuario);
+    }
+  };
 
 })();
