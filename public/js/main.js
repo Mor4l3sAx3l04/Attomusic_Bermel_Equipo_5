@@ -803,7 +803,7 @@ setTimeout(() => {
     }
 }, 300);
 
-// ===== SISTEMA DE SEGUIDORES (VERSIÓN CORREGIDA) =====
+//SISTEMA DE SEGUIDORES
 window.mostrarSeguidores = async function() {
   const usuarioActual = window.getUsuarioActual();
   if (!usuarioActual) return;
