@@ -8,7 +8,7 @@ const BASE_URL = "https://newsapi.org/v2/everything";
 
 router.get("/", async (req, res) => {
   try {
-    const tema = req.query.q || "music";
+    const tema = req.query.q || "musica";
     const url = `${BASE_URL}?q=${tema}&language=es&sortBy=publishedAt&pageSize=20&apiKey=${API_KEY}`;
     const respuesta = await fetch(url);
     const datos = await respuesta.json();
