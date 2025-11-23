@@ -3,7 +3,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-console.log("GEMINI_API_KEY:", process.env.GEMINI_API_KEY ? "OK" : "NO CARGADA");
+if (!process.env.GEMINI_API_KEY) {
+    console.error("ERROR: GEMINI_API_KEY no está definida.");
+    process.exit(1);
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -32,43 +36,32 @@ ESTRUCTURA DE RESPUESTA ÚNICA (JSON PURO):
 
 {
     "apto": true/false,
-    "razon": "explicación breve de por qué se acepta o rechaza",
+    "razon": "explicación breve",
     "categorias": ["hate", "violencia", "sexual", "spam", "nsfw", "repetitivo", "nonsense"]
 }
-
-Comportamiento:
-- Si detectas repetición (ej: "hola hola hola hola") → "apto": false + categoria "repetitivo".
-- Si detectas spam o flood → "apto": false + categoria "spam".
-- Si el comentario es ofensivo → "apto": false + categoria "hate".
-- Si está limpio y es normal → "apto": true.
 
 Comentario a analizar:
 "${publicacion}"
 `;
 
-    const result = await model.generateContent(prompt);
-    let respuesta = result.response.text();
-
-    console.log("Respuesta cruda de Gemini:", respuesta);
-
     try {
-        // EXTRAER SOLO EL JSON
+        const result = await model.generateContent(prompt);
+        const respuesta = result.response.text();
+
+        // EXTRAER JSON
         const jsonMatch = respuesta.match(/\{[\s\S]*\}/);
 
-        if (!jsonMatch) {
-            throw new Error("No se encontró JSON válido");
-        }
+        if (!jsonMatch) throw new Error("JSON inválido");
+        
+        return JSON.parse(jsonMatch[0]);
 
-        const jsonStr = jsonMatch[0];
+    } catch (err) {
+        console.error("Error en moderación (sin detalles sensibles).");
 
-        const moderacion = JSON.parse(jsonStr);
-
-        return moderacion;
-    } catch (e) {
-        console.error("Error procesando JSON de Gemini:", e);
+        // Retornar error seguro
         return {
             apto: false,
-            razon: "Error analizando texto",
+            razon: "Error al analizar el texto",
             categorias: ["error"]
         };
     }

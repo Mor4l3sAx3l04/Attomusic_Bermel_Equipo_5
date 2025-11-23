@@ -509,35 +509,37 @@ i{
 [data-bs-theme="dark"] .bi-eye{
   color: #e0e0e0 !important;
 }
-[data-bs-theme="dark"] .modal-content {
+
+/* Modo oscuro SOLO para los modales de Bootstrap (login, registro, etc) */
+[data-bs-theme="dark"] .modal.fade .modal-content {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
 }
 
-[data-bs-theme="dark"] .modal-content .input-animated {
+[data-bs-theme="dark"] .modal.fade .modal-content .input-animated {
   background: #23272f !important;
   color: #e0e0e0 !important;
   border-color: #b983ff !important;
 }
 
-[data-bs-theme="dark"] .modal-content .label-animated {
+[data-bs-theme="dark"] .modal.fade .modal-content .label-animated {
   color: #999 !important;
 }
 
-[data-bs-theme="dark"] .modal-content .input-animated:focus,
-[data-bs-theme="dark"] .modal-content .input-animated:not(:placeholder-shown) {
+[data-bs-theme="dark"] .modal.fade .modal-content .input-animated:focus,
+[data-bs-theme="dark"] .modal.fade .modal-content .input-animated:not(:placeholder-shown) {
   background: #1a1a2e !important;
   color: #b983ff !important;
 }
 
-[data-bs-theme="dark"] .modal-content p {
+[data-bs-theme="dark"] .modal.fade .modal-content p {
   color: #e0e0e0 !important;
 }
 
-[data-bs-theme="dark"] .modal-content a {
+[data-bs-theme="dark"] .modal.fade .modal-content a {
   color: #b983ff !important;
 }
 
-[data-bs-theme="dark"] .modal-content a:hover {
+[data-bs-theme="dark"] .modal.fade .modal-content a:hover {
   color: #00dffc !important;
 }
 
@@ -1633,3 +1635,272 @@ body:not([data-bs-theme="dark"]) .section-title i {
 .btn-seguir-modal.siguiendo:hover {
   background: #dc3545;
 }
+
+
+
+/* Estilos para links de usuario clickeables */
+.pub-user-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pub-username-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pub-username-link:hover .pub-username {
+  color: #667eea;
+  text-decoration: underline;
+}
+
+.pub-avatar-img,
+.pub-avatar {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.pub-avatar-img:hover,
+.pub-avatar:hover {
+  transform: scale(1.08);
+}
+
+/* Estilos para el header de publicaciones con múltiples botones */
+.pub-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Botón de icono para reportar */
+.btn-icon-action {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-icon-action:hover {
+  background: #f0f0f0;
+  color: #667eea;
+}
+
+.btn-icon-action.text-danger:hover {
+  background: #ffe0e0;
+  color: #dc3545;
+}
+
+/* Modal de reporte - usar clase específica para no interferir con otros modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+}
+
+.modal-overlay .modal-content1 {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+
+.modal-overlay.show .modal-content1 {
+  transform: scale(1);
+}
+
+.modal-overlay .modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-overlay .modal-header h5 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-close-modal {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.btn-close-modal:hover {
+  background: #f0f0f0;
+}
+
+.modal-overlay .modal-body1 {
+  padding: 1.5rem;
+}
+
+.modal-overlay .modal-body1 p {
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+.modal-overlay .modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Modo oscuro solo para modal de reporte */
+[data-bs-theme="dark"] .modal-overlay .modal-content1 {
+  background: #23272f;
+  color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .modal-overlay .modal-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .modal-overlay .modal-header h5 {
+  color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .modal-overlay .modal-body1 p {
+  color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .modal-overlay .modal-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .btn-close-modal {
+  color: #aaa;
+}
+
+[data-bs-theme="dark"] .btn-close-modal:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Buscador */
+.buscador-container {
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+
+.buscador-container .input-group {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.buscador-container .input-group-text {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-right: none;
+  padding-left: 1rem;
+}
+
+.buscador-container .form-control {
+  border: 1px solid #dee2e6;
+  border-left: none;
+  border-right: none;
+  box-shadow: none;
+  padding: 0.75rem 1rem;
+}
+
+.buscador-container .form-control:focus {
+  border-color: #667eea;
+  box-shadow: none;
+}
+
+.buscador-container .btn {
+  border: 1px solid #dee2e6;
+  border-left: none;
+  background: white;
+  color: #666;
+  padding: 0 1rem;
+}
+
+.buscador-container .btn:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pub-header-actions {
+    flex-wrap: wrap;
+  }
+  
+  .btn-seguir {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .buscador-container {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    border-radius: 16px !important;
+  }
+
+  .modal-content > .modal-body > div {
+    padding: 24px 20px !important; /* antes eran 48px 40px */
+  }
+}
+

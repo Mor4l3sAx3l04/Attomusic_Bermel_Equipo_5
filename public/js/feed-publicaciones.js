@@ -1,4 +1,4 @@
-// feed-publicaciones.js
+// feed-publicaciones.js ACTUALIZADO
 
 (function() {
   'use strict';
@@ -37,6 +37,48 @@
       }
     } catch (err) {
       console.error('Error cargando seguidos:', err);
+    }
+  }
+
+  // FUNCIÓN DE BÚSQUEDA
+  window.buscarPublicaciones = async function(query) {
+    const feed = document.getElementById("feedPublicaciones");
+    
+    if (!query || query.trim().length === 0) {
+      await window.cargarPublicaciones();
+      return;
+    }
+
+    try {
+      feed.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Buscando...</span></div></div>`;
+      
+      const res = await fetch(`/api/publicaciones/buscar?q=${encodeURIComponent(query)}`);
+      
+      if (!res.ok) {
+        throw new Error('Error en búsqueda');
+      }
+
+      const data = await res.json();
+      feed.innerHTML = "";
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        feed.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-search" style="font-size: 4rem; color: #ccc;"></i>
+            <p class="text-muted mt-3">No se encontraron publicaciones con "${window.escapeHtml(query)}"</p>
+          </div>
+        `;
+        return;
+      }
+
+      data.forEach(pub => {
+        const article = crearPublicacion(pub, false);
+        feed.appendChild(article);
+      });
+
+    } catch (err) {
+      console.error("Error en búsqueda:", err);
+      feed.innerHTML = `<p class="text-danger">Error al buscar publicaciones.</p>`;
     }
   }
 
@@ -113,20 +155,31 @@
           </div>
         ` : `
           <div class="pub-user-info">
-            ${pub.foto ? 
-              `<img src="${pub.foto}" alt="${window.escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
-              `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
-            }
+            <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-user-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
+              ${pub.foto ? 
+                `<img src="${pub.foto}" alt="${window.escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
+                `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
+              }
+            </a>
             <div style="flex: 1;">
-              <strong class="pub-username">@${window.escapeHtml(pub.usuario)}</strong>
+              <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-username-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
+                <strong class="pub-username">@${window.escapeHtml(pub.usuario)}</strong>
+              </a>
               <small class="pub-fecha">${fechaFormateada}</small>
             </div>
-            ${correoActual && pub.correo !== correoActual ? `
-              <button class="btn-seguir" data-id-usuario="${pub.id_usuario}" data-correo="${pub.correo}">
-                <i class="bi bi-person-plus"></i>
-                <span>Seguir</span>
-              </button>
-            ` : ''}
+            <div class="pub-header-actions">
+              ${correoActual && pub.correo !== correoActual ? `
+                <button class="btn-seguir" data-id-usuario="${pub.id_usuario}" data-correo="${pub.correo}">
+                  <i class="bi bi-person-plus"></i>
+                  <span>Seguir</span>
+                </button>
+              ` : ''}
+              ${correoActual ? `
+                <button class="btn-icon-action" onclick="mostrarFormReporte(${pub.id_publicacion})">
+                  <i class="bi bi-flag"></i>
+                </button>
+              ` : ''}
+            </div>
           </div>
         `}
       </div>
@@ -199,6 +252,16 @@
         verificarSiguiendo(pub.id_usuario, btnSeguir);
         btnSeguir.addEventListener('click', () => toggleSeguir(pub.id_usuario, btnSeguir));
       }
+
+      // Event listeners para los links de perfil
+      const linksPerfilUsuario = article.querySelectorAll('.load-page-perfil');
+      linksPerfilUsuario.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const idUsuario = this.getAttribute('data-id-usuario');
+          loadPage(`perfil-usuario.html?id=${idUsuario}`);
+        });
+      });
     }
     
     return article;
@@ -331,6 +394,79 @@
     }
   }
 
+  // FUNCIÓN PARA MOSTRAR FORMULARIO DE REPORTE
+  window.mostrarFormReporte = function(idPublicacion) {
+    if (!correoActual) {
+      window.mostrarToast('Debes iniciar sesión para reportar', 'error');
+      return;
+    }
+
+    const existingModal = document.getElementById('modalReporte');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'modalReporte';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-content1">
+        <div class="modal-header">
+          <h5>Reportar publicación</h5>
+          <button class="btn-close-modal" onclick="cerrarModalReporte()">&times;</button>
+        </div>
+        <div class="modal-body1">
+          <p>¿Por qué reportas esta publicación?</p>
+          <textarea id="motivoReporte" class="form-control" rows="4" placeholder="Describe el motivo del reporte (mínimo 10 caracteres)"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="cerrarModalReporte()">Cancelar</button>
+          <button class="btn btn-danger" onclick="enviarReporte(${idPublicacion})">Reportar</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+  }
+
+  window.cerrarModalReporte = function() {
+    const modal = document.getElementById('modalReporte');
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => modal.remove(), 300);
+    }
+  }
+
+  window.enviarReporte = async function(idPublicacion) {
+    const motivo = document.getElementById('motivoReporte').value.trim();
+
+    if (!motivo || motivo.length < 10) {
+      window.mostrarToast('El motivo debe tener al menos 10 caracteres', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/publicacion/${idPublicacion}/reportar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: correoActual, motivo })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        window.mostrarToast('Reporte enviado correctamente', 'success');
+        window.cerrarModalReporte();
+      } else {
+        window.mostrarToast(data.error || 'Error al enviar reporte', 'error');
+      }
+    } catch (err) {
+      console.error('Error al reportar:', err);
+      window.mostrarToast('Error de conexión', 'error');
+    }
+  }
+
   // Auto-ejecutar si existe el feed
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", async () => {
@@ -353,7 +489,6 @@
   async function verificarSiguiendo(idUsuario, btnElement) {
     if (!correoActual) return;
 
-    // Primero revisar cache
     if (usuariosSeguidosCache.has(idUsuario)) {
       btnElement.classList.add('siguiendo');
       btnElement.querySelector('i').className = 'bi bi-person-check-fill';
@@ -392,14 +527,12 @@
       const data = await res.json();
 
       if (res.ok) {
-        // Actualizar cache
         if (data.siguiendo) {
           usuariosSeguidosCache.add(idUsuario);
         } else {
           usuariosSeguidosCache.delete(idUsuario);
         }
 
-        // Actualizar TODOS los botones de seguir de este usuario
         document.querySelectorAll(`.btn-seguir[data-id-usuario="${idUsuario}"]`).forEach(btn => {
           if (data.siguiendo) {
             btn.classList.add('siguiendo');
@@ -422,7 +555,6 @@
     }
   }
 
-  // Exportar función para actualizar cache desde otras páginas
   window.actualizarCacheSeguidos = function(idUsuario, siguiendo) {
     if (siguiendo) {
       usuariosSeguidosCache.add(idUsuario);
