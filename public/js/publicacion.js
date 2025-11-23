@@ -8,7 +8,7 @@ function inicializarPublicaciones() {
   const form = document.getElementById("formPublicacion");
   const mensaje = document.getElementById("mensajePub");
   const feed = document.getElementById("feedPublicaciones");
-
+  const mensajeError = document.getElementById("mensajeError");
 // sanity checks con retry
   if (!inputBuscar || !botonBuscar || !resultados || !form) {
     console.warn("Elementos no encontrados, reintentando en 200ms...");
@@ -94,8 +94,18 @@ function inicializarPublicaciones() {
   }
 
 //Enviar publicación al backend
+let enviando = false; // - evita clics múltiples
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    if (enviando) return; // prevenir múltiples envíos
+    
+    const btnSubmit = form.querySelector("button[type='submit']");
+    enviando = true;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Publicando...";
+
+
     const texto = document.getElementById("textoPublicacion").value.trim();
     const idCancion = idCancionInput.value || null;
 
@@ -106,12 +116,19 @@ function inicializarPublicaciones() {
     if (!correo) {
       mensaje.textContent = "Debes iniciar sesión para publicar.";
       mensaje.style.color = "#f8d7da";
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "Publicar";
+      enviando = false;
       return;
     }
     if (!texto) {
       alert("Escribe algo para publicar.");
       return;
     }
+
+  // Limpiar mensaje de error
+    mensajeError.classList.add("d-none");
+    mensajeError.innerHTML = "";
 
     const fechaHora = new Date().toISOString();
 
@@ -123,6 +140,18 @@ function inicializarPublicaciones() {
       });
 
       const data = await res.json();
+      
+      if (!res.ok) {
+        // Aquí se MUESTRA el error que viene de Gemini
+        mensajeError.classList.remove("d-none");
+        mensajeError.innerHTML = `❌ ${data.error}`;
+
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "Publicar";
+        enviando = false;
+        return;
+      }
+
       if (res.ok) {
         mensaje.textContent = data.message || "Publicación creada correctamente.";
         mensaje.style.color = "#c9f7d3";
@@ -205,3 +234,4 @@ if (document.readyState === "loading") {
 // Ya está cargado, ejecutar con delay
   setTimeout(inicializarPublicaciones, 100);
 }
+
