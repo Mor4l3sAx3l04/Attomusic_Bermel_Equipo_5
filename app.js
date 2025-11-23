@@ -5,6 +5,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
 const axios = require("axios");
+//importar la ruta de gemini
 
 // IMPORTA las rutas de Spotify
 const spotifyRoutes = require("./routes/spotify");
@@ -186,6 +187,14 @@ app.post("/api/publicacion", async (req, res) => {
 
       id_cancion_final = idCancion;
     }
+
+    //VALDIAR PUBLICACIÓN CON GEMINI 
+    const { validarPublicacion } = require("./routes/gemini");
+    const moderacion = await validarPublicacion(publicacion);
+    if (!moderacion.apto) {
+      return res.status(400).json({ error: "Publicación no apta: " + moderacion.razon });
+    }
+
 
     // Usar NOW() para obtener timestamp exacto
     await pool.query(
