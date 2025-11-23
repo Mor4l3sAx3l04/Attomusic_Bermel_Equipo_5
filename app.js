@@ -5,7 +5,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
 const axios = require("axios");
-//importar la ruta de gemini
+
 
 // IMPORTA las rutas de Spotify
 const spotifyRoutes = require("./routes/spotify");
@@ -292,6 +292,13 @@ app.post("/api/publicacion/:id/comentario", async (req, res) => {
 
     const id_usuario = userResult.rows[0].id_usuario;
 
+    //VALDIAR PUBLICACIÓN CON GEMINI 
+    const { validarPublicacion } = require("./routes/gemini");
+    const moderacion = await validarPublicacion(comentario);
+    if (!moderacion.apto) {
+      return res.status(400).json({ error: "Publicación no apta: " + moderacion.razon });
+    }
+    console.log (comentario);
     await pool.query(
       "INSERT INTO comentario (id_publicacion, id_usuario, comentario, fecha_com) VALUES ($1, $2, $3, NOW())",
       [id, id_usuario, comentario]

@@ -56,7 +56,7 @@ Comentario a analizar:
         return JSON.parse(jsonMatch[0]);
 
     } catch (err) {
-        console.error("Error en moderación (sin detalles sensibles).");
+        console.error("Error al validar publicación con Gemini:", err);
 
         // Retornar error seguro
         return {

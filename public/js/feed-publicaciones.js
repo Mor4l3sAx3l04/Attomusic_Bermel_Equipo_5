@@ -225,6 +225,7 @@
           ${correoActual ? `
             <div class="comentario-form mt-3">
               <textarea class="form-control form-control-sm mb-2" placeholder="Escribe un comentario..." rows="2" id="txt-comentario-${pub.id_publicacion}"></textarea>
+                <div id="error-comentario-${pub.id_publicacion}" class="error-comentario" style="color:red; display:none;"></div>
               <button class="btn btn-sm btn-gradient" onclick="enviarComentario(${pub.id_publicacion})">Comentar</button>
             </div>
           ` : '<p class="text-muted small">Inicia sesión para comentar</p>'}
@@ -360,6 +361,7 @@
 
     const textarea = document.getElementById(`txt-comentario-${idPublicacion}`);
     const comentario = textarea.value.trim();
+    const errorDiv = document.getElementById(`error-comentario-${idPublicacion}`);
     
     if (!comentario) {
       window.mostrarToast('Escribe algo para comentar', 'error');
@@ -374,6 +376,13 @@
       });
 
       const data = await res.json();
+
+      
+      if (!res.ok) {
+        errorDiv.textContent = data.error;
+        errorDiv.style.display = "block";
+        return;
+      }
       
       if (res.ok) {
         textarea.value = '';
