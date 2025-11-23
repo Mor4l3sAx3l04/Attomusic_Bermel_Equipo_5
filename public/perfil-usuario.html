@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil de Usuario - AttoMusic</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  .perfil-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
+    color: white;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+  }
+  
+  .perfil-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  
+  .perfil-avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  
+  .perfil-info h2 {
+    margin: 0;
+    font-size: 2rem;
+  }
+  
+  .perfil-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+  
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-item .number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: block;
+  }
+  
+  .stat-item .label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  
+  .btn-seguir-perfil {
+    background: white;
+    color: #667eea;
+    border: 2px solid white;
+    padding: 0.5rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-seguir-perfil:hover {
+    background: transparent;
+    color: white;
+  }
+  
+  .btn-seguir-perfil.siguiendo {
+    background: rgba(255,255,255,0.2);
+    color: white;
+  }
+  
+  .publicaciones-usuario {
+    margin-top: 2rem;
+  }
+  
+  .back-button {
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+    cursor: pointer;
+  }
+  
+  .back-button:hover {
+    opacity: 1;
+    color: white;
+  }
+</style>
+</head>
+<body>
+<div class="perfil-header">
+  <div class="container">
+    <a class="back-button load-page" href="bienvenido.html">
+      <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    
+    <div class="d-flex align-items-center gap-4">
+      <div id="perfilAvatar"></div>
+      
+      <div class="perfil-info flex-grow-1">
+        <h2 id="perfilUsuario">Cargando...</h2>
+        <p class="mb-0" id="perfilCorreo"></p>
+        <small id="perfilFecha"></small>
+        
+        <div class="perfil-stats mt-3">
+          <div class="stat-item">
+            <span class="number" id="statSeguidores">0</span>
+            <span class="label">Seguidores</span>
+          </div>
+          <div class="stat-item">
+            <span class="number" id="statSeguidos">0</span>
+            <span class="label">Siguiendo</span>
+          </div>
+          <div class="stat-item">
+            <span class="number" id="statPublicaciones">0</span>
+            <span class="label">Publicaciones</span>
+          </div>
+        </div>
+      </div>
+      
+      <div id="btnSeguirContainer"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <h4 class="mb-4">Publicaciones</h4>
+  <div id="publicacionesUsuario" class="publicaciones-usuario"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/utils.js"></script>
+<script>
+(async function() {
+const usuarioActual = window.getUsuarioActual();
+const correoActual = usuarioActual?.correo || null;
+
+// Obtener ID del usuario desde window._perfilUsuarioId (pasado por loadPage)
+let idUsuario = window._perfilUsuarioId;
+
+// Si no está, intentar obtenerlo de la URL real
+if (!idUsuario) {
+const urlParams = new URLSearchParams(window.location.search);
+idUsuario = urlParams.get('id');
+}
+
+console.log('ID Usuario cargado:', idUsuario);
+
+if (!idUsuario) {
+window.mostrarToast('Usuario no especificado', 'error');
+setTimeout(() => loadPage('bienvenido.html'), 2000);
+return;
+}
+
+let perfilData = null;
+
+async function cargarPerfil() {
+try {
+    const res = await fetch(`/api/perfil-publico/${idUsuario}`);
+    
+    if (!res.ok) {
+    throw new Error('Usuario no encontrado');
+    }
+    
+    perfilData = await res.json();
+    
+    // Mostrar avatar
+    const avatarContainer = document.getElementById('perfilAvatar');
+    if (perfilData.foto) {
+    avatarContainer.innerHTML = `<img src="${perfilData.foto}" alt="${perfilData.usuario}" class="perfil-avatar">`;
+    } else {
+    avatarContainer.innerHTML = `<div class="perfil-avatar-placeholder">${perfilData.usuario.charAt(0).toUpperCase()}</div>`;
+    }
+    
+    // Mostrar info
+    document.getElementById('perfilUsuario').textContent = '@' + perfilData.usuario;
+    document.getElementById('perfilCorreo').textContent = perfilData.correo;
+    
+    const fecha = new Date(perfilData.fecha_reg);
+    const mes = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    document.getElementById('perfilFecha').textContent = 'Se unió en ' + mes;
+    
+    // Botón de seguir (solo si no es el propio usuario)
+    const btnContainer = document.getElementById('btnSeguirContainer');
+    if (correoActual && correoActual !== perfilData.correo) {
+    btnContainer.innerHTML = `<button id="btnSeguirPerfil" class="btn-seguir-perfil"><i class="bi bi-person-plus"></i> Seguir</button>`;
+    await verificarSiguiendo();
+    document.getElementById('btnSeguirPerfil').addEventListener('click', toggleSeguir);
+    } else if (correoActual === perfilData.correo) {
+    btnContainer.innerHTML = `<a href="perfiles.html" class="btn-seguir-perfil load-page"><i class="bi bi-pencil"></i> Editar perfil</a>`;
+    
+    // Asignar evento después de crear el elemento
+    setTimeout(() => {
+        const editLink = btnContainer.querySelector('.load-page');
+        if (editLink) {
+        editLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadPage('perfiles.html');
+        });
+        }
+    }, 100);
+    }
+    
+} catch (err) {
+    console.error('Error cargando perfil:', err);
+    window.mostrarToast('Error cargando perfil', 'error');
+}
+}
+
+async function cargarEstadisticas() {
+try {
+    const res = await fetch(`/api/usuario-stats/${idUsuario}`);
+    const stats = await res.json();
+    
+    document.getElementById('statSeguidores').textContent = stats.seguidores;
+    document.getElementById('statSeguidos').textContent = stats.seguidos;
+    
+} catch (err) {
+    console.error('Error cargando estadísticas:', err);
+}
+}
+
+async function cargarPublicaciones() {
+try {
+    const res = await fetch(`/api/usuario/${idUsuario}/publicaciones`);
+    const publicaciones = await res.json();
+    
+    document.getElementById('statPublicaciones').textContent = publicaciones.length;
+    
+    const container = document.getElementById('publicacionesUsuario');
+    
+    if (publicaciones.length === 0) {
+    container.innerHTML = `
+        <div class="text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+        <p class="text-muted mt-3">Este usuario no ha publicado nada aún</p>
+        </div>
+    `;
+    return;
+    }
+    
+    container.innerHTML = '';
+    publicaciones.forEach(pub => {
+    const article = crearPublicacion(pub);
+    container.appendChild(article);
+    });
+    
+} catch (err) {
+    console.error('Error cargando publicaciones:', err);
+}
+}
+
+function crearPublicacion(pub) {
+const article = document.createElement('article');
+article.className = 'publicacion-item mb-4 fade-in';
+
+const fecha = new Date(pub.fecha_pub);
+const fechaFormateada = window.formatearFecha(fecha);
+
+article.innerHTML = `
+    <div class="pub-header">
+    <small class="pub-fecha">${fechaFormateada}</small>
+    </div>
+    
+    <div class="pub-content">
+    <p class="pub-text">${window.escapeHtml(pub.publicacion)}</p>
+    </div>
+    
+    ${pub.cancion ? `
+    <div class="pub-cancion">
+        ${pub.imagen_cancion ? 
+        `<img src="${pub.imagen_cancion}" alt="cover" class="pub-cancion-img">` : 
+        window.crearImagenPlaceholder()
+        }
+        <div class="pub-cancion-info">
+        <strong class="pub-cancion-nombre">${window.escapeHtml(pub.cancion)}</strong>
+        <p class="pub-cancion-artista">${window.escapeHtml(pub.artista || '')}</p>
+        ${pub.album ? `<small class="pub-cancion-album">${window.escapeHtml(pub.album)}</small>` : ''}
+        </div>
+    </div>
+    ` : ''}
+    
+    <div class="pub-stats">
+    <span><i class="bi bi-heart-fill"></i> ${pub.likes || 0}</span>
+    <span><i class="bi bi-chat-fill"></i> ${pub.comentarios || 0}</span>
+    </div>
+`;
+
+return article;
+}
+
+async function verificarSiguiendo() {
+if (!correoActual) return;
+
+try {
+    const res = await fetch(`/api/siguiendo-usuario/${idUsuario}?correo=${encodeURIComponent(correoActual)}`);
+    const data = await res.json();
+    
+    const btn = document.getElementById('btnSeguirPerfil');
+    if (data.siguiendo) {
+    btn.classList.add('siguiendo');
+    btn.innerHTML = '<i class="bi bi-person-check-fill"></i> Siguiendo';
+    } else {
+    btn.classList.remove('siguiendo');
+    btn.innerHTML = '<i class="bi bi-person-plus"></i> Seguir';
+    }
+} catch (err) {
+    console.error('Error verificando seguimiento:', err);
+}
+}
+
+async function toggleSeguir() {
+if (!correoActual) {
+    window.mostrarToast('Debes iniciar sesión', 'error');
+    return;
+}
+
+try {
+    const res = await fetch(`/api/seguir/${idUsuario}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ correo: correoActual })
+    });
+    
+    const data = await res.json();
+    
+    if (res.ok) {
+    await verificarSiguiendo();
+    await cargarEstadisticas();
+    window.mostrarToast(data.message, 'success');
+    } else {
+    window.mostrarToast(data.error || 'Error', 'error');
+    }
+} catch (err) {
+    console.error('Error al seguir:', err);
+    window.mostrarToast('Error de conexión', 'error');
+}
+}
+
+// Activar evento load-page para el botón de volver
+setTimeout(() => {
+const backBtn = document.querySelector('.back-button.load-page');
+if (backBtn) {
+    backBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    loadPage('bienvenido.html');
+    });
+}
+}, 100);
+
+// Cargar todo
+await cargarPerfil();
+await cargarEstadisticas();
+await cargarPublicaciones();
+
+})();
+</script>
+</body>
+</html>

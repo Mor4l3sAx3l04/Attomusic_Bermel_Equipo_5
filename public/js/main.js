@@ -176,6 +176,8 @@ setupPasswordToggle('#togglePassword', 'registerPassword');
 });
 
 //Carga dinámica de páginas
+// Reemplaza la función loadPage en main.js con esta versión mejorada
+
 function loadPage(url) {
   let pagePath = url;
   if (!url.startsWith('http')) {
@@ -185,6 +187,13 @@ function loadPage(url) {
   const urlObj = new URL(pagePath, window.location.origin);
   const params = urlObj.search;
 
+  // Extraer parámetros para pasarlos al script
+  const urlParams = new URLSearchParams(params);
+  const parametros = {};
+  for (const [key, value] of urlParams) {
+    parametros[key] = value;
+  }
+
   fetch(urlObj.pathname)
     .then(res => res.text())
     .then(html => {
@@ -192,11 +201,21 @@ function loadPage(url) {
       mainContent.innerHTML = html;
       window.scrollTo(0, 0);
 
-    setTimeout(() => {
+      // Pasar parámetros a variables globales específicas
+      if (urlObj.pathname.includes('perfil-usuario.html') && parametros.id) {
+        window._perfilUsuarioId = parametros.id;
+        console.log('ID de usuario guardado:', window._perfilUsuarioId);
+      }
+
+      if (urlObj.pathname.includes('buscador.html')) {
+        window._searchParams = params;
+      }
+
+      setTimeout(() => {
         if (typeof aplicarColoresIconos === 'function') {
-            aplicarColoresIconos();
+          aplicarColoresIconos();
         }
-    }, 300);
+      }, 300);
 
       const scripts = mainContent.querySelectorAll('script');
       scripts.forEach(oldScript => {
@@ -204,6 +223,7 @@ function loadPage(url) {
         if (oldScript.src) {
           newScript.src = oldScript.src;
         } else {
+          // Para buscador, inyectar parámetros
           if (urlObj.pathname.endsWith('buscador.html')) {
             newScript.textContent = `window._searchParams = '${params}';\n` + oldScript.textContent;
           } else {
@@ -214,7 +234,7 @@ function loadPage(url) {
         setTimeout(() => newScript.remove(), 1000);
       });
 
-//Forzar colores después de cargar
+      // Forzar colores después de cargar
       setTimeout(() => {
         const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
         const colorIconos = isDark ? '#aaa' : '#5a189a';

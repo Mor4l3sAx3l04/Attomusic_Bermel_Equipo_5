@@ -674,6 +674,220 @@ app.get("/api/usuario/:correo/seguidos", async (req, res) => {
   }
 });
 
+// RUTA: Buscar publicaciones
+app.get("/api/publicaciones/buscar", async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q || q.trim().length === 0) {
+      return res.status(400).json({ error: "Parámetro de búsqueda vacío" });
+    }
+
+    const result = await pool.query(`
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      WHERE p.publicacion ILIKE $1 OR u.usuario ILIKE $1
+      ORDER BY p.fecha_pub DESC
+    `, [`%${q}%`]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error en búsqueda:", err);
+    res.status(500).json({ error: "Error en búsqueda de publicaciones" });
+  }
+});
+
+// RUTA: Ver perfil público de otro usuario
+app.get("/api/perfil-publico/:id_usuario", async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+
+    const userResult = await pool.query(
+      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado 
+      FROM usuario WHERE id_usuario = $1`,
+      [id_usuario]
+    );
+
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json(userResult.rows[0]);
+  } catch (err) {
+    console.error("Error obteniendo perfil público:", err);
+    res.status(500).json({ error: "Error obteniendo perfil" });
+  }
+});
+
+// RUTA: Obtener publicaciones de un usuario (por ID)
+app.get("/api/usuario/:id_usuario/publicaciones", async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+
+    const result = await pool.query(`
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      WHERE u.id_usuario = $1
+      ORDER BY p.fecha_pub DESC
+    `, [id_usuario]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo publicaciones del usuario:", err);
+    res.status(500).json({ error: "Error obteniendo publicaciones" });
+  }
+});
+
+// RUTA: Obtener estadísticas de un usuario (por ID)
+app.get("/api/usuario-stats/:id_usuario", async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+
+    // Contar seguidores
+    const seguidores = await pool.query(
+      "SELECT COUNT(*) FROM seguimiento WHERE id_usuario_seguido = $1",
+      [id_usuario]
+    );
+
+    // Contar seguidos
+    const seguidos = await pool.query(
+      "SELECT COUNT(*) FROM seguimiento WHERE id_usuario_seguidor = $1",
+      [id_usuario]
+    );
+
+    res.json({
+      seguidores: parseInt(seguidores.rows[0].count),
+      seguidos: parseInt(seguidos.rows[0].count)
+    });
+  } catch (err) {
+    console.error("Error obteniendo stats:", err);
+    res.status(500).json({ error: "Error obteniendo estadísticas" });
+  }
+});
+
+// RUTA: Verificar si un usuario sigue a otro (por ID)
+app.get("/api/siguiendo-usuario/:id_usuario", async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+    const { correo } = req.query;
+
+    if (!correo) {
+      return res.json({ siguiendo: false });
+    }
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.json({ siguiendo: false });
+    }
+
+    const id_seguidor = userResult.rows[0].id_usuario;
+
+    const result = await pool.query(
+      "SELECT * FROM seguimiento WHERE id_usuario_seguidor = $1 AND id_usuario_seguido = $2",
+      [id_seguidor, id_usuario]
+    );
+
+    res.json({ siguiendo: result.rowCount > 0 });
+  } catch (err) {
+    console.error("Error verificando seguimiento:", err);
+    res.status(500).json({ error: "Error verificando seguimiento" });
+  }
+});
+
+// RUTA: Reportar publicación
+app.post("/api/publicacion/:id/reportar", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { correo, motivo } = req.body;
+
+    if (!correo || !motivo) {
+      return res.status(400).json({ error: "Datos incompletos" });
+    }
+
+    if (motivo.trim().length < 10) {
+      return res.status(400).json({ error: "El motivo debe tener al menos 10 caracteres" });
+    }
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    // Verificar si ya reportó esta publicación
+    const yaReporto = await pool.query(
+      "SELECT * FROM reporte WHERE id_publicacion = $1 AND id_usuario = $2",
+      [id, id_usuario]
+    );
+
+    if (yaReporto.rowCount > 0) {
+      return res.status(400).json({ error: "Ya has reportado esta publicación" });
+    }
+
+    // Crear tabla de reportes si no existe
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS reporte (
+        id_reporte SERIAL PRIMARY KEY,
+        id_publicacion INTEGER REFERENCES publicacion(id_publicacion) ON DELETE CASCADE,
+        id_usuario INTEGER REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+        motivo TEXT NOT NULL,
+        fecha_rep TIMESTAMP DEFAULT NOW(),
+        estado VARCHAR(20) DEFAULT 'pendiente'
+      )
+    `);
+
+    await pool.query(
+      "INSERT INTO reporte (id_publicacion, id_usuario, motivo, fecha_rep) VALUES ($1, $2, $3, NOW())",
+      [id, id_usuario, motivo]
+    );
+
+    res.json({ message: "Reporte enviado correctamente" });
+  } catch (err) {
+    console.error("Error al reportar:", err);
+    res.status(500).json({ error: "Error al enviar reporte" });
+  }
+});
+
+// RUTA: Obtener likes del usuario
+app.get("/api/usuario/likes", async (req, res) => {
+  try {
+    const { correo } = req.query;
+
+    if (!correo) {
+      return res.json({ likes: [] });
+    }
+
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.json({ likes: [] });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    const result = await pool.query(
+      "SELECT id_publicacion FROM reaccion WHERE id_usuario = $1 AND tipo = 'like'",
+      [id_usuario]
+    );
+
+    const likes = result.rows.map(row => row.id_publicacion);
+    res.json({ likes });
+  } catch (err) {
+    console.error("Error obteniendo likes:", err);
+    res.status(500).json({ error: "Error obteniendo likes" });
+  }
+});
+
 // Servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

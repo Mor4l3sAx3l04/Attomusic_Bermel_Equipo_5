@@ -10,18 +10,205 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
-  
+  <style>
+.buscador-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.buscador-container .form-control {
+  border-color: #dee2e6;
+}
+
+.buscador-container .form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.pub-user-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pub-username-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pub-username-link:hover .pub-username {
+  color: #667eea;
+}
+
+.pub-avatar-img:hover,
+.pub-avatar:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.pub-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+
+.modal-overlay.show .modal-content {
+  transform: scale(1);
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h5 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.btn-close-modal {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.btn-close-modal:hover {
+  background: #f0f0f0;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+</style>
 </head>
 <body>
 
   <div style="text-align: center;">
 
     <p class="title"> Últimas Publicaciones </p><br>
+    
+    <div class="buscador-container mb-4">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search"></i>
+        </span>
+        <input 
+          type="text" 
+          class="form-control border-start-0" 
+          id="inputBuscador" 
+          placeholder="Buscar publicaciones..."
+          autocomplete="off"
+        >
+        <button class="btn btn-outline-secondary" type="button" id="btnLimpiar" style="display: none;">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
 
     <section id="feedPublicaciones" class="feed-publicaciones"></section>
 
   </div>
 
 <script src="./js/feed-publicaciones.js"></script>
+<script>
+  // Script para el buscador
+  (function() {
+    const inputBuscador = document.getElementById('inputBuscador');
+    const btnLimpiar = document.getElementById('btnLimpiar');
+    
+    if (!inputBuscador) return;
+
+    let timeoutBusqueda = null;
+
+    inputBuscador.addEventListener('input', function(e) {
+      const query = e.target.value.trim();
+      
+      if (query.length > 0) {
+        btnLimpiar.style.display = 'block';
+      } else {
+        btnLimpiar.style.display = 'none';
+      }
+
+      // Debounce: esperar 500ms después de que el usuario deje de escribir
+      clearTimeout(timeoutBusqueda);
+      timeoutBusqueda = setTimeout(() => {
+        if (query.length > 0) {
+          window.buscarPublicaciones(query);
+        } else {
+          window.cargarPublicaciones();
+        }
+      }, 500);
+    });
+
+    btnLimpiar.addEventListener('click', function() {
+      inputBuscador.value = '';
+      btnLimpiar.style.display = 'none';
+      window.cargarPublicaciones();
+    });
+
+    inputBuscador.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const query = e.target.value.trim();
+        if (query.length > 0) {
+          window.buscarPublicaciones(query);
+        }
+      }
+    });
+  })();
+</script>
 </body>
 </html>
