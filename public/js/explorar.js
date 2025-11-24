@@ -107,17 +107,6 @@
       btnSeguir.addEventListener('click', () => toggleSeguirPerfil(user.id_usuario, btnSeguir));
     }
 
-    const linkPerfil = div.querySelector('.load-page-perfil');
-    if (linkPerfil) {
-      linkPerfil.addEventListener('click', function(e) {
-          e.preventDefault();
-          const idUsuario = this.getAttribute('data-id');
-          if (typeof loadPage === 'function') {
-            loadPage(`perfil-usuario.html?id=${idUsuario}`);
-          }
-      });
-    }
-
     return div;
   }
 
@@ -485,5 +474,30 @@ window.init_explorar = function () {
   console.log("🔄 Reinicializando explorar.js...");
   cargarSeccionInicialSiCorresponde();
 };
+
+// Listener global para cargar el perfil como SPA
+document.addEventListener("click", function (e) {
+  const link = e.target.closest(".load-page-perfil");
+  if (!link) return;
+
+  e.preventDefault();
+
+  const idUsuario = link.getAttribute("data-id") || 
+                    link.getAttribute("data-id-usuario") ||
+                    new URL(link.href).searchParams.get("id");
+
+  if (!idUsuario) {
+    console.error("❌ No se encontró el ID de usuario en load-page-perfil");
+    return;
+  }
+
+  if (typeof loadPage === "function") {
+    loadPage(`perfil-usuario.html?id=${idUsuario}`);
+  } else {
+    console.warn("⚠️ loadPage no está disponible, abriendo normal");
+    window.location.href = `perfil-usuario.html?id=${idUsuario}`;
+  }
+});
+
 
 })();
