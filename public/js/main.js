@@ -176,7 +176,9 @@ setupPasswordToggle('#togglePassword', 'registerPassword');
 });
 
 //Carga dinámica de páginas
-// Reemplaza la función loadPage en main.js con esta versión mejorada
+
+// Mantener registro de scripts cargados
+window._loadedScripts = window._loadedScripts || new Set();
 
 function loadPage(url) {
   let pagePath = url;
@@ -187,80 +189,112 @@ function loadPage(url) {
   const urlObj = new URL(pagePath, window.location.origin);
   const params = urlObj.search;
 
-  // Extraer parámetros para pasarlos al script
-  const urlParams = new URLSearchParams(params);
-  const parametros = {};
-  for (const [key, value] of urlParams) {
-    parametros[key] = value;
-  }
+  console.log('📄 Cargando página:', urlObj.pathname);
 
   fetch(urlObj.pathname)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.text();
+    })
     .then(html => {
       const mainContent = document.getElementById('main-content');
       mainContent.innerHTML = html;
       window.scrollTo(0, 0);
 
-      // Pasar parámetros a variables globales específicas
-      if (urlObj.pathname.includes('perfil-usuario.html') && parametros.id) {
-        window._perfilUsuarioId = parametros.id;
-        console.log('ID de usuario guardado:', window._perfilUsuarioId);
+      // Pasar parámetros
+      const urlParams = new URLSearchParams(params);
+      if (urlObj.pathname.includes('perfil-usuario.html') && urlParams.get('id')) {
+        window._perfilUsuarioId = urlParams.get('id');
+        console.log('🆔 ID usuario:', window._perfilUsuarioId);
       }
 
       if (urlObj.pathname.includes('buscador.html')) {
         window._searchParams = params;
       }
 
-      setTimeout(() => {
-        if (typeof aplicarColoresIconos === 'function') {
-          aplicarColoresIconos();
-        }
-      }, 300);
+      // Procesar scripts
+      const scripts = Array.from(mainContent.querySelectorAll('script'));
+      
+      // Primero cargar scripts externos
+      const externalScripts = scripts.filter(s => s.src);
+      const inlineScripts = scripts.filter(s => !s.src);
+      
+      Promise.all(
+        externalScripts.map(oldScript => {
+          return new Promise((resolve, reject) => {
+            const src = oldScript.src;
+            
+            // Si ya está cargado, resolver inmediatamente
+            if (window._loadedScripts.has(src)) {
+              console.log('♻️ Script desde caché, pero ejecutando init nuevamente:', src);
 
-      const scripts = mainContent.querySelectorAll('script');
-      scripts.forEach(oldScript => {
-        const newScript = document.createElement('script');
-        if (oldScript.src) {
-          newScript.src = oldScript.src;
-        } else {
-          // Para buscador, inyectar parámetros
-          if (urlObj.pathname.endsWith('buscador.html')) {
-            newScript.textContent = `window._searchParams = '${params}';\n` + oldScript.textContent;
-          } else {
-            newScript.textContent = oldScript.textContent;
-          }
-        }
-        document.body.appendChild(newScript);
-        setTimeout(() => newScript.remove(), 1000);
-      });
+              // Intentar ejecutar una función init si existe
+              const scriptName = src.split('/').pop().replace('.js','');
+              const initFn = window[`init_${scriptName}`];
 
-      // Forzar colores después de cargar
-      setTimeout(() => {
-        const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-        const colorIconos = isDark ? '#aaa' : '#5a189a';
-        
-        document.querySelectorAll('.btn-icon-action, .pub-btn, .pub-stats i, .perfil-fecha i, .section-title i').forEach(el => {
-          if (!el.closest('.pub-btn-like.liked')) {
-            el.style.color = colorIconos;
-          }
+              if (typeof initFn === 'function') {
+                initFn();
+              }
+
+              resolve();
+              return;
+            }
+            
+            const newScript = document.createElement('script');
+            newScript.src = src;
+            newScript.async = false;
+            
+            newScript.onload = () => {
+              window._loadedScripts.add(src);
+              console.log('✅ Script cargado:', src);
+              resolve();
+            };
+            
+            newScript.onerror = () => {
+              console.error('❌ Error cargando:', src);
+              reject(new Error(`Failed to load ${src}`));
+            };
+            
+            document.head.appendChild(newScript);
+          });
+        })
+      )
+      .then(() => {
+        // Luego ejecutar scripts inline
+        inlineScripts.forEach(oldScript => {
+          const newScript = document.createElement('script');
+          newScript.textContent = oldScript.textContent;
+          document.body.appendChild(newScript);
         });
-      }, 200);
+        
+        // Aplicar estilos después de que todo cargó
+        setTimeout(() => {
+          if (typeof aplicarColoresIconos === 'function') {
+            aplicarColoresIconos();
+          }
+        }, 300);
+      })
+      .catch(error => {
+        console.error('❌ Error cargando scripts:', error);
+      });
     })
-    .catch(() => {
+    .catch(error => {
+      console.error('❌ Error fetch:', error);
       document.getElementById('main-content').innerHTML =
         '<div style="padding:40px;text-align:center;color:#ba01ff;font-size:2rem;">No se pudo cargar la página.</div>';
     });
 }
 
-//Asignar eventos a los links dinámicos
-document.addEventListener("DOMContentLoaded", function () {
-document.querySelectorAll(".load-page").forEach(link => {
-    link.addEventListener("click", function(e) {
+// Event delegation para links dinámicos
+document.addEventListener("click", function(e) {
+  const link = e.target.closest(".load-page");
+  if (link) {
     e.preventDefault();
-    const href = this.getAttribute("href");
-    if (href !== "#") loadPage(href);
-    });
-});
+    const href = link.getAttribute("href");
+    if (href && href !== "#") {
+      loadPage(href);
+    }
+  }
 });
 
 //REGISTRO
