@@ -3,18 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AttoMusic</title>
+  <title>AttoMusic - Explorar</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link rel="stylesheet" href="style.css">
-  <link rel="shortcut icon" href="images/icono.png" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<p class="normaltext"> pues aca estaran los mejores reseñadas, o los mas reseñadores o cosas asi en general y tambien estara aca el buscador de
-    personas como en ig </p>
+<div class="container my-4">
+  <!-- Tabs de navegación -->
+  <ul class="nav nav-pills mb-4 justify-content-center" id="explorarTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-perfiles" data-bs-toggle="pill" data-bs-target="#seccion-perfiles" type="button" role="tab">
+        <i class="bi bi-people-fill"></i> Perfiles populares
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-destacadas" data-bs-toggle="pill" data-bs-target="#seccion-destacadas" type="button" role="tab">
+        <i class="bi bi-star-fill"></i> Publicaciones destacadas
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-siguiendo" data-bs-toggle="pill" data-bs-target="#seccion-siguiendo" type="button" role="tab">
+        <i class="bi bi-rss-fill"></i> Siguiendo
+      </button>
+    </li>
+  </ul>
+
+  <!-- Contenido de las tabs -->
+  <div class="tab-content" id="explorarTabsContent">
+    
+    <!-- Sección: Perfiles populares -->
+    <div class="tab-pane fade show active" id="seccion-perfiles" role="tabpanel">
+      <div class="section-header mb-4">
+        <h3><i class="bi bi-trophy-fill"></i> Usuarios con más seguidores</h3>
+        <p class="text-muted">Descubre los perfiles más populares de la comunidad</p>
+      </div>
+      <div id="listaPerfilesPopulares">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Publicaciones destacadas -->
+    <div class="tab-pane fade" id="seccion-destacadas" role="tabpanel">
+      <div class="section-header mb-4">
+        <h3><i class="bi bi-fire"></i> Publicaciones más populares</h3>
+        <p class="text-muted">Las publicaciones con más likes de la comunidad</p>
+      </div>
+      <div id="listaPublicacionesDestacadas">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Siguiendo -->
+    <div class="tab-pane fade" id="seccion-siguiendo" role="tabpanel">
+      <div class="section-header mb-4">
+        <h3><i class="bi bi-heart-fill"></i> Actividad de quienes sigues</h3>
+        <p class="text-muted">Publicaciones recientes de usuarios que sigues</p>
+      </div>
+      <div id="listaPublicacionesSiguiendo">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <script src="/js/explorar.js"></script>
 
 </body>
 </html>

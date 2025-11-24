@@ -572,4 +572,7 @@
     }
   };
 
+window.crearPublicacionHTML = crearPublicacion;
+
 })();
+

@@ -895,6 +895,99 @@ app.get("/api/usuario/likes", async (req, res) => {
   }
 });
 
+// RUTA: Obtener usuarios ordenados por seguidores (perfiles populares)
+app.get("/api/usuarios/populares", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    
+    const result = await pool.query(`
+      SELECT u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg,
+             COUNT(s.id_seguimiento) as num_seguidores
+      FROM usuario u
+      LEFT JOIN seguimiento s ON u.id_usuario = s.id_usuario_seguido
+      WHERE u.estado = 'activo'
+      GROUP BY u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg
+      ORDER BY num_seguidores DESC, u.fecha_reg DESC
+      LIMIT $1
+    `, [limit]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo usuarios populares:", err);
+    res.status(500).json({ error: "Error obteniendo usuarios populares" });
+  }
+});
+
+// RUTA: Obtener publicaciones destacadas (más likes)
+app.get("/api/publicaciones/destacadas", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    
+    const result = await pool.query(`
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+             c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+             COUNT(DISTINCT r.id_reaccion) as likes,
+             COUNT(DISTINCT co.id_comentario) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      LEFT JOIN reaccion r ON p.id_publicacion = r.id_publicacion AND r.tipo = 'like'
+      LEFT JOIN comentario co ON p.id_publicacion = co.id_publicacion
+      GROUP BY p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+               c.id_cancion, c.nombre, c.artista, c.album, c.url_preview, c.imagen_url
+      HAVING COUNT(DISTINCT r.id_reaccion) > 0
+      ORDER BY likes DESC, p.fecha_pub DESC
+      LIMIT $1
+    `, [limit]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo publicaciones destacadas:", err);
+    res.status(500).json({ error: "Error obteniendo publicaciones destacadas" });
+  }
+});
+
+// RUTA: Obtener publicaciones de usuarios que sigo
+app.get("/api/publicaciones/siguiendo", async (req, res) => {
+  try {
+    const { correo } = req.query;
+    
+    if (!correo) {
+      return res.status(400).json({ error: "Correo requerido" });
+    }
+
+    // Obtener ID del usuario actual
+    const userResult = await pool.query("SELECT id_usuario FROM usuario WHERE correo = $1", [correo]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const id_usuario = userResult.rows[0].id_usuario;
+
+    const result = await pool.query(`
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+             c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      WHERE p.id_usuario IN (
+        SELECT id_usuario_seguido 
+        FROM seguimiento 
+        WHERE id_usuario_seguidor = $1
+      )
+      ORDER BY p.fecha_pub DESC
+      LIMIT 50
+    `, [id_usuario]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo publicaciones de seguidos:", err);
+    res.status(500).json({ error: "Error obteniendo publicaciones" });
+  }
+});
+
 // Servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
