@@ -30,14 +30,15 @@ Debes detectar:
 - promoción engañosa  
 - texto generado automáticamente o repetitivo  
 - flood / mismo mensaje repetido  
-- intentos de evadir filtros con símbolos  
+- intentos de evadir filtros con símbolos
+- Que no tenga el mensaje más de 500 caracteres 
 
 ESTRUCTURA DE RESPUESTA ÚNICA (JSON PURO):
 
 {
     "apto": true/false,
     "razon": "explicación breve",
-    "categorias": ["hate", "violencia", "sexual", "spam", "nsfw", "repetitivo", "nonsense"]
+    "categorias": ["hate", "violencia", "sexual", "spam", "nsfw", "repetitivo", "nonsense", "longitud_excesiva", "engañoso", "automatizado", "flood", "evasión_filtros"]
 }
 
 Comentario a analizar:
