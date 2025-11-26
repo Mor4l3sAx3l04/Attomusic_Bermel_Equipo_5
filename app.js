@@ -5,13 +5,14 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
 const axios = require("axios");
-
+const rateLimit = require("express-rate-limit");
 
 // IMPORTA las rutas de Spotify
 const spotifyRoutes = require("./routes/spotify");
 const newsRoutes = require("./routes/news");
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cors());
@@ -27,6 +28,14 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minutos
+  max: 60, // Máximo 60 peticiones por 1 minuto por IP
+  message: { error: "Demasiadas peticiones, intenta más tarde." },
+});
+
+app.use(limiter);
 
 pool.connect()
   .then(() => console.log("Conectado a PostgreSQL"))
