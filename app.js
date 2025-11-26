@@ -19,6 +19,8 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.static("public"));
 
+app.set('trust proxy', 1);
+
 // Usa las rutas de Spotify y The News API
 app.use("/spotify", spotifyRoutes);
 app.use("/music-news", newsRoutes);
