@@ -999,6 +999,248 @@ app.get("/api/publicaciones/siguiendo", async (req, res) => {
   }
 });
 
+// RUTAS DEL PANEL DE ADMINISTRACIÓN
+
+// Verificar rol del usuario
+app.get('/api/usuario/:correo/rol', async (req, res) => {
+  const { correo } = req.params;
+  
+  try {
+    const query = 'SELECT rol FROM usuario WHERE correo = $1';
+    const result = await pool.query(query, [correo]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    
+    res.json({ rol: result.rows[0].rol });
+  } catch (err) {
+    console.error('❌ Error en /api/usuario/:correo/rol:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Obtener publicaciones reportadas
+app.get('/api/admin/reportes', async (req, res) => {
+  try {
+    const query = `
+      SELECT p.*, u.usuario, u.correo,
+             (SELECT COUNT(*) FROM reporte r WHERE r.id_publicacion = p.id_publicacion AND r.estado = 'pendiente') as num_reportes
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      WHERE p.id_publicacion IN (
+        SELECT DISTINCT id_publicacion FROM reporte WHERE estado = 'pendiente'
+      )
+      ORDER BY num_reportes DESC, p.fecha_pub DESC
+    `;
+    
+    const result = await pool.query(query);
+    console.log('✅ Reportes encontrados:', result.rows.length);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ Error en /api/admin/reportes:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Resolver reporte - CORREGIDO PARA VARCHAR
+app.post('/api/admin/reporte/:id/resolver', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const query = "UPDATE reporte SET estado = 'resuelto' WHERE id_publicacion = $1";
+    await pool.query(query, [id]);
+    console.log('✅ Reporte resuelto:', id);
+    res.json({ message: 'Reporte resuelto' });
+  } catch (err) {
+    console.error('❌ Error resolviendo reporte:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Limpiar reportes resueltos - CORREGIDO PARA VARCHAR
+app.delete('/api/admin/reportes/limpiar', async (req, res) => {
+  try {
+    const query = "DELETE FROM reporte WHERE estado = 'resuelto'";
+    const result = await pool.query(query);
+    console.log('✅ Reportes eliminados:', result.rowCount);
+    res.json({ message: 'Reportes limpiados' });
+  } catch (err) {
+    console.error('❌ Error limpiando reportes:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Obtener todas las publicaciones
+app.get('/api/admin/publicaciones', async (req, res) => {
+  try {
+    const query = `
+      SELECT p.*, u.usuario, u.correo,
+             (SELECT COUNT(*) FROM reaccion r WHERE r.id_publicacion = p.id_publicacion) as likes,
+             (SELECT COUNT(*) FROM comentario c WHERE c.id_publicacion = p.id_publicacion) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      ORDER BY p.fecha_pub DESC
+    `;
+    
+    const result = await pool.query(query);
+    console.log('✅ Publicaciones encontradas:', result.rows.length);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ Error en /api/admin/publicaciones:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Eliminar publicación (admin)
+app.delete('/api/admin/publicacion/:id', async (req, res) => {
+  const { id } = req.params;
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    
+    console.log('🗑️ Eliminando publicación:', id);
+    await client.query('DELETE FROM comentario WHERE id_publicacion = $1', [id]);
+    await client.query('DELETE FROM reaccion WHERE id_publicacion = $1', [id]);
+    await client.query('DELETE FROM reporte WHERE id_publicacion = $1', [id]);
+    await client.query('DELETE FROM publicacion WHERE id_publicacion = $1', [id]);
+    
+    await client.query('COMMIT');
+    console.log('✅ Publicación eliminada correctamente');
+    res.json({ message: 'Publicación eliminada correctamente' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('❌ Error eliminando publicación:', err.message);
+    res.status(500).json({ error: 'Error al eliminar publicación', detalle: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Obtener todos los usuarios
+app.get('/api/admin/usuarios', async (req, res) => {
+  try {
+    const query = `
+      SELECT id_usuario, usuario, correo, foto, fecha_reg, rol, fecha_baneo, estado
+      FROM usuario
+      ORDER BY fecha_reg DESC
+    `;
+    
+    const result = await pool.query(query);
+    console.log('✅ Usuarios encontrados:', result.rows.length);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ Error en /api/admin/usuarios:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Cambiar rol de usuario
+app.put('/api/admin/usuario/:id/rol', async (req, res) => {
+  const { id } = req.params;
+  const { nuevoRol } = req.body;
+  
+  if (!['admin', 'usuario'].includes(nuevoRol)) {
+    return res.status(400).json({ error: 'Rol inválido' });
+  }
+  
+  try {
+    const query = 'UPDATE usuario SET rol = $1 WHERE id_usuario = $2';
+    await pool.query(query, [nuevoRol, id]);
+    console.log(`✅ Rol cambiado a ${nuevoRol} para usuario ${id}`);
+    res.json({ message: 'Rol actualizado correctamente' });
+  } catch (err) {
+    console.error('❌ Error cambiando rol:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Banear usuario temporalmente
+app.post('/api/admin/usuario/:id/banear', async (req, res) => {
+  const { id } = req.params;
+  const { dias, motivo } = req.body;
+  
+  const fechaBaneo = new Date();
+  fechaBaneo.setDate(fechaBaneo.getDate() + parseInt(dias));
+  
+  try {
+    const query = 'UPDATE usuario SET fecha_baneo = $1, motivo_baneo = $2 WHERE id_usuario = $3';
+    await pool.query(query, [fechaBaneo, motivo, id]);
+    console.log(`✅ Usuario ${id} baneado hasta ${fechaBaneo.toLocaleDateString()}`);
+    res.json({ message: 'Usuario baneado correctamente' });
+  } catch (err) {
+    console.error('❌ Error baneando usuario:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Desbanear usuario
+app.post('/api/admin/usuario/:id/desbanear', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const query = 'UPDATE usuario SET fecha_baneo = NULL, motivo_baneo = NULL WHERE id_usuario = $1';
+    await pool.query(query, [id]);
+    console.log(`✅ Usuario ${id} desbaneado`);
+    res.json({ message: 'Usuario desbaneado correctamente' });
+  } catch (err) {
+    console.error('❌ Error desbaneando usuario:', err.message);
+    res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+  }
+});
+
+// Eliminar usuario
+app.delete('/api/admin/usuario/:id', async (req, res) => {
+  const { id } = req.params;
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    
+    console.log('🗑️ Eliminando usuario:', id);
+    
+    // Eliminar comentarios del usuario
+    await client.query('DELETE FROM comentario WHERE id_usuario = $1', [id]);
+    console.log('  ✓ Comentarios eliminados');
+    
+    // Eliminar reacciones del usuario
+    await client.query('DELETE FROM reaccion WHERE id_usuario = $1', [id]);
+    console.log('  ✓ Reacciones eliminadas');
+    
+    // Eliminar reportes del usuario
+    await client.query('DELETE FROM reporte WHERE id_usuario = $1', [id]);
+    console.log('  ✓ Reportes eliminados');
+    
+    // Eliminar seguimientos (tanto como seguidor como seguido)
+    // IMPORTANTE: Usar $1 dos veces en el mismo query requiere pasar [id, id]
+    await client.query(
+      'DELETE FROM seguimiento WHERE id_usuario_seguidor = $1 OR id_usuario_seguido = $2', 
+      [id, id]
+    );
+    console.log('  ✓ Seguimientos eliminados');
+    
+    // Eliminar publicaciones del usuario
+    await client.query('DELETE FROM publicacion WHERE id_usuario = $1', [id]);
+    console.log('  ✓ Publicaciones eliminadas');
+    
+    // Finalmente, eliminar el usuario
+    await client.query('DELETE FROM usuario WHERE id_usuario = $1', [id]);
+    console.log('  ✓ Usuario eliminado');
+    
+    await client.query('COMMIT');
+    console.log('✅ Usuario eliminado correctamente');
+    res.json({ message: 'Usuario eliminado correctamente' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('❌ Error eliminando usuario:', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).json({ error: 'Error al eliminar usuario', detalle: err.message });
+  } finally {
+    client.release();
+  }
+});
+
 // Servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
