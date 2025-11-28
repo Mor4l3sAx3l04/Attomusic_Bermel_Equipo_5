@@ -445,16 +445,21 @@ async function actualizarInterfaz() {
   const perfilNombre = document.getElementById("perfil-nombre");
 
   if (usuario) {
-// Obtener foto del usuario desde el backend
+    // Obtener foto del usuario desde el backend
     try {
       const res = await fetch(`/api/perfil/${usuario.correo}`);
       if (res.ok) {
         const data = await res.json();
         
-// Actualizar foto en el dropdown
+        // Actualizar foto en el dropdown
         const perfilPic = perfilContainer.querySelector('.profile-pic');
         if (perfilPic && data.foto) {
           perfilPic.src = data.foto;
+        }
+        // Mostrar/ocultar Panel Admin según el rol
+        const panelAdminLink = document.getElementById('panel-admin-link');
+        if (panelAdminLink) {
+          panelAdminLink.style.display = data.rol === 'admin' ? 'block' : 'none';
         }
       }
     } catch (err) {
