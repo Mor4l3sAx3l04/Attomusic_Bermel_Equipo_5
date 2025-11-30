@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Para Ti - Recomendaciones</title>
+</head>
+<body>
+
+<div style="max-width:900px;margin:32px auto;padding:0 20px;">
+  <h2 style="color:#5a189a;font-weight:900;margin-bottom:24px;">
+    🎵 Para Ti
+  </h2>
+  
+  <p style="color:#777;margin-bottom:32px;">
+    Basado en tus gustos musicales
+  </p>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-publicaciones">
+        📰 Publicaciones
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-usuarios">
+        👥 Usuarios Similares
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-analisis">
+        📊 Tu Análisis
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- Tab: Publicaciones Recomendadas -->
+    <div class="tab-pane fade show active" id="tab-publicaciones">
+      <div id="recomendaciones-feed"></div>
+    </div>
+
+    <!-- Tab: Usuarios Similares -->
+    <div class="tab-pane fade" id="tab-usuarios">
+      <div id="usuarios-similares"></div>
+    </div>
+
+    <!-- Tab: Análisis de Gustos -->
+    <div class="tab-pane fade" id="tab-analisis">
+      <div id="analisis-gustos"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const usuarioActual = window.getUsuarioActual ? window.getUsuarioActual() : null;
+
+  if (!usuarioActual) {
+    document.querySelector('[style*="max-width:900px"]').innerHTML = `
+      <div style="text-align:center;padding:60px 20px;">
+        <h3 style="color:#5a189a;">Inicia sesión para ver recomendaciones personalizadas</h3>
+        <p style="color:#777;">Descubre música y personas con gustos similares a los tuyos</p>
+      </div>
+    `;
+    return;
+  }
+
+  // ===== CARGAR PUBLICACIONES RECOMENDADAS =====
+  async function cargarRecomendaciones() {
+    const feed = document.getElementById('recomendaciones-feed');
+    feed.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2">Analizando tus gustos...</p></div>';
+
+    try {
+      const res = await fetch(`/api/recomendaciones?correo=${encodeURIComponent(usuarioActual.correo)}&limit=20`);
+      const data = await res.json();
+
+      if (!res.ok) throw new Error('Error cargando recomendaciones');
+
+      feed.innerHTML = '';
+
+      if (data.recommendations.length === 0) {
+        feed.innerHTML = `
+          <div class="text-center p-5">
+            <p style="color:#777;">
+              Interactúa con publicaciones para recibir recomendaciones personalizadas 🎵
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      // Mostrar artistas principales
+      if (data.topArtists && data.topArtists.length > 0) {
+        feed.innerHTML += `
+          <div style="background:#f3e8ff;padding:16px;border-radius:12px;margin-bottom:24px;">
+            <strong style="color:#5a189a;">🎤 Basado en tus artistas favoritos:</strong>
+            <div style="margin-top:8px;color:#777;">
+              ${data.topArtists.join(", ")}
+            </div>
+          </div>
+        `;
+      }
+
+      // Renderizar publicaciones
+      data.recommendations.forEach(pub => {
+        const article = window.crearPublicacionHTML 
+          ? window.crearPublicacionHTML(pub, false)
+          : crearPublicacionSimple(pub);
+        feed.appendChild(article);
+      });
+
+    } catch (err) {
+      console.error('Error:', err);
+      feed.innerHTML = '<div class="alert alert-danger">Error al cargar recomendaciones</div>';
+    }
+  }
+
+  // ===== CARGAR USUARIOS SIMILARES =====
+  async function cargarUsuariosSimilares() {
+    const container = document.getElementById('usuarios-similares');
+    container.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
+
+    try {
+      const res = await fetch(`/api/recomendaciones/usuarios?correo=${encodeURIComponent(usuarioActual.correo)}&limit=15`);
+      const data = await res.json();
+
+      if (!res.ok) throw new Error('Error cargando usuarios');
+
+      container.innerHTML = '';
+
+      if (data.recommendations.length === 0) {
+        container.innerHTML = '<div class="text-center p-5"><p style="color:#777;">No hay usuarios similares aún</p></div>';
+        return;
+      }
+
+      // Mostrar info del algoritmo
+      if (data.topArtists && data.topArtists.length > 0) {
+        container.innerHTML += `
+          <div style="background:#f3e8ff;padding:16px;border-radius:12px;margin-bottom:24px;">
+            <strong style="color:#5a189a;">🎵 Usuarios que escuchan:</strong>
+            <div style="margin-top:8px;color:#777;">
+              ${data.topArtists.join(", ")}
+            </div>
+          </div>
+        `;
+      }
+
+      // Renderizar usuarios
+      data.recommendations.forEach(user => {
+        const card = crearTarjetaUsuario(user);
+        container.appendChild(card);
+      });
+
+    } catch (err) {
+      console.error('Error:', err);
+      container.innerHTML = '<div class="alert alert-danger">Error al cargar usuarios</div>';
+    }
+  }
+
+  // ===== CARGAR ANÁLISIS DE GUSTOS =====
+  async function cargarAnalisis() {
+    const container = document.getElementById('analisis-gustos');
+    container.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
+
+    try {
+      const res = await fetch(`/api/recomendaciones/analisis?correo=${encodeURIComponent(usuarioActual.correo)}`);
+      const data = await res.json();
+
+      if (!res.ok) throw new Error('Error cargando análisis');
+
+      container.innerHTML = '';
+
+      if (data.totalInteractions === 0) {
+        container.innerHTML = `
+          <div class="text-center p-5">
+            <h4 style="color:#5a189a;">👋 ¡Bienvenido!</h4>
+            <p style="color:#777;">Empieza a interactuar con publicaciones para ver tu análisis musical</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Estadísticas generales
+      container.innerHTML = `
+        <div style="background:#f3e8ff;padding:24px;border-radius:12px;margin-bottom:24px;">
+          <h4 style="color:#5a189a;margin-bottom:16px;">📊 Tu Actividad Musical</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
+            <div style="text-align:center;">
+              <div style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.posts}</div>
+              <div style="color:#777;font-size:0.9rem;">Publicaciones</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.likes}</div>
+              <div style="color:#777;font-size:0.9rem;">Likes</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.comments}</div>
+              <div style="color:#777;font-size:0.9rem;">Comentarios</div>
+            </div>
+          </div>
+        </div>
+
+        <h5 style="color:#5a189a;margin-bottom:16px;">🎤 Tus Artistas Favoritos</h5>
+        <div style="display:grid;gap:12px;">
+          ${data.topArtists.map((item, index) => `
+            <div style="background:white;padding:16px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <div>
+                <span style="color:#ba01ff;font-weight:700;margin-right:8px;">#${index + 1}</span>
+                <span style="color:#333;">${item.artist}</span>
+              </div>
+              <span style="color:#777;font-size:0.9rem;">${Math.round(item.score)} puntos</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+    } catch (err) {
+      console.error('Error:', err);
+      container.innerHTML = '<div class="alert alert-danger">Error al cargar análisis</div>';
+    }
+  }
+
+  // ===== HELPERS =====
+  function crearPublicacionSimple(pub) {
+    const article = document.createElement('article');
+    article.className = 'publicacion-item mb-4 fade-in';
+    article.innerHTML = `
+      <div style="background:white;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <strong style="color:#5a189a;">@${pub.usuario}</strong>
+        <p style="margin:12px 0;color:#333;">${pub.publicacion}</p>
+        ${pub.cancion ? `
+          <div style="background:#f3e8ff;padding:12px;border-radius:8px;margin-top:12px;">
+            <strong style="color:#ba01ff;">🎵 ${pub.cancion}</strong>
+            <div style="color:#777;font-size:0.9rem;">${pub.artista}</div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    return article;
+  }
+
+  function crearTarjetaUsuario(user) {
+    const div = document.createElement('div');
+    div.className = 'mb-3';
+    div.innerHTML = `
+      <div style="background:white;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          ${user.foto ? 
+            `<img src="${user.foto}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;">` :
+            `<div style="width:50px;height:50px;border-radius:50%;background:#ba01ff;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">${user.usuario.charAt(0).toUpperCase()}</div>`
+          }
+          <div>
+            <strong style="color:#5a189a;">@${user.usuario}</strong>
+            ${user.artistas_comunes ? `<div style="color:#777;font-size:0.85rem;">${user.artistas_comunes} artistas en común</div>` : ''}
+          </div>
+        </div>
+        <a href="perfil-usuario.html?id=${user.id_usuario}" class="btn btn-sm" style="background:#ba01ff;color:white;border:none;padding:8px 16px;border-radius:8px;">Ver perfil</a>
+      </div>
+    `;
+    return div;
+  }
+
+  // ===== EVENT LISTENERS =====
+  document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+    tab.addEventListener('shown.bs.tab', (e) => {
+      const target = e.target.getAttribute('data-bs-target');
+      if (target === '#tab-publicaciones') cargarRecomendaciones();
+      if (target === '#tab-usuarios') cargarUsuariosSimilares();
+      if (target === '#tab-analisis') cargarAnalisis();
+    });
+  });
+
+  // Cargar publicaciones al inicio
+  cargarRecomendaciones();
+
+})();
+</script>
+
+</body>
+</html>
