@@ -23,8 +23,9 @@ const usersRoutes = require("./routes/users");
 const adminRoutes = require("./routes/admin");
 const spotifyRoutes = require("./routes/spotify");
 const newsRoutes = require("./routes/news");
+const recomendacionesRoutes = require("./routes/recomendaciones");
 
-// ========== USAR RUTAS ==========
+// USAR RUTAS
 // Autenticación (login, register, reset)
 app.use("/", authRoutes);
 
@@ -38,12 +39,13 @@ app.use("/api", postsRoutes);
 // Usuarios (perfil, seguir, etc.)
 app.use("/api", usersRoutes);
 
+// Recomendaciones (algoritmo de gustos)
+app.use("/api/recomendaciones", recomendacionesRoutes);
+
 // Panel de Administración
 app.use("/api/admin", adminRoutes);
 
-// ========== RUTA DE VERIFICACIÓN DE ROL (fuera de admin para acceso público) ==========
-// Esta ruta ya está en adminRoutes como /api/admin/usuario/:correo/rol
-// Pero la dejamos aquí también si la necesitas en /api/usuario/:correo/rol
+// RUTA DE VERIFICACIÓN DE ROL (fuera de admin para acceso público)
 const pool = require("./utils/database");
 const responses = require("./utils/responses");
 
