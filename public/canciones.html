@@ -71,36 +71,79 @@
   }
 
   function mainCanciones() {
+    // ✅ SISTEMA DE CACHÉ (almacena resultados en memoria)
+    const CACHE_KEY = 'attomusic_canciones_cache';
+    const CACHE_DURATION = 30 * 60 * 1000; // 30 minutos
+    
+    // Intentar cargar desde caché
+    function cargarDesdeCache() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+        
+        const data = JSON.parse(cached);
+        const ahora = Date.now();
+        
+        // Verificar si el caché expiró
+        if (ahora - data.timestamp > CACHE_DURATION) {
+          localStorage.removeItem(CACHE_KEY);
+          return null;
+        }
+        
+        console.log('📦 Cargando desde caché (no hace peticiones)');
+        return data.canciones;
+      } catch (err) {
+        console.error('Error leyendo caché:', err);
+        return null;
+      }
+    }
+    
+    // Guardar en caché
+    function guardarEnCache(canciones) {
+      try {
+        const data = {
+          timestamp: Date.now(),
+          canciones: canciones
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        console.log('💾 Canciones guardadas en caché');
+      } catch (err) {
+        console.error('Error guardando caché:', err);
+      }
+    }
+    
+    // ✅ GÉNEROS OPTIMIZADOS
     const generos = [
-      { nombre: "Pop", query: "genre:pop" },
-      { nombre: "Rock", query: "genre:rock" },
-      { nombre: "Reggaeton", query: "genre:reggaeton" },
-      { nombre: "Hip Hop", query: "genre:hip hop" },
-      { nombre: "Electrónica", query: "genre:electronic" },
-      { nombre: "Indie", query: "genre:indie" },
-      { nombre: "Jazz", query: "genre:jazz" },
-      { nombre: "Metal", query: "genre:metal" },
-      { nombre: "Country", query: "genre:country" },
-      { nombre: "Reggae", query: "genre:reggae" },
-      { nombre: "Blues", query: "genre:blues" },
-      { nombre: "Folk", query: "genre:folk" },
-      { nombre: "Clásica", query: "genre:classical" },
-      { nombre: "Latina", query: "genre:latin" },
-      { nombre: "Dance", query: "genre:dance" },
-      { nombre: "Soul", query: "genre:soul" },
-      { nombre: "Funk", query: "genre:funk" },
-      { nombre: "Trap", query: "genre:trap" },
-      { nombre: "R&B", query: "genre:r&b" },
-      { nombre: "Alternativa", query: "genre:alternative" },
-      { nombre: "Punk", query: "genre:punk" },
-      { nombre: "Ska", query: "genre:ska" },
-      { nombre: "Disco", query: "genre:disco" },
-      { nombre: "K-Pop", query: "genre:k-pop" },
-      { nombre: "Cumbia", query: "genre:cumbia" },
-      { nombre: "Bachata", query: "genre:bachata" },
-      { nombre: "Salsa", query: "genre:salsa" },
-      { nombre: "Tango", query: "genre:tango" },
-      { nombre: "Flamenco", query: "genre:flamenco" }
+      { nombre: "🎤 Pop", query: "pop", limit: 12 },
+      { nombre: "🎸 Rock", query: "rock", limit: 12 },
+      { nombre: "🔥 Reggaetón", query: "Bad Bunny", limit: 12 },
+      { nombre: "🎤 Hip Hop", query: "Eminem", limit: 12 },
+      { nombre: "🎹 Electrónica", query: "electronic", limit: 12 },
+      { nombre: "🌟 Indie", query: "indie", limit: 12 },
+      { nombre: "🎷 Jazz", query: "jazz", limit: 12 },
+      { nombre: "🤘 Metal", query: "Metallica", limit: 12 },
+      { nombre: "🤠 Country", query: "country", limit: 12 },
+      { nombre: "🌴 Reggae", query: "reggae", limit: 12 },
+      { nombre: "🎺 Blues", query: "blues", limit: 12 },
+      { nombre: "🪕 Folk", query: "folk", limit: 12 },
+      { nombre: "🎻 Clásica", query: "classical", limit: 12 },
+      { nombre: "🎺 Latina", query: "latin", limit: 12 },
+      { nombre: "💃 Dance", query: "dance", limit: 12 },
+      { nombre: "💙 Soul", query: "soul", limit: 12 },
+      { nombre: "🎵 Funk", query: "funk", limit: 12 },
+      { nombre: "🔊 Trap", query: "Travis Scott", limit: 12 },
+      { nombre: "💜 R&B", query: "rnb", limit: 12 },
+      { nombre: "🎧 Alternativa", query: "alternative", limit: 12 },
+      { nombre: "💥 Punk", query: "punk", limit: 12 },
+      { nombre: "🎺 Ska", query: "ska", limit: 12 },
+      { nombre: "✨ Disco", query: "disco", limit: 12 },
+      { nombre: "🇰🇷 K-Pop", query: "BTS", limit: 12 },
+      { nombre: "🎺 Cumbia", query: "cumbia", limit: 12 },
+      { nombre: "💃 Bachata", query: "Romeo Santos", limit: 12 },
+      { nombre: "🎺 Salsa", query: "salsa", limit: 12 },
+      { nombre: "🎻 Tango", query: "tango", limit: 12 },
+      { nombre: "🎸 Flamenco", query: "flamenco", limit: 12 },
+      { nombre: "🎹 House", query: "house", limit: 12 }
     ];
 
     function renderNavGeneros() {
@@ -117,54 +160,170 @@
     }
     renderNavGeneros();
 
+    // ✅ OPTIMIZACIÓN: Cargar géneros en PARALELO y mostrar progresivamente
     async function cargarCancionesPopulares() {
       const cont = document.getElementById("generos-canciones");
-      cont.innerHTML = "<div style='text-align:center;color:#5a189a;font-size:1.3rem;'>Cargando canciones populares...</div>";
-      let html = "";
-      let allTracks = [];
-
-      const peticiones = generos.map(genero =>
-        fetch(`https://attomusic.onrender.com/spotify/search?q=${encodeURIComponent(genero.query)}&type=track&limit=12`)
-          .then(res => res.json())
-          .then(data => ({ genero, data }))
-      );
-      const resultados = await Promise.all(peticiones);
-
-      for (const { genero, data } of resultados) {
-        let allTracksGenero = data.tracks?.items || [];
-        let maxPop = Math.max(...allTracksGenero.map(t => t.popularity), 0);
-        let minPop = maxPop - 10;
-        let tracks = allTracksGenero.filter(track => track.popularity >= minPop && track.popularity <= maxPop && maxPop > 0);
-        html += `<h3 id='genero-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3>`;
-        if (tracks.length > 0) {
-          html += `<div class='row' style='margin-bottom:24px;gap:24px;display:flex;flex-wrap:wrap;'>`;
-            tracks.forEach((track, idx) => {
-              const cardId = `track-${genero.nombre.replace(/[^a-zA-Z0-9]/g,'')}-${idx}`;
-              html += `
-                <div class='search-card vertical-card' id='${cardId}' style='margin-bottom:18px;'>
-                  <img src='${track.album?.images?.[0]?.url || ''}' alt='cover'>
-                  <div class='card-info'>
-                    <h3>${track.name}</h3>
-                    <p>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
-                    <p>📅 ${track.album?.release_date || ''}</p>
-                    <p>🔥 Popularidad: ${track.popularity}</p>
-                  </div>
-                </div>
-              `;
-            allTracks.push({ cardId, track });
-          });
-          html += `</div>`;
-        } else {
-          html += `<div style='color:#5a189a;font-size:1.1rem;margin-bottom:32px;text-align:center;'>No hay canciones populares en este género.</div>`;
-        }
+      
+      // 1️⃣ INTENTAR CARGAR DESDE CACHÉ PRIMERO
+      const cancionesCache = cargarDesdeCache();
+      
+      if (cancionesCache) {
+        // Renderizar inmediatamente desde caché
+        renderizarCancionesDesdeCache(cancionesCache);
+        return;
       }
-      cont.innerHTML = html || "<div style='text-align:center;color:#ba01ff;font-size:1.2rem;'>No se encontraron canciones populares.</div>";
-      allTracks.forEach(({ cardId, track }) => {
-        const card = document.getElementById(cardId);
-        if (card) {
-          card.addEventListener('click', () => window.mostrarDetalleCancion(track.id));
+      
+      // 2️⃣ Si no hay caché, hacer peticiones
+      console.log('🌐 No hay caché, haciendo peticiones a Spotify...');
+      
+      // Crear contenedores para cada género ANTES de cargar
+      let html = "";
+      generos.forEach(genero => {
+        const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
+        html += `
+          <h3 id='genero-${generoId}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3>
+          <div id='container-${generoId}' class='genero-container' style='margin-bottom:24px;'>
+            <div style='text-align:center;color:#999;padding:20px;'>
+              <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              <span style='margin-left:8px;'>Cargando...</span>
+            </div>
+          </div>
+        `;
+      });
+      cont.innerHTML = html;
+
+      // ✅ CARGAR TODOS LOS GÉNEROS EN PARALELO
+      const promesas = generos.map(genero => cargarGenero(genero));
+      const resultados = await Promise.allSettled(promesas);
+      
+      // 3️⃣ GUARDAR RESULTADOS EN CACHÉ
+      const cancionesParaCache = {};
+      resultados.forEach((resultado, index) => {
+        if (resultado.status === 'fulfilled' && resultado.value) {
+          const generoId = generos[index].nombre.replace(/[^a-zA-Z0-9]/g,'');
+          cancionesParaCache[generoId] = resultado.value;
         }
       });
+      
+      guardarEnCache(cancionesParaCache);
+    }
+    
+    // ✅ Renderizar canciones desde caché
+    function renderizarCancionesDesdeCache(cancionesCache) {
+      const cont = document.getElementById("generos-canciones");
+      let html = "";
+      
+      generos.forEach(genero => {
+        const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
+        const tracks = cancionesCache[generoId] || [];
+        
+        html += `<h3 id='genero-${generoId}' style='color:#ba01ff;margin-top:32px;'>${genero.nombre}</h3>`;
+        html += `<div id='container-${generoId}' class='genero-container' style='margin-bottom:24px;'>`;
+        
+        if (tracks.length > 0) {
+          html += `<div class='row' style='gap:24px;display:flex;flex-wrap:wrap;'>`;
+          
+          tracks.forEach((track, idx) => {
+            const cardId = `track-${generoId}-${idx}`;
+            html += `
+              <div class='search-card vertical-card' id='${cardId}' style='margin-bottom:18px;cursor:pointer;' data-track-id='${track.id}'>
+                <img src='${track.album?.images?.[0]?.url || ''}' alt='cover' loading='lazy'>
+                <div class='card-info'>
+                  <h3>${track.name}</h3>
+                  <p>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
+                  <p>📅 ${track.album?.release_date || ''}</p>
+                  <p>🔥 Popularidad: ${track.popularity}</p>
+                </div>
+              </div>
+            `;
+          });
+          
+          html += `</div>`;
+        } else {
+          html += `<div style='color:#999;font-size:1rem;text-align:center;padding:20px;'>No se encontraron canciones para este género.</div>`;
+        }
+        
+        html += `</div>`;
+      });
+      
+      cont.innerHTML = html;
+      
+      // Agregar event listeners
+      generos.forEach(genero => {
+        const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
+        const tracks = cancionesCache[generoId] || [];
+        
+        tracks.forEach((track, idx) => {
+          const card = document.getElementById(`track-${generoId}-${idx}`);
+          if (card) {
+            card.addEventListener('click', () => window.mostrarDetalleCancion(track.id));
+          }
+        });
+      });
+    }
+
+    // ✅ Función para cargar UN género
+    async function cargarGenero(genero) {
+      const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
+      const container = document.getElementById(`container-${generoId}`);
+      
+      if (!container) return null;
+
+      try {
+        const res = await fetch(`/spotify/search?q=${encodeURIComponent(genero.query)}&type=track&limit=${genero.limit}`);
+        
+        if (!res.ok) throw new Error('Error en búsqueda');
+        
+        const data = await res.json();
+        let tracks = data.tracks?.items || [];
+        
+        // Filtrar y ordenar
+        tracks = tracks
+          .filter(t => t.popularity > 40)
+          .sort((a, b) => b.popularity - a.popularity)
+          .slice(0, 12);
+
+        // Renderizar inmediatamente cuando llegue la respuesta
+        if (tracks.length > 0) {
+          let html = `<div class='row' style='gap:24px;display:flex;flex-wrap:wrap;'>`;
+          
+          tracks.forEach((track, idx) => {
+            const cardId = `track-${generoId}-${idx}`;
+            html += `
+              <div class='search-card vertical-card' id='${cardId}' style='margin-bottom:18px;cursor:pointer;' data-track-id='${track.id}'>
+                <img src='${track.album?.images?.[0]?.url || ''}' alt='cover' loading='lazy'>
+                <div class='card-info'>
+                  <h3>${track.name}</h3>
+                  <p>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
+                  <p>📅 ${track.album?.release_date || ''}</p>
+                  <p>🔥 Popularidad: ${track.popularity}</p>
+                </div>
+              </div>
+            `;
+          });
+          
+          html += `</div>`;
+          container.innerHTML = html;
+          
+          // Agregar event listeners
+          tracks.forEach((track, idx) => {
+            const card = document.getElementById(`track-${generoId}-${idx}`);
+            if (card) {
+              card.addEventListener('click', () => window.mostrarDetalleCancion(track.id));
+            }
+          });
+        } else {
+          container.innerHTML = `<div style='color:#999;font-size:1rem;text-align:center;padding:20px;'>No se encontraron canciones para este género.</div>`;
+        }
+        
+        // ✅ RETORNAR las canciones para guardar en caché
+        return tracks;
+        
+      } catch (err) {
+        console.error(`Error cargando ${genero.nombre}:`, err);
+        container.innerHTML = `<div style='color:#ff5555;font-size:1rem;text-align:center;padding:20px;'>Error al cargar canciones</div>`;
+        return null;
+      }
     }
 
     window.mostrarDetalleCancion = async function(id) {
@@ -174,7 +333,7 @@
       const detalle = document.getElementById('detalle-cancion');
       detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
       
-      const res = await fetch(`https://attomusic.onrender.com/spotify/track/${id}`);
+      const res = await fetch(`/spotify/track/${id}`);
       const track = await res.json();
       let img = track.album?.images?.[0]?.url || "";
       
@@ -222,7 +381,6 @@
         </div>
         
         <style>
-          /* Modo oscuro para detalle de canción */
           [data-bs-theme="dark"] #detalle-container {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
           }
