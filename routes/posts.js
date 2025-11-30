@@ -166,7 +166,7 @@ router.get("/publicaciones/siguiendo", getUserFromEmail, async (req, res) => {
   }
 });
 
-// ==================== LIKES Y COMENTARIOS ====================
+//LIKES Y COMENTARIOS 
 
 // RUTA: Dar/Quitar like a publicación
 router.post("/publicacion/:id/like", getUserFromEmail, async (req, res) => {
