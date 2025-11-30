@@ -36,13 +36,22 @@ router.post("/publicacion", getUserFromEmail, async (req, res) => {
 
         const imagenUrl = track.album?.images?.[1]?.url || track.album?.images?.[0]?.url || null;
 
+        // Obtener género desde el artista
+        const artistResp = await axios.get(
+          `https://api.spotify.com/v1/artists/${track.artists[0].id}`,
+          { headers: { Authorization: "Bearer " + token } }
+        );
+
+        const genero = artistResp.data.genres?.[0] || "Desconocido";
+
         await pool.query(queries.insertSong, [
           track.id,
           track.name,
           track.artists[0].name,
           track.album.name,
           track.preview_url,
-          imagenUrl
+          imagenUrl,
+          genero
         ]);
       }
 

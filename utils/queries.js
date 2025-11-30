@@ -73,8 +73,8 @@ const queries = {
   // CANCIONES
   checkSongExists: "SELECT id_cancion FROM cancion WHERE id_cancion = $1",
   insertSong: `
-    INSERT INTO cancion (id_cancion, nombre, artista, album, url_preview, imagen_url)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO cancion (id_cancion, nombre, artista, album, url_preview, imagen_url, genero)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
   `,
   
   // REPORTES
