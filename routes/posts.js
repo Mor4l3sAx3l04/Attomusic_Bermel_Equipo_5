@@ -1,4 +1,4 @@
-// routes/posts.js (ARCHIVO COMPLETO)
+// routes/posts.js
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
@@ -7,7 +7,7 @@ const responses = require("../utils/responses");
 const queries = require("../utils/queries");
 const { getUserFromEmail } = require("../middleware/auth");
 
-// ==================== CREAR Y OBTENER PUBLICACIONES ====================
+// CREAR Y OBTENER PUBLICACIONES 
 
 // RUTA: Crear publicación
 router.post("/publicacion", getUserFromEmail, async (req, res) => {
@@ -239,7 +239,7 @@ router.get("/publicacion/:id/comentarios", async (req, res) => {
   }
 });
 
-// ==================== EDITAR Y ELIMINAR ====================
+// EDITAR Y ELIMINAR
 
 // RUTA: Editar publicación
 router.put("/publicacion/:id", getUserFromEmail, async (req, res) => {
@@ -303,7 +303,7 @@ router.delete("/publicacion/:id", getUserFromEmail, async (req, res) => {
   }
 });
 
-// ==================== REPORTES ====================
+//  REPORTES
 
 // RUTA: Reportar publicación
 router.post("/publicacion/:id/reportar", getUserFromEmail, async (req, res) => {
@@ -344,7 +344,7 @@ router.post("/publicacion/:id/reportar", getUserFromEmail, async (req, res) => {
   }
 });
 
-// ==================== LIKES DEL USUARIO ====================
+// LIKES DEL USUARIO
 
 // RUTA: Obtener likes del usuario
 router.get("/usuario/likes", getUserFromEmail, async (req, res) => {

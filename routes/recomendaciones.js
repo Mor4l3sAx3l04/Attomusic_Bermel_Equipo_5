@@ -6,7 +6,7 @@ const pool = require("../utils/database");
 const responses = require("../utils/responses");
 const { getUserFromEmail } = require("../middleware/auth");
 
-// ==================== ANÁLISIS DE GUSTOS DEL USUARIO ====================
+// ANÁLISIS DE GUSTOS DEL USUARIO 
 
 /**
  * Obtiene todas las interacciones del usuario
@@ -16,7 +16,7 @@ async function getUserInteractions(id_usuario) {
     // Canciones con las que ha interactuado (likes)
     const likesResult = await pool.query(`
       SELECT DISTINCT c.id_cancion, c.nombre, c.artista, c.album, 
-             COUNT(*) as interacciones
+            COUNT(*) as interacciones
       FROM reaccion r
       JOIN publicacion p ON r.id_publicacion = p.id_publicacion
       JOIN cancion c ON p.id_cancion = c.id_cancion
@@ -27,7 +27,7 @@ async function getUserInteractions(id_usuario) {
     // Canciones en las que ha comentado
     const commentsResult = await pool.query(`
       SELECT DISTINCT c.id_cancion, c.nombre, c.artista, c.album,
-             COUNT(*) as interacciones
+            COUNT(*) as interacciones
       FROM comentario co
       JOIN publicacion p ON co.id_publicacion = p.id_publicacion
       JOIN cancion c ON p.id_cancion = c.id_cancion
@@ -38,7 +38,7 @@ async function getUserInteractions(id_usuario) {
     // Canciones que ha publicado
     const postsResult = await pool.query(`
       SELECT DISTINCT c.id_cancion, c.nombre, c.artista, c.album,
-             COUNT(*) as interacciones
+            COUNT(*) as interacciones
       FROM publicacion p
       JOIN cancion c ON p.id_cancion = c.id_cancion
       WHERE p.id_usuario = $1 AND p.id_cancion IS NOT NULL
@@ -66,9 +66,9 @@ function calculatePreferences(interactions) {
 
   // Pesos para cada tipo de interacción
   const weights = {
-    posts: 5,      // Lo que publica es lo más importante
-    likes: 3,      // Lo que le gusta
-    comments: 4    // Lo que comenta muestra interés
+    posts: 5,      
+    likes: 3,      
+    comments: 4    
   };
 
   // Procesar todas las interacciones
@@ -98,12 +98,12 @@ function calculatePreferences(interactions) {
     artistScores,
     knownSongIds: Array.from(songScores.keys()),
     totalInteractions: interactions.posts.length + 
-                       interactions.likes.length + 
-                       interactions.comments.length
+                      interactions.likes.length + 
+                      interactions.comments.length
   };
 }
 
-// ==================== RECOMENDACIONES DE PUBLICACIONES ====================
+// RECOMENDACIONES DE PUBLICACIONES
 
 /**
  * GET /api/recomendaciones
@@ -114,15 +114,12 @@ router.get("/", getUserFromEmail, async (req, res) => {
     const id_usuario = req.user.id_usuario;
     const limit = parseInt(req.query.limit) || 20;
 
-    console.log(`📊 Generando recomendaciones para usuario ${id_usuario}`);
-
     // 1. Obtener interacciones del usuario
     const interactions = await getUserInteractions(id_usuario);
     const preferences = calculatePreferences(interactions);
 
     // Si el usuario es nuevo, devolver publicaciones populares
     if (preferences.totalInteractions === 0) {
-      console.log("👤 Usuario nuevo, mostrando publicaciones populares");
       
       const fallback = await pool.query(`
         SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, 
@@ -146,20 +143,18 @@ router.get("/", getUserFromEmail, async (req, res) => {
       });
     }
 
-    console.log(`🎵 Top artistas: ${preferences.topArtists.join(", ")}`);
-
     // 2. Buscar publicaciones de artistas similares
     const recommendations = await pool.query(`
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto,
-             p.publicacion, p.fecha_pub,
-             c.id_cancion, c.nombre AS cancion, c.artista, c.album,
-             c.url_preview, c.imagen_url AS imagen_cancion,
-             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
-             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios,
-             CASE 
-               WHEN c.artista = ANY($2::text[]) THEN 3
-               ELSE 1
-             END as relevancia
+            p.publicacion, p.fecha_pub,
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album,
+            c.url_preview, c.imagen_url AS imagen_cancion,
+            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios,
+            CASE 
+              WHEN c.artista = ANY($2::text[]) THEN 3
+              ELSE 1
+            END as relevancia
       FROM publicacion p
       JOIN usuario u ON p.id_usuario = u.id_usuario
       JOIN cancion c ON p.id_cancion = c.id_cancion
@@ -178,8 +173,6 @@ router.get("/", getUserFromEmail, async (req, res) => {
       LIMIT $4
     `, [id_usuario, preferences.topArtists, preferences.knownSongIds, limit]);
 
-    console.log(`✅ ${recommendations.rows.length} recomendaciones encontradas`);
-
     return res.json({
       recommendations: recommendations.rows,
       algorithm: "collaborative_filtering",
@@ -187,12 +180,11 @@ router.get("/", getUserFromEmail, async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Error en /api/recomendaciones:", err);
     return responses.error(res, "Error obteniendo recomendaciones");
   }
 });
 
-// ==================== RECOMENDACIONES DE USUARIOS ====================
+//RECOMENDACIONES DE USUARIOS
 
 /**
  * GET /api/recomendaciones/usuarios
@@ -203,8 +195,6 @@ router.get("/usuarios", getUserFromEmail, async (req, res) => {
     const id_usuario = req.user.id_usuario;
     const limit = parseInt(req.query.limit) || 10;
 
-    console.log(`👥 Buscando usuarios similares para ${id_usuario}`);
-
     // 1. Obtener preferencias del usuario actual
     const interactions = await getUserInteractions(id_usuario);
     const preferences = calculatePreferences(interactions);
@@ -213,7 +203,7 @@ router.get("/usuarios", getUserFromEmail, async (req, res) => {
       // Usuario nuevo: mostrar usuarios populares
       const popular = await pool.query(`
         SELECT u.id_usuario, u.usuario, u.correo, u.foto,
-               COUNT(DISTINCT s.id_seguimiento) as seguidores
+              COUNT(DISTINCT s.id_seguimiento) as seguidores
         FROM usuario u
         LEFT JOIN seguimiento s ON u.id_usuario = s.id_usuario_seguido
         WHERE u.id_usuario != $1
@@ -237,7 +227,7 @@ router.get("/usuarios", getUserFromEmail, async (req, res) => {
     const similarUsers = await pool.query(`
       WITH user_artists AS (
         SELECT DISTINCT p.id_usuario, c.artista,
-               COUNT(*) as interacciones
+              COUNT(*) as interacciones
         FROM publicacion p
         JOIN cancion c ON p.id_cancion = c.id_cancion
         WHERE c.artista = ANY($2::text[])
@@ -246,15 +236,15 @@ router.get("/usuarios", getUserFromEmail, async (req, res) => {
       ),
       user_scores AS (
         SELECT ua.id_usuario,
-               COUNT(DISTINCT ua.artista) as artistas_comunes,
-               SUM(ua.interacciones) as total_interacciones
+              COUNT(DISTINCT ua.artista) as artistas_comunes,
+              SUM(ua.interacciones) as total_interacciones
         FROM user_artists ua
         GROUP BY ua.id_usuario
       )
       SELECT u.id_usuario, u.usuario, u.correo, u.foto,
-             us.artistas_comunes,
-             us.total_interacciones,
-             (SELECT COUNT(*) FROM seguimiento WHERE id_usuario_seguido = u.id_usuario) as seguidores
+            us.artistas_comunes,
+            us.total_interacciones,
+            (SELECT COUNT(*) FROM seguimiento WHERE id_usuario_seguido = u.id_usuario) as seguidores
       FROM usuario u
       JOIN user_scores us ON u.id_usuario = us.id_usuario
       WHERE u.estado = 'activo'
@@ -265,8 +255,6 @@ router.get("/usuarios", getUserFromEmail, async (req, res) => {
       LIMIT $3
     `, [id_usuario, preferences.topArtists, limit]);
 
-    console.log(`✅ ${similarUsers.rows.length} usuarios similares encontrados`);
-
     return res.json({
       recommendations: similarUsers.rows,
       algorithm: "taste_matching",
@@ -274,12 +262,12 @@ router.get("/usuarios", getUserFromEmail, async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Error en /api/recomendaciones/usuarios:", err);
+
     return responses.error(res, "Error obteniendo usuarios recomendados");
   }
 });
 
-// ==================== ANÁLISIS DE GUSTOS ====================
+// ANÁLISIS DE GUSTOs
 
 /**
  * GET /api/recomendaciones/analisis
@@ -309,7 +297,7 @@ router.get("/analisis", getUserFromEmail, async (req, res) => {
     return res.json(stats);
 
   } catch (err) {
-    console.error("❌ Error en /api/recomendaciones/analisis:", err);
+    
     return responses.error(res, "Error obteniendo análisis");
   }
 });

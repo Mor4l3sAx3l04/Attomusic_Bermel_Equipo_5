@@ -18,7 +18,7 @@ router.get("/usuario/:correo/rol", async (req, res) => {
 
     return res.json({ rol: result.rows[0].rol });
   } catch (err) {
-    console.error("❌ Error en /api/usuario/:correo/rol:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -38,10 +38,10 @@ router.get("/reportes", async (req, res) => {
     `;
 
     const result = await pool.query(query);
-    console.log("✅ Reportes encontrados:", result.rows.length);
+
     return res.json(result.rows);
   } catch (err) {
-    console.error("❌ Error en /api/admin/reportes:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -53,10 +53,10 @@ router.post("/reporte/:id/resolver", async (req, res) => {
   try {
     const query = "UPDATE reporte SET estado = 'resuelto' WHERE id_publicacion = $1";
     await pool.query(query, [id]);
-    console.log("✅ Reporte resuelto:", id);
+
     return res.json({ message: "Reporte resuelto" });
   } catch (err) {
-    console.error("❌ Error resolviendo reporte:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -66,10 +66,10 @@ router.delete("/reportes/limpiar", async (req, res) => {
   try {
     const query = "DELETE FROM reporte WHERE estado = 'resuelto'";
     const result = await pool.query(query);
-    console.log("✅ Reportes eliminados:", result.rowCount);
+
     return res.json({ message: "Reportes limpiados" });
   } catch (err) {
-    console.error("❌ Error limpiando reportes:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -87,10 +87,10 @@ router.get("/publicaciones", async (req, res) => {
     `;
 
     const result = await pool.query(query);
-    console.log("✅ Publicaciones encontradas:", result.rows.length);
+
     return res.json(result.rows);
   } catch (err) {
-    console.error("❌ Error en /api/admin/publicaciones:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -103,18 +103,17 @@ router.delete("/publicacion/:id", async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    console.log("🗑️ Eliminando publicación:", id);
     await client.query("DELETE FROM comentario WHERE id_publicacion = $1", [id]);
     await client.query("DELETE FROM reaccion WHERE id_publicacion = $1", [id]);
     await client.query("DELETE FROM reporte WHERE id_publicacion = $1", [id]);
     await client.query("DELETE FROM publicacion WHERE id_publicacion = $1", [id]);
 
     await client.query("COMMIT");
-    console.log("✅ Publicación eliminada correctamente");
+
     return res.json({ message: "Publicación eliminada correctamente" });
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("❌ Error eliminando publicación:", err.message);
+
     return responses.error(res, "Error al eliminar publicación");
   } finally {
     client.release();
@@ -131,10 +130,10 @@ router.get("/usuarios", async (req, res) => {
     `;
 
     const result = await pool.query(query);
-    console.log("✅ Usuarios encontrados:", result.rows.length);
+
     return res.json(result.rows);
   } catch (err) {
-    console.error("❌ Error en /api/admin/usuarios:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -151,10 +150,10 @@ router.put("/usuario/:id/rol", async (req, res) => {
   try {
     const query = "UPDATE usuario SET rol = $1 WHERE id_usuario = $2";
     await pool.query(query, [nuevoRol, id]);
-    console.log(`✅ Rol cambiado a ${nuevoRol} para usuario ${id}`);
+
     return res.json({ message: "Rol actualizado correctamente" });
   } catch (err) {
-    console.error("❌ Error cambiando rol:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -170,10 +169,10 @@ router.post("/usuario/:id/banear", async (req, res) => {
   try {
     const query = "UPDATE usuario SET fecha_baneo = $1, motivo_baneo = $2 WHERE id_usuario = $3";
     await pool.query(query, [fechaBaneo, motivo, id]);
-    console.log(`✅ Usuario ${id} baneado hasta ${fechaBaneo.toLocaleDateString()}`);
+
     return res.json({ message: "Usuario baneado correctamente" });
   } catch (err) {
-    console.error("❌ Error baneando usuario:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -185,10 +184,10 @@ router.post("/usuario/:id/desbanear", async (req, res) => {
   try {
     const query = "UPDATE usuario SET fecha_baneo = NULL, motivo_baneo = NULL WHERE id_usuario = $1";
     await pool.query(query, [id]);
-    console.log(`✅ Usuario ${id} desbaneado`);
+
     return res.json({ message: "Usuario desbaneado correctamente" });
   } catch (err) {
-    console.error("❌ Error desbaneando usuario:", err.message);
+
     return responses.error(res, "Error en el servidor");
   }
 });
@@ -201,35 +200,25 @@ router.delete("/usuario/:id", async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    console.log("🗑️ Eliminando usuario:", id);
-
     await client.query("DELETE FROM comentario WHERE id_usuario = $1", [id]);
-    console.log("  ✓ Comentarios eliminados");
 
     await client.query("DELETE FROM reaccion WHERE id_usuario = $1", [id]);
-    console.log("  ✓ Reacciones eliminadas");
 
     await client.query("DELETE FROM reporte WHERE id_usuario = $1", [id]);
-    console.log("  ✓ Reportes eliminados");
 
     await client.query(
       "DELETE FROM seguimiento WHERE id_usuario_seguidor = $1 OR id_usuario_seguido = $2",
       [id, id]
     );
-    console.log("  ✓ Seguimientos eliminados");
 
     await client.query("DELETE FROM publicacion WHERE id_usuario = $1", [id]);
-    console.log("  ✓ Publicaciones eliminadas");
 
     await client.query("DELETE FROM usuario WHERE id_usuario = $1", [id]);
-    console.log("  ✓ Usuario eliminado");
 
     await client.query("COMMIT");
-    console.log("✅ Usuario eliminado correctamente");
     return res.json({ message: "Usuario eliminado correctamente" });
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("❌ Error eliminando usuario:", err.message);
     return responses.error(res, "Error al eliminar usuario");
   } finally {
     client.release();

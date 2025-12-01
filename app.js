@@ -1,11 +1,11 @@
-// app.js (REFACTORIZADO)
+// app.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ========== MIDDLEWARE GLOBAL ==========
+// MIDDLEWARE GLOBAL
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
@@ -16,7 +16,7 @@ app.set("trust proxy", 1);
 const limiter = require("./middleware/rateLimiter");
 app.use(limiter);
 
-// ========== IMPORTAR RUTAS ==========
+//IMPORTAR RUTAS
 const authRoutes = require("./routes/auth");
 const postsRoutes = require("./routes/posts");
 const usersRoutes = require("./routes/users");
@@ -26,7 +26,6 @@ const newsRoutes = require("./routes/news");
 const recomendacionesRoutes = require("./routes/recomendaciones");
 
 // USAR RUTAS
-// Autenticación (login, register, reset)
 app.use("/", authRoutes);
 
 // Spotify y Noticias
@@ -36,16 +35,16 @@ app.use("/music-news", newsRoutes);
 // Publicaciones
 app.use("/api", postsRoutes);
 
-// Usuarios (perfil, seguir, etc.)
+// Usuarios
 app.use("/api", usersRoutes);
 
-// Recomendaciones (algoritmo de gustos)
+// Recomendaciones 
 app.use("/api/recomendaciones", recomendacionesRoutes);
 
 // Panel de Administración
 app.use("/api/admin", adminRoutes);
 
-// RUTA DE VERIFICACIÓN DE ROL (fuera de admin para acceso público)
+// RUTA DE VERIFICACIÓN DE ROL
 const pool = require("./utils/database");
 const responses = require("./utils/responses");
 
@@ -61,12 +60,11 @@ app.get("/api/usuario/:correo/rol", async (req, res) => {
 
     return res.json({ rol: result.rows[0].rol });
   } catch (err) {
-    console.error("❌ Error en /api/usuario/:correo/rol:", err.message);
     return responses.error(res, "Error en el servidor");
   }
 });
 
-// ========== SERVIDOR ==========
+//SERVIDOR
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

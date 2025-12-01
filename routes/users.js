@@ -328,7 +328,7 @@ router.get("/usuarios/populares", async (req, res) => {
 
     const result = await pool.query(`
       SELECT u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg,
-             COUNT(s.id_seguimiento) as num_seguidores
+            COUNT(s.id_seguimiento) as num_seguidores
       FROM usuario u
       LEFT JOIN seguimiento s ON u.id_usuario = s.id_usuario_seguido
       WHERE u.estado = 'activo'

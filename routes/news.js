@@ -3,7 +3,7 @@ const express = require("express");
 const fetch = require("node-fetch");
 const router = express.Router();
 
-const API_KEY = process.env.THENEWSAPI_KEY; // Tu clave privada (colócala en Render o en .env)
+const API_KEY = process.env.THENEWSAPI_KEY;
 const BASE_URL = "https://newsapi.org/v2/everything";
 
 router.get("/", async (req, res) => {
