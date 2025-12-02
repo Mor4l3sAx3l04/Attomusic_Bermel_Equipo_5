@@ -160,6 +160,129 @@
     }
   }
 
+  // ✅ Función mejorada para crear tarjetas de usuario
+  function crearTarjetaUsuario(user) {
+    const div = document.createElement('div');
+    div.className = 'perfil-card mb-3 fade-in';
+    
+    const escapeHtml = window.escapeHtml || ((text) => {
+      const divTemp = document.createElement('div');
+      divTemp.textContent = text;
+      return divTemp.innerHTML;
+    });
+    
+    div.innerHTML = `
+      <div class="perfil-card-content">
+        <div class="perfil-avatar-container">
+          ${user.foto ? 
+            `<img src="${user.foto}" alt="${escapeHtml(user.usuario)}" class="perfil-avatar-img">` :
+            `<div class="perfil-avatar-placeholder">${user.usuario.charAt(0).toUpperCase()}</div>`
+          }
+        </div>
+        
+        <div class="perfil-info">
+          <h5 class="perfil-username">@${escapeHtml(user.usuario)}</h5>
+          <p class="perfil-stats">
+            ${user.artistas_comunes ? `
+              <i class="bi bi-music-note-beamed"></i> ${user.artistas_comunes} artistas en común<br>
+            ` : ''}
+            <i class="bi bi-people-fill"></i> ${user.seguidores || 0} seguidores
+          </p>
+        </div>
+        
+        <div class="perfil-actions">
+          <button class="btn-seguir-perfil-similar" data-id-usuario="${user.id_usuario}">
+            <i class="bi bi-person-plus"></i>
+            <span>Seguir</span>
+          </button>
+          <button class="btn-ver-perfil load-page-perfil" data-id-usuario="${user.id_usuario}">
+            <i class="bi bi-eye"></i> Ver perfil
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Event listeners
+    const btnSeguir = div.querySelector('.btn-seguir-perfil-similar');
+    const btnVerPerfil = div.querySelector('.btn-ver-perfil');
+    
+    if (btnSeguir) {
+      verificarSiguiendoPerfil(user.id_usuario, btnSeguir);
+      btnSeguir.addEventListener('click', () => toggleSeguirPerfil(user.id_usuario, btnSeguir));
+    }
+
+    if (btnVerPerfil) {
+      btnVerPerfil.addEventListener('click', function() {
+        const idUsuario = this.getAttribute('data-id-usuario');
+        if (typeof loadPage === 'function') {
+          loadPage(`perfil-usuario.html?id=${idUsuario}`);
+        } else {
+          window.location.href = `perfil-usuario.html?id=${idUsuario}`;
+        }
+      });
+    }
+    
+    return div;
+  }
+
+  // ✅ Verificar si ya sigue al usuario
+  async function verificarSiguiendoPerfil(idUsuario, btnElement) {
+    if (!usuarioActual) return;
+
+    try {
+      const res = await fetch(`/api/siguiendo/${idUsuario}?correo=${encodeURIComponent(usuarioActual.correo)}`);
+      const data = await res.json();
+
+      if (data.siguiendo) {
+        btnElement.classList.add('siguiendo');
+        btnElement.querySelector('i').className = 'bi bi-person-check-fill';
+        btnElement.querySelector('span').textContent = 'Siguiendo';
+      }
+    } catch (err) {
+      console.error('Error verificando seguimiento:', err);
+    }
+  }
+
+  // ✅ Toggle seguir/dejar de seguir
+  async function toggleSeguirPerfil(idUsuario, btnElement) {
+    if (!usuarioActual) {
+      if (window.mostrarToast) {
+        window.mostrarToast('Debes iniciar sesión para seguir usuarios', 'error');
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/seguir/${idUsuario}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: usuarioActual.correo })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        if (data.siguiendo) {
+          btnElement.classList.add('siguiendo');
+          btnElement.querySelector('i').className = 'bi bi-person-check-fill';
+          btnElement.querySelector('span').textContent = 'Siguiendo';
+        } else {
+          btnElement.classList.remove('siguiendo');
+          btnElement.querySelector('i').className = 'bi bi-person-plus';
+          btnElement.querySelector('span').textContent = 'Seguir';
+        }
+        if (window.mostrarToast) {
+          window.mostrarToast(data.message, 'success');
+        }
+      }
+    } catch (err) {
+      console.error('Error al seguir:', err);
+      if (window.mostrarToast) {
+        window.mostrarToast('Error de conexión', 'error');
+      }
+    }
+  }
+
   // ===== CARGAR ANÁLISIS DE GUSTOS =====
   async function cargarAnalisis() {
     const container = document.getElementById('analisis-gustos');
@@ -257,9 +380,25 @@
             ${user.artistas_comunes ? `<div style="color:#777;font-size:0.85rem;">${user.artistas_comunes} artistas en común</div>` : ''}
           </div>
         </div>
-        <a href="perfil-usuario.html?id=${user.id_usuario}" class="btn btn-sm" style="background:#ba01ff;color:white;border:none;padding:8px 16px;border-radius:8px;">Ver perfil</a>
+        <button class="btn btn-sm btn-ver-perfil-similar" data-id-usuario="${user.id_usuario}" style="background:#ba01ff;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;">
+          <i class="bi bi-eye"></i> Ver perfil
+        </button>
       </div>
     `;
+    
+    // ✅ Event listener para SPA
+    const btnVerPerfil = div.querySelector('.btn-ver-perfil-similar');
+    if (btnVerPerfil) {
+      btnVerPerfil.addEventListener('click', function() {
+        const idUsuario = this.getAttribute('data-id-usuario');
+        if (typeof loadPage === 'function') {
+          loadPage(`perfil-usuario.html?id=${idUsuario}`);
+        } else {
+          window.location.href = `perfil-usuario.html?id=${idUsuario}`;
+        }
+      });
+    }
+    
     return div;
   }
 
