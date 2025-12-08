@@ -23,59 +23,19 @@
 
   <div id="generos-canciones" style="margin:32px auto;max-width:1100px;"></div>
   
+  <!-- ✅ IMPORTAR EL MÓDULO REUTILIZABLE -->
+  <script src="js/detalleCancion.js"></script>
+  
   <script>
-  function crearEstrellas() {
-    return `
-      <div class="star-rating" style="display:flex;gap:8px;justify-content:flex-start;align-items:center;margin:12px 0;">
-        <span class="star" data-value="1" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
-        <span class="star" data-value="2" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
-        <span class="star" data-value="3" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
-        <span class="star" data-value="4" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
-        <span class="star" data-value="5" style="font-size:2rem;cursor:pointer;color:#ddd;transition:color 0.2s;">★</span>
-      </div>
-      <input type="hidden" id="calificacion" value="0">
-    `;
-  }
-
-  function activarEstrellas() {
-    const stars = document.querySelectorAll('.star');
-    const inputCalificacion = document.getElementById('calificacion');
-    let selectedRating = 0;
-
-    stars.forEach(star => {
-      star.addEventListener('mouseenter', function() {
-        const value = parseInt(this.getAttribute('data-value'));
-        stars.forEach((s, idx) => {
-          if (idx < value) {
-            s.style.color = '#ffd700';
-          } else {
-            s.style.color = selectedRating > idx ? '#ba01ff' : '#ddd';
-          }
-        });
-      });
-
-      star.addEventListener('click', function() {
-        selectedRating = parseInt(this.getAttribute('data-value'));
-        inputCalificacion.value = selectedRating;
-        stars.forEach((s, idx) => {
-          s.style.color = idx < selectedRating ? '#ba01ff' : '#ddd';
-        });
-      });
-    });
-
-    document.querySelector('.star-rating').addEventListener('mouseleave', function() {
-      stars.forEach((s, idx) => {
-        s.style.color = idx < selectedRating ? '#ba01ff' : '#ddd';
-      });
-    });
-  }
-
   function mainCanciones() {
-    // ✅ SISTEMA DE CACHÉ (almacena resultados en memoria)
+    // Inicializar módulo con email del usuario
+    const userEmail = sessionStorage.getItem('userEmail') || sessionStorage.getItem('correo');
+    DetalleCancion.init(userEmail);
+
+    // SISTEMA DE CACHÉ
     const CACHE_KEY = 'attomusic_canciones_cache';
-    const CACHE_DURATION = 30 * 60 * 1000; // 30 minutos
+    const CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
     
-    // Intentar cargar desde caché
     function cargarDesdeCache() {
       try {
         const cached = localStorage.getItem(CACHE_KEY);
@@ -84,13 +44,12 @@
         const data = JSON.parse(cached);
         const ahora = Date.now();
         
-        // Verificar si el caché expiró
         if (ahora - data.timestamp > CACHE_DURATION) {
           localStorage.removeItem(CACHE_KEY);
           return null;
         }
         
-        console.log('📦 Cargando desde caché (no hace peticiones)');
+        console.log('📦 Cargando desde caché');
         return data.canciones;
       } catch (err) {
         console.error('Error leyendo caché:', err);
@@ -98,7 +57,6 @@
       }
     }
     
-    // Guardar en caché
     function guardarEnCache(canciones) {
       try {
         const data = {
@@ -112,7 +70,6 @@
       }
     }
     
-    // ✅ GÉNEROS OPTIMIZADOS
     const generos = [
       { nombre: "🎤 Pop", query: "pop", limit: 12 },
       { nombre: "🎸 Rock", query: "rock", limit: 12 },
@@ -160,23 +117,18 @@
     }
     renderNavGeneros();
 
-    // ✅ OPTIMIZACIÓN: Cargar géneros en PARALELO y mostrar progresivamente
     async function cargarCancionesPopulares() {
       const cont = document.getElementById("generos-canciones");
       
-      // 1️⃣ INTENTAR CARGAR DESDE CACHÉ PRIMERO
       const cancionesCache = cargarDesdeCache();
       
       if (cancionesCache) {
-        // Renderizar inmediatamente desde caché
         renderizarCancionesDesdeCache(cancionesCache);
         return;
       }
       
-      // 2️⃣ Si no hay caché, hacer peticiones
       console.log('🌐 No hay caché, haciendo peticiones a Spotify...');
       
-      // Crear contenedores para cada género ANTES de cargar
       let html = "";
       generos.forEach(genero => {
         const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
@@ -192,11 +144,9 @@
       });
       cont.innerHTML = html;
 
-      // ✅ CARGAR TODOS LOS GÉNEROS EN PARALELO
       const promesas = generos.map(genero => cargarGenero(genero));
       const resultados = await Promise.allSettled(promesas);
       
-      // 3️⃣ GUARDAR RESULTADOS EN CACHÉ
       const cancionesParaCache = {};
       resultados.forEach((resultado, index) => {
         if (resultado.status === 'fulfilled' && resultado.value) {
@@ -208,7 +158,6 @@
       guardarEnCache(cancionesParaCache);
     }
     
-    // ✅ Renderizar canciones desde caché
     function renderizarCancionesDesdeCache(cancionesCache) {
       const cont = document.getElementById("generos-canciones");
       let html = "";
@@ -248,7 +197,7 @@
       
       cont.innerHTML = html;
       
-      // Agregar event listeners
+      // ✅ Usar el módulo reutilizable para los clicks
       generos.forEach(genero => {
         const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
         const tracks = cancionesCache[generoId] || [];
@@ -256,13 +205,17 @@
         tracks.forEach((track, idx) => {
           const card = document.getElementById(`track-${generoId}-${idx}`);
           if (card) {
-            card.addEventListener('click', () => window.mostrarDetalleCancion(track.id));
+            card.addEventListener('click', () => {
+              // ✅ LLAMAR AL MÓDULO REUTILIZABLE
+              DetalleCancion.mostrar(track.id, 'generos-canciones', () => {
+                cargarCancionesPopulares();
+              });
+            });
           }
         });
       });
     }
 
-    // ✅ Función para cargar UN género
     async function cargarGenero(genero) {
       const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
       const container = document.getElementById(`container-${generoId}`);
@@ -277,13 +230,11 @@
         const data = await res.json();
         let tracks = data.tracks?.items || [];
         
-        // Filtrar y ordenar
         tracks = tracks
           .filter(t => t.popularity > 40)
           .sort((a, b) => b.popularity - a.popularity)
           .slice(0, 12);
 
-        // Renderizar inmediatamente cuando llegue la respuesta
         if (tracks.length > 0) {
           let html = `<div class='row' style='gap:24px;display:flex;flex-wrap:wrap;'>`;
           
@@ -305,18 +256,21 @@
           html += `</div>`;
           container.innerHTML = html;
           
-          // Agregar event listeners
+          // ✅ Usar el módulo reutilizable
           tracks.forEach((track, idx) => {
             const card = document.getElementById(`track-${generoId}-${idx}`);
             if (card) {
-              card.addEventListener('click', () => window.mostrarDetalleCancion(track.id));
+              card.addEventListener('click', () => {
+                DetalleCancion.mostrar(track.id, 'generos-canciones', () => {
+                  cargarCancionesPopulares();
+                });
+              });
             }
           });
         } else {
           container.innerHTML = `<div style='color:#999;font-size:1rem;text-align:center;padding:20px;'>No se encontraron canciones para este género.</div>`;
         }
         
-        // ✅ RETORNAR las canciones para guardar en caché
         return tracks;
         
       } catch (err) {
@@ -324,125 +278,6 @@
         container.innerHTML = `<div style='color:#ff5555;font-size:1rem;text-align:center;padding:20px;'>Error al cargar canciones</div>`;
         return null;
       }
-    }
-
-    window.mostrarDetalleCancion = async function(id) {
-      const cont = document.getElementById("generos-canciones");
-      
-      cont.innerHTML = `<div style='width:100%;padding:24px 0;'><div id='detalle-cancion'></div></div>`;
-      const detalle = document.getElementById('detalle-cancion');
-      detalle.innerHTML = `<div style='text-align:center;color:#5a189a;font-size:1.5rem;'>Cargando...</div>`;
-      
-      const res = await fetch(`/spotify/track/${id}`);
-      const track = await res.json();
-      let img = track.album?.images?.[0]?.url || "";
-      
-      detalle.innerHTML = `
-        <button id='volver-btn' class='btn' style='margin-bottom:24px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;font-weight:700;padding:10px 24px;border-radius:12px;'>⟵ Volver</button>
-        
-        <div id='detalle-container' style='display:grid;grid-template-columns:300px 1fr;gap:32px;align-items:start;background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);padding:32px;border-radius:18px;box-shadow:0 4px 20px rgba(90,24,154,0.15);'>
-          
-          <div style='display:flex;flex-direction:column;align-items:center;'>
-            ${img ? `<img src='${img}' alt='cover' style='width:100%;max-width:280px;height:auto;border-radius:18px;margin-bottom:18px;box-shadow:0 8px 24px rgba(90,24,154,0.2);'>` : ""}
-          </div>
-          
-          <div style='display:flex;flex-direction:column;gap:16px;'>
-            <h1 class='detalle-title' style='color:#5a189a;font-size:2.5rem;font-weight:900;margin:0;'>${track.name}</h1>
-            
-            <div style='display:flex;flex-wrap:wrap;gap:24px;'>
-              <p class='detalle-text' style='color:#ba01ff;font-weight:700;font-size:1.2rem;margin:0;'>👩‍🎤 ${track.artists.map(a => a.name).join(", ")}</p>
-              <p class='detalle-text' style='color:#5a189a;font-size:1.1rem;margin:0;'>💿 ${track.album?.name || ""}</p>
-            </div>
-            
-            <div style='display:flex;flex-wrap:wrap;gap:24px;'>
-              <p class='detalle-text' style='color:#5a189a;font-size:1.1rem;margin:0;'>📅 ${track.album?.release_date || ""}</p>
-              <p class='detalle-text' style='color:#ff9100;font-size:1.1rem;margin:0;'>🔥 Popularidad: ${track.popularity}</p>
-            </div>
-            
-            <div class='detalle-section' style='margin-top:24px;padding:24px;background:white;border-radius:12px;box-shadow:0 2px 12px rgba(90,24,154,0.08);'>
-              <h4 style='color:#ba01ff;margin-bottom:16px;font-size:1.3rem;'>Califica esta canción</h4>
-              <form id='calificar-form'>
-                ${crearEstrellas()}
-                <button type='submit' class='btn' style='margin-top:10px;background:linear-gradient(160deg,#ba01ff,#00dffc);border:none;color:white;padding:8px 24px;border-radius:8px;font-weight:600;'>Enviar calificación</button>
-              </form>
-              <div id='calificacion-result' style='margin-top:12px;'></div>
-            </div>
-            
-            <div class='detalle-section' style='margin-top:16px;padding:24px;background:white;border-radius:12px;box-shadow:0 2px 12px rgba(90,24,154,0.08);'>
-              <h4 style='color:#5a189a;margin-bottom:16px;font-size:1.3rem;'>Deja un comentario</h4>
-              <form id='comentario-form'>
-                <textarea id='comentario' rows='3' required class='detalle-textarea' style='width:100%;border-radius:8px;border:1px solid #5a189a;padding:12px;font-size:1rem;'></textarea>
-                <button type='submit' class='btn' style='margin-top:10px;background:linear-gradient(160deg,#5a189a,#00dffc);border:none;width:100%;color:white;padding:10px;border-radius:8px;font-weight:600;'>Enviar comentario</button>
-              </form>
-              <div id='comentario-result' style='margin-top:12px;'></div>
-            </div>
-            
-          </div>
-        </div>
-        
-        <style>
-          [data-bs-theme="dark"] #detalle-container {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
-          }
-          
-          [data-bs-theme="dark"] .detalle-title {
-            color: #b983ff !important;
-          }
-          
-          [data-bs-theme="dark"] .detalle-text {
-            color: #e0e0e0 !important;
-          }
-          
-          [data-bs-theme="dark"] .detalle-section {
-            background: #23272f !important;
-          }
-          
-          [data-bs-theme="dark"] .detalle-section h4 {
-            color: #b983ff !important;
-          }
-          
-          [data-bs-theme="dark"] .detalle-textarea {
-            background: #1a1a2e !important;
-            color: #e0e0e0 !important;
-            border-color: #b983ff !important;
-          }
-          
-          @media (max-width: 768px) {
-            #detalle-cancion > button + div {
-              grid-template-columns: 1fr !important;
-              text-align: center;
-            }
-            #detalle-cancion .star-rating {
-              justify-content: center !important;
-            }
-          }
-        </style>
-      `;
-      
-      activarEstrellas();
-      
-      document.getElementById('volver-btn').onclick = () => {
-        cargarCancionesPopulares();
-      };
-      
-      document.getElementById("calificar-form").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const val = document.getElementById("calificacion").value;
-        if (val > 0) {
-          document.getElementById("calificacion-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias! Calificaste esta canción con <b>${val}</b> estrellas.</p>`;
-        } else {
-          document.getElementById("calificacion-result").innerHTML = `<p style='color:#ff0000;'>Por favor selecciona una calificación</p>`;
-        }
-      });
-      
-      document.getElementById("comentario-form").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const comentario = document.getElementById("comentario").value.trim();
-        if (comentario) {
-          document.getElementById("comentario-result").innerHTML = `<p style='color:#5a189a;'>¡Gracias por tu comentario!</p><div style='background:#f3e8ff;border-radius:8px;padding:10px;margin-top:6px;color:#5a189a;'>${comentario}</div>`;
-          document.getElementById("comentario").value = "";
-        }
-      });
     }
 
     cargarCancionesPopulares();
