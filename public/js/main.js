@@ -327,6 +327,10 @@ try {
     this.reset();
 
     localStorage.setItem("usuario", JSON.stringify({ usuario, correo }));
+    
+    sessionStorage.setItem('correo', correo);
+    sessionStorage.setItem('usuario', usuario);
+
     actualizarInterfaz();
 
     } else {
@@ -367,7 +371,19 @@ if (formLogin) {
         bootstrap.Modal.getInstance(document.getElementById("loginModal")).hide();
         this.reset();
 
-        localStorage.setItem("usuario", JSON.stringify({ usuario: data.user.usuario, correo: data.user.correo }));
+        localStorage.setItem("usuario", JSON.stringify({ 
+            usuario: data.user.usuario, 
+            correo: data.user.correo 
+        }));
+
+        sessionStorage.setItem('correo', data.user.correo);
+        sessionStorage.setItem('usuario', data.user.usuario);
+        sessionStorage.setItem('id_usuario', data.user.id_usuario);
+        sessionStorage.setItem('rol', data.user.rol);
+
+        console.log('✅ Sesión guardada en sessionStorage');
+        console.log('📧 Correo:', sessionStorage.getItem('correo'));
+
         actualizarInterfaz();
 
         } else {
@@ -481,7 +497,13 @@ async function actualizarInterfaz() {
 
 // Cerrar sesión
 document.getElementById("btn-logout").addEventListener("click", () => {
+
   localStorage.removeItem("usuario");
+  sessionStorage.removeItem('correo');
+  sessionStorage.removeItem('usuario');
+  sessionStorage.removeItem('id_usuario');
+  sessionStorage.removeItem('rol');
+  
   showToast("Sesión cerrada correctamente", "success");
   actualizarInterfaz();
 });
