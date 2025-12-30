@@ -2116,3 +2116,420 @@ body:not([data-bs-theme="dark"]) .section-title i {
     padding: 8px 12px;
   }
 }
+
+
+/* Asegurar que ningún contenedor se salga del viewport */
+* {
+  box-sizing: border-box;
+}
+
+.container,
+.container-fluid,
+#content,
+#main-content,
+.content {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Arreglar cards que se salen */
+.search-card,
+.publicacion-item,
+.perfil-card,
+.vertical-card {
+  max-width: 100%;
+}
+
+/* Arreglar imágenes que se salen */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 2️⃣ BACKDROP PARA CERRAR MENÚ AL HACER CLICK FUERA */
+/* Agregar backdrop oscuro cuando el menú está abierto */
+.navbar-collapse.show::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+  backdrop-filter: blur(2px);
+}
+
+/* Asegurar que el menú móvil tenga buen z-index */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 56px; /* Altura del navbar */
+    left: 0;
+    right: 0;
+    background: linear-gradient(160deg, #ba01ff, #00dffc);
+    z-index: 1040;
+    max-height: calc(100vh - 56px);
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .navbar-collapse.show {
+    padding: 1rem;
+  }
+  
+  /* Estilo para los items del menú móvil */
+  .navbar-nav {
+    width: 100%;
+  }
+  
+  .navbar-nav .nav-item {
+    margin: 0.5rem 0;
+  }
+  
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background 0.3s;
+  }
+  
+  .navbar-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* 3️⃣ ARREGLAR INPUTS Y FORMS QUE SE SALEN */
+input,
+select,
+textarea,
+.form-control,
+.input-animated {
+  max-width: 100%;
+}
+
+/* 4️⃣ ARREGLAR MODAL QUE SE SALE */
+.modal-dialog {
+  max-width: calc(100vw - 2rem);
+  margin: 1rem;
+}
+
+/* 5️⃣ ARREGLAR TABLAS */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 6️⃣ ARREGLAR BUSCADOR EN NAVBAR */
+@media (max-width: 991.98px) {
+  .search-input.active {
+    width: 150px; /* Reducir en móvil */
+    max-width: calc(100vw - 150px);
+  }
+}
+
+/* 7️⃣ ARREGLAR TÍTULOS LARGOS */
+h1, h2, h3, h4, h5, h6,
+.title,
+.normaltext,
+.search-results-title {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* 8️⃣ ARREGLAR BOTONES QUE SE SALEN */
+.btn,
+button {
+  max-width: 100%;
+}
+
+/* 9️⃣ ARREGLAR GRIDS */
+.search-results,
+.publicaciones-grid {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* 🔟 PADDING PARA MÓVIL */
+@media (max-width: 768px) {
+  .content,
+  #main-content {
+    padding: 0.5rem;
+  }
+  
+  .publicacion-item,
+  .search-card {
+    margin: 0.5rem 0;
+  }
+}
+
+/* Asegurar que ningún contenedor se salga del viewport */
+* {
+  box-sizing: border-box;
+}
+
+.container,
+.container-fluid,
+#content,
+#main-content,
+.content {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Arreglar cards que se salen */
+.search-card,
+.publicacion-item,
+.perfil-card,
+.vertical-card {
+  max-width: 100%;
+}
+
+/* Arreglar imágenes que se salen */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 2️⃣ BACKDROP PARA CERRAR MENÚ AL HACER CLICK FUERA */
+/* Agregar backdrop oscuro cuando el menú está abierto */
+.navbar-collapse.show::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+  backdrop-filter: blur(2px);
+}
+
+/* Asegurar que el menú móvil tenga buen z-index */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 56px; /* Altura del navbar */
+    left: 0;
+    right: 0;
+    background: linear-gradient(160deg, #ba01ff, #00dffc);
+    z-index: 1040;
+    max-height: calc(100vh - 56px);
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .navbar-collapse.show {
+    padding: 1rem;
+  }
+  
+  /* Estilo para los items del menú móvil */
+  .navbar-nav {
+    width: 100%;
+  }
+  
+  .navbar-nav .nav-item {
+    margin: 0.5rem 0;
+  }
+  
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background 0.3s;
+  }
+  
+  .navbar-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* 3️⃣ ARREGLAR INPUTS Y FORMS QUE SE SALEN */
+input,
+select,
+textarea,
+.form-control,
+.input-animated {
+  max-width: 100%;
+}
+
+/* 4️⃣ ARREGLAR MODAL QUE SE SALE */
+.modal-dialog {
+  max-width: calc(100vw - 2rem);
+  margin: 1rem;
+}
+
+/* 5️⃣ ARREGLAR TABLAS */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 6️⃣ ARREGLAR BUSCADOR EN NAVBAR */
+@media (max-width: 991.98px) {
+  .search-input.active {
+    width: 150px; /* Reducir en móvil */
+    max-width: calc(100vw - 150px);
+  }
+}
+
+/* 7️⃣ ARREGLAR TÍTULOS LARGOS */
+h1, h2, h3, h4, h5, h6,
+.title,
+.normaltext,
+.search-results-title {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* 8️⃣ ARREGLAR BOTONES QUE SE SALEN */
+.btn,
+button {
+  max-width: 100%;
+}
+
+/* 9️⃣ ARREGLAR GRIDS */
+.search-results,
+.publicaciones-grid {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ✅ DROPDOWN DEL PERFIL EN MÓVIL */
+@media (max-width: 991.98px) {
+  /* Asegurar que el dropdown se vea bien en móvil */
+.navbar-nav .dropdown-menu {
+    position: relative !important;
+    transform: none !important;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    margin: 0.5rem auto !important;
+    border-radius: 12px;
+    width: 90% !important;
+    max-width: 300px;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    text-align: center ;
+  }
+  
+  .navbar-nav .dropdown-menu .dropdown-item {
+    color: white;
+    padding: 0.75rem 1rem;
+  }
+  
+  .navbar-nav .dropdown-menu .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .navbar-nav .dropdown-menu .dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .navbar-nav .dropdown-menu .dropdown-item-text {
+    color: white;
+  }
+  
+  .navbar-nav .dropdown-menu .text-danger {
+    color: #ff6b6b !important;
+  }
+}
+@media (max-width: 768px) {
+  .content,
+  #main-content {
+    padding: 0.5rem;
+  }
+  
+  .publicacion-item,
+  .search-card {
+    margin: 0.5rem 0;
+  }
+}
+
+/* ===== ARREGLAR Z-INDEX DEL NAVBAR Y DROPDOWN ===== */
+
+/* Navbar siempre arriba de todo */
+.navbar {
+  z-index: 1050 !important;
+  position: fixed !important;
+}
+
+/* Dropdown del perfil debe estar sobre todo el contenido */
+.navbar .dropdown-menu {
+  z-index: 1060 !important;
+}
+
+/* El contenedor principal debe estar DEBAJO del navbar */
+.content,
+#content,
+#main-content {
+  position: relative;
+  z-index: 1 !important;
+}
+
+/* Asegurar que NADA del contenido principal tape el navbar */
+.publicacion-item,
+.search-card,
+.perfil-card,
+.vertical-card,
+.search-results,
+.publicaciones-grid {
+  position: relative;
+  z-index: auto !important;
+}
+
+/* El botón de publicar flotante también debe respetar el navbar */
+.btn-publicar {
+  z-index: 1040 !important;
+}
+
+/* Modales por encima de todo */
+.modal {
+  z-index: 1070 !important;
+}
+
+.modal-backdrop {
+  z-index: 1065 !important;
+}
+
+/* Toast entre contenido y modales */
+.toast {
+  z-index: 1055 !important;
+}
+
+/* FORZAR jerarquía correcta en desktop */
+@media (min-width: 992px) {
+  body > nav.navbar {
+    z-index: 1050 !important;
+  }
+
+  body > nav.navbar .dropdown-menu {
+    z-index: 1060 !important;
+    position: absolute !important;
+  }
+
+  #content,
+  .content {
+    z-index: 1 !important;
+  }
+}
+/* SOLUCIÓN DEFINITIVA PARA DROPDOWN */
+.navbar-nav .dropdown {
+  position: static !important;
+}
+
+.navbar-nav .dropdown-menu {
+  position: absolute !important;
+  z-index: 1060 !important;
+  will-change: transform;
+}
+
+/* Remover z-index de elementos que pueden interferir */
+.container,
+.container-fluid {
+  z-index: auto !important;
+}

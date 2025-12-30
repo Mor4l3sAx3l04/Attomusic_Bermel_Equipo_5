@@ -45,36 +45,50 @@ const searchBtn = document.getElementById("searchBtn");
 const searchInput = document.getElementById("searchInput");
 
 if (searchBtn && searchInput) {
+    // ✅ Función para realizar búsqueda
+    function realizarBusqueda() {
+      const query = sanitizeInput(searchInput.value.trim());
+      if (isNotEmpty(query)) {
+        console.log('🔍 Buscando:', query);
+        loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
+        searchInput.classList.remove("is-invalid");
+      } else {
+        searchInput.classList.add("is-invalid");
+      }
+    }
+
+    // Click en el botón de búsqueda
     searchBtn.addEventListener("click", () => {
-    if (!searchInput.classList.contains("active")) {
+      if (!searchInput.classList.contains("active")) {
+        // Expandir el input
         searchInput.classList.add("active");
         searchInput.focus();
-    } else {
-        const query = sanitizeInput(searchInput.value.trim());
-        if (isNotEmpty(query)) {
-        loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
-        } else {
-        searchInput.classList.add("is-invalid");
-        }
-    }
+      } else {
+        // Realizar búsqueda
+        realizarBusqueda();
+      }
     });
 
+    // Enter en el input
     searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
+      if (e.key === "Enter") {
         e.preventDefault();
-        const query = sanitizeInput(searchInput.value);
-        if (isNotEmpty(query)) {
-        loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
-        } else {
-        searchInput.classList.add("is-invalid");
-        }
-    }
+        realizarBusqueda();
+      }
     });
 
-    searchInput.addEventListener("blur", function() {
-    if (isNotEmpty(this.value)) {
+    // Quitar el error al escribir
+    searchInput.addEventListener("input", function() {
+      if (this.value.trim().length > 0) {
         this.classList.remove("is-invalid");
-    }
+      }
+    });
+
+    // Quitar el error al hacer blur
+    searchInput.addEventListener("blur", function() {
+      if (isNotEmpty(this.value)) {
+        this.classList.remove("is-invalid");
+      }
     });
 }
 
