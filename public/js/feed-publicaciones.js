@@ -1,4 +1,4 @@
-// feed-publicaciones.js ACTUALIZADO
+// feed-publicaciones.js OPTIMIZADO CON INFINITE SCROLL
 
 (function() {
   'use strict';
@@ -6,10 +6,21 @@
   let usuarioActual = window.getUsuarioActual();
   const correoActual = usuarioActual?.correo || null;
 
+  // ========== CONFIGURACIÓN DE PAGINACIÓN ==========
+  const PUBLICACIONES_POR_PAGINA = 10;
+  let paginaActual = 0;
+  let cargando = false;
+  let hayMasPublicaciones = true;
+  let todasLasPublicaciones = []; // Caché local
+  let ultimaPeticion = 0;
+  const TIEMPO_MIN_ENTRE_PETICIONES = 2000; // 2 segundos entre peticiones
+
   // Cache de likes y seguidos del usuario
   let userLikesCache = new Set();
   let usuariosSeguidosCache = new Set();
 
+  // ========== CACHÉ Y OPTIMIZACIÓN ==========
+  
   // Cargar likes del usuario
   async function cargarLikesCache() {
     if (!correoActual) return;
@@ -40,14 +51,62 @@
     }
   }
 
-  // FUNCIÓN DE BÚSQUEDA
+  // ========== INFINITE SCROLL ==========
+
+  function setupInfiniteScroll() {
+    const feed = document.getElementById("feedPublicaciones");
+    if (!feed) return;
+
+    // Crear elemento de loading al final
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'loading-more';
+    loadingDiv.className = 'text-center py-4';
+    loadingDiv.style.display = 'none';
+    loadingDiv.innerHTML = `
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando más...</span>
+      </div>
+      <p class="text-muted mt-2">Cargando más publicaciones...</p>
+    `;
+    feed.parentElement.appendChild(loadingDiv);
+
+    // Intersection Observer para detectar cuando llegamos al final
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !cargando && hayMasPublicaciones) {
+          cargarSiguientePagina();
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '200px', // Empezar a cargar 200px antes de llegar al final
+      threshold: 0.1
+    });
+
+    observer.observe(loadingDiv);
+  }
+
+  // ========== BÚSQUEDA ==========
+  
   window.buscarPublicaciones = async function(query) {
     const feed = document.getElementById("feedPublicaciones");
     
     if (!query || query.trim().length === 0) {
-      await window.cargarPublicaciones();
+      // Si se limpia la búsqueda, resetear y cargar desde caché
+      paginaActual = 0;
+      hayMasPublicaciones = true;
+      feed.innerHTML = "";
+      renderizarPublicacionesPaginadas();
       return;
     }
+
+    // Control de rate limiting
+    const ahora = Date.now();
+    if (ahora - ultimaPeticion < TIEMPO_MIN_ENTRE_PETICIONES) {
+      console.log('⏳ Esperando antes de hacer búsqueda...');
+      return;
+    }
+    ultimaPeticion = ahora;
 
     try {
       feed.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Buscando...</span></div></div>`;
@@ -71,6 +130,7 @@
         return;
       }
 
+      // Renderizar resultados de búsqueda
       data.forEach(pub => {
         const article = crearPublicacion(pub, false);
         feed.appendChild(article);
@@ -82,6 +142,8 @@
     }
   }
 
+  // ========== CARGA INICIAL Y PAGINADA ==========
+
   window.cargarPublicaciones = async function(filtroCorreo = null) {
     const feed = document.getElementById("feedPublicaciones") || document.getElementById("misPublicaciones");
     
@@ -89,6 +151,14 @@
       console.error("No se encontró el contenedor de publicaciones");
       return;
     }
+
+    // Control de rate limiting
+    const ahora = Date.now();
+    if (ahora - ultimaPeticion < TIEMPO_MIN_ENTRE_PETICIONES) {
+      console.log('⏳ Esperando antes de cargar publicaciones...');
+      return;
+    }
+    ultimaPeticion = ahora;
 
     try {
       feed.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>`;
@@ -106,32 +176,104 @@
       }
 
       const data = await res.json();
-      feed.innerHTML = "";
       
       if (!Array.isArray(data) || data.length === 0) {
-        if (filtroCorreo) {
-          feed.innerHTML = `
-            <div class="text-center py-5">
-              <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
-              <p class="text-muted mt-3">Aún no tienes publicaciones</p>
-            </div>
-          `;
-        } else {
-          feed.innerHTML = `<p class="text-muted">Aún no hay publicaciones.</p>`;
-        }
+        feed.innerHTML = filtroCorreo
+          ? `<div class="text-center py-5"><i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i><p class="text-muted mt-3">Aún no tienes publicaciones</p></div>`
+          : `<p class="text-muted">Aún no hay publicaciones.</p>`;
         return;
       }
 
-      data.forEach(pub => {
-        const article = crearPublicacion(pub, filtroCorreo !== null);
-        feed.appendChild(article);
-      });
+      // Guardar en caché
+      todasLasPublicaciones = data;
+      paginaActual = 0;
+      hayMasPublicaciones = true;
+      
+      feed.innerHTML = "";
+
+      // Si es perfil propio, renderizar todo de una vez
+      if (filtroCorreo) {
+        data.forEach(pub => {
+          const article = crearPublicacion(pub, true);
+          feed.appendChild(article);
+        });
+      } else {
+        // Si es feed principal, renderizar paginado
+        renderizarPublicacionesPaginadas();
+        setupInfiniteScroll();
+      }
 
     } catch (err) {
       console.error("Error cargando publicaciones:", err);
       feed.innerHTML = `<p class="text-danger">Error al cargar publicaciones.</p>`;
     }
   }
+
+  // Renderizar publicaciones desde caché con paginación
+  function renderizarPublicacionesPaginadas() {
+    const feed = document.getElementById("feedPublicaciones");
+    if (!feed) return;
+
+    const inicio = paginaActual * PUBLICACIONES_POR_PAGINA;
+    const fin = inicio + PUBLICACIONES_POR_PAGINA;
+    const publicacionesPagina = todasLasPublicaciones.slice(inicio, fin);
+
+    if (publicacionesPagina.length === 0) {
+      hayMasPublicaciones = false;
+      const loadingDiv = document.getElementById('loading-more');
+      if (loadingDiv) {
+        loadingDiv.innerHTML = '<p class="text-muted">No hay más publicaciones</p>';
+        setTimeout(() => {
+          loadingDiv.style.display = 'none';
+        }, 2000);
+      }
+      return;
+    }
+
+    publicacionesPagina.forEach(pub => {
+      const article = crearPublicacion(pub, false);
+      feed.appendChild(article);
+    });
+
+    // Verificar si hay más publicaciones
+    if (fin >= todasLasPublicaciones.length) {
+      hayMasPublicaciones = false;
+      const loadingDiv = document.getElementById('loading-more');
+      if (loadingDiv) {
+        loadingDiv.innerHTML = '<p class="text-muted">No hay más publicaciones</p>';
+        setTimeout(() => {
+          loadingDiv.style.display = 'none';
+        }, 2000);
+      }
+    }
+  }
+
+  // Cargar siguiente página
+  async function cargarSiguientePagina() {
+    if (cargando || !hayMasPublicaciones) return;
+
+    cargando = true;
+    const loadingDiv = document.getElementById('loading-more');
+    if (loadingDiv) {
+      loadingDiv.style.display = 'block';
+    }
+
+    // Simular delay para mejor UX
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    paginaActual++;
+    renderizarPublicacionesPaginadas();
+
+    cargando = false;
+    
+    if (!hayMasPublicaciones && loadingDiv) {
+      setTimeout(() => {
+        loadingDiv.style.display = 'none';
+      }, 2000);
+    }
+  }
+
+  // ========== CREAR PUBLICACIÓN HTML ==========
 
   function crearPublicacion(pub, esPerfilPropio = false) {
     const article = document.createElement("article");
@@ -268,6 +410,8 @@
     return article;
   }
 
+  // ========== LIKES ==========
+
   async function toggleLike(idPublicacion, btnElement) {
     if (!correoActual) {
       window.mostrarToast('Debes iniciar sesión para dar like', 'error');
@@ -307,6 +451,8 @@
       window.mostrarToast('Error de conexión', 'error');
     }
   }
+
+  // ========== COMENTARIOS ==========
 
   async function toggleComentarios(idPublicacion) {
     const comentariosDiv = document.getElementById(`comentarios-${idPublicacion}`);
@@ -377,7 +523,6 @@
 
       const data = await res.json();
 
-      
       if (!res.ok) {
         errorDiv.textContent = data.error;
         errorDiv.style.display = "block";
@@ -403,7 +548,8 @@
     }
   }
 
-  // FUNCIÓN PARA MOSTRAR FORMULARIO DE REPORTE
+  // ========== REPORTES ==========
+
   window.mostrarFormReporte = function(idPublicacion) {
     if (!correoActual) {
       window.mostrarToast('Debes iniciar sesión para reportar', 'error');
@@ -476,24 +622,7 @@
     }
   }
 
-  // Auto-ejecutar si existe el feed
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", async () => {
-      if (document.getElementById("feedPublicaciones")) {
-        await cargarLikesCache();
-        await cargarUsuariosSeguidosCache();
-        window.cargarPublicaciones();
-      }
-    });
-  } else {
-    if (document.getElementById("feedPublicaciones")) {
-      (async () => {
-        await cargarLikesCache();
-        await cargarUsuariosSeguidosCache();
-        window.cargarPublicaciones();
-      })();
-    }
-  }
+  // ========== SEGUIR/DEJAR DE SEGUIR ==========
 
   async function verificarSiguiendo(idUsuario, btnElement) {
     if (!correoActual) return;
@@ -572,7 +701,27 @@
     }
   };
 
-window.crearPublicacionHTML = crearPublicacion;
+  window.crearPublicacionHTML = crearPublicacion;
+
+  // ========== INICIALIZACIÓN ==========
+
+  // Auto-ejecutar si existe el feed
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (document.getElementById("feedPublicaciones")) {
+        await cargarLikesCache();
+        await cargarUsuariosSeguidosCache();
+        window.cargarPublicaciones();
+      }
+    });
+  } else {
+    if (document.getElementById("feedPublicaciones")) {
+      (async () => {
+        await cargarLikesCache();
+        await cargarUsuariosSeguidosCache();
+        window.cargarPublicaciones();
+      })();
+    }
+  }
 
 })();
-

@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
 const dropdownItems = document.querySelectorAll('#perfil-container .dropdown-item');
 dropdownItems.forEach(item => {
   item.addEventListener('click', function() {
-    console.log('Click en dropdown item:', this.textContent.trim());
+    //console.log('Click en dropdown item:', this.textContent.trim());
     // Cerrar el menú móvil si está abierto
     if (navbarCollapse.classList.contains('show')) {
       setTimeout(() => {
@@ -118,5 +118,5 @@ dropdownItems.forEach(item => {
   });
 });
 
-  console.log('✅ Mobile menu fix cargado');
+  //console.log('✅ Mobile menu fix cargado');
 });

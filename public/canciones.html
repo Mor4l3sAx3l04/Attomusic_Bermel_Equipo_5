@@ -49,7 +49,7 @@
           return null;
         }
         
-        console.log('📦 Cargando desde caché');
+        //console.log('📦 Cargando desde caché');
         return data.canciones;
       } catch (err) {
         console.error('Error leyendo caché:', err);
@@ -64,7 +64,7 @@
           canciones: canciones
         };
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        console.log('💾 Canciones guardadas en caché');
+        //console.log('💾 Canciones guardadas en caché');
       } catch (err) {
         console.error('Error guardando caché:', err);
       }
@@ -127,7 +127,7 @@
         return;
       }
       
-      console.log('🌐 No hay caché, haciendo peticiones a Spotify...');
+      //console.log('🌐 No hay caché, haciendo peticiones a Spotify...');
       
       let html = "";
       generos.forEach(genero => {
