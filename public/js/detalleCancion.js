@@ -22,9 +22,9 @@ const DetalleCancion = (function() {
     return sessionStorage.getItem('userEmail') || sessionStorage.getItem('correo') || null;
   }
 
-  // ==========================================
+ 
   // CREAR ESTRELLAS
-  // ==========================================
+ 
   function crearEstrellas(calificacionActual = 0) {
     return `
       <div class="star-rating" style="display:flex;gap:8px;justify-content:flex-start;align-items:center;margin:12px 0;">
@@ -36,9 +36,9 @@ const DetalleCancion = (function() {
     `;
   }
 
-  // ==========================================
+ 
   // ACTIVAR INTERACTIVIDAD DE ESTRELLAS
-  // ==========================================
+ 
   function activarEstrellas() {
     const stars = document.querySelectorAll('.star');
     const inputCalificacion = document.getElementById('calificacion');
@@ -75,9 +75,9 @@ const DetalleCancion = (function() {
     }
   }
 
-  // ==========================================
+ 
   // CARGAR CALIFICACIONES
-  // ==========================================
+ 
   async function cargarCalificaciones(idCancion) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/canciones/${idCancion}/calificaciones`);
@@ -89,9 +89,9 @@ const DetalleCancion = (function() {
     }
   }
 
-  // ==========================================
+ 
   // CARGAR CALIFICACIÓN DEL USUARIO
-  // ==========================================
+ 
   async function cargarCalificacionUsuario(idCancion) {
     const userEmail = getUserEmail();
     if (!userEmail) return null;
@@ -107,9 +107,9 @@ const DetalleCancion = (function() {
     }
   }
 
-  // ==========================================
+ 
   // GUARDAR CALIFICACIÓN
-  // ==========================================
+ 
   async function guardarCalificacion(idCancion, calificacion) {
     const userEmail = getUserEmail();
     if (!userEmail) {
@@ -138,9 +138,9 @@ const DetalleCancion = (function() {
     }
   }
 
-  // ==========================================
+ 
   // CARGAR COMENTARIOS
-  // ==========================================
+ 
   async function cargarComentarios(idCancion, limit = 20, offset = 0) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/canciones/${idCancion}/comentarios?limit=${limit}&offset=${offset}`);
@@ -152,9 +152,9 @@ const DetalleCancion = (function() {
     }
   }
 
-  // ==========================================
+ 
   // GUARDAR COMENTARIO
-  // ==========================================
+ 
   async function guardarComentario(idCancion, comentario) {
     const userEmail = getUserEmail();
     if (!userEmail) {
@@ -183,9 +183,9 @@ const DetalleCancion = (function() {
     }
   }
 
-  // ==========================================
+ 
   // RENDERIZAR COMENTARIOS
-  // ==========================================
+ 
   function renderizarComentarios(comentarios) {
     if (comentarios.length === 0) {
       return '<p style="color:#999;text-align:center;padding:20px;">Aún no hay comentarios. ¡Sé el primero en comentar!</p>';
@@ -219,9 +219,7 @@ const DetalleCancion = (function() {
     }).join('');
   }
 
-  // ==========================================
   // MOSTRAR DETALLE DE CANCIÓN
-  // ==========================================
   async function mostrar(idCancion, containerElement, onVolverCallback) {
     const container = typeof containerElement === 'string' 
       ? document.getElementById(containerElement) 

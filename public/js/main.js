@@ -49,7 +49,7 @@ if (searchBtn && searchInput) {
     function realizarBusqueda() {
       const query = sanitizeInput(searchInput.value.trim());
       if (isNotEmpty(query)) {
-        console.log('🔍 Buscando:', query);
+        //console.log('🔍 Buscando:', query);
         loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
         searchInput.classList.remove("is-invalid");
       } else {
@@ -203,7 +203,7 @@ function loadPage(url) {
   const urlObj = new URL(pagePath, window.location.origin);
   const params = urlObj.search;
 
-  console.log('📄 Cargando página:', urlObj.pathname);
+  //console.log('📄 Cargando página:', urlObj.pathname);
 
   fetch(urlObj.pathname)
     .then(res => {
@@ -219,7 +219,7 @@ function loadPage(url) {
       const urlParams = new URLSearchParams(params);
       if (urlObj.pathname.includes('perfil-usuario.html') && urlParams.get('id')) {
         window._perfilUsuarioId = urlParams.get('id');
-        console.log('🆔 ID usuario:', window._perfilUsuarioId);
+        //console.log('🆔 ID usuario:', window._perfilUsuarioId);
       }
 
       if (urlObj.pathname.includes('buscador.html')) {
@@ -240,7 +240,7 @@ function loadPage(url) {
             
             // Si ya está cargado, resolver inmediatamente
             if (window._loadedScripts.has(src)) {
-              console.log('♻️ Script desde caché, pero ejecutando init nuevamente:', src);
+              //console.log('♻️ Script desde caché, pero ejecutando init nuevamente:', src);
 
               // Intentar ejecutar una función init si existe
               const scriptName = src.split('/').pop().replace('.js','');
@@ -260,7 +260,7 @@ function loadPage(url) {
             
             newScript.onload = () => {
               window._loadedScripts.add(src);
-              console.log('✅ Script cargado:', src);
+              //console.log('✅ Script cargado:', src);
               resolve();
             };
             
@@ -395,8 +395,8 @@ if (formLogin) {
         sessionStorage.setItem('id_usuario', data.user.id_usuario);
         sessionStorage.setItem('rol', data.user.rol);
 
-        console.log('✅ Sesión guardada en sessionStorage');
-        console.log('📧 Correo:', sessionStorage.getItem('correo'));
+        //console.log('✅ Sesión guardada en sessionStorage');
+        //console.log('📧 Correo:', sessionStorage.getItem('correo'));
 
         actualizarInterfaz();
 

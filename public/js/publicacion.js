@@ -16,7 +16,7 @@ function inicializarPublicaciones() {
     return;
   }
 
-  console.log("Elementos del buscador listos.");
+  //console.log("Elementos del buscador listos.");
 
 //Debounce para búsquedas mientras escribe
   let timeout = null;
