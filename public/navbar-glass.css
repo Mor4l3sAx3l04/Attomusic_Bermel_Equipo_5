@@ -1,0 +1,483 @@
+/* ===== NAVBAR GLASSMORPHISM ATTOMUSIC ===== */
+
+/* Navbar principal con efecto glassmorphism MÁS COLORIDO */
+.navbar {
+  background: linear-gradient(160deg, 
+    rgba(186, 1, 255, 0.65), 
+    rgba(0, 223, 252, 0.55)
+  ) !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 
+    0 8px 24px rgba(90, 24, 154, 0.25),
+    0 2px 6px rgba(0, 223, 252, 0.20),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(186, 1, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Efecto al hacer scroll - Aún más colorido */
+.navbar.scrolled {
+  background: linear-gradient(160deg, 
+    rgba(186, 1, 255, 0.85), 
+    rgba(0, 223, 252, 0.75)
+  ) !important;
+  box-shadow: 
+    0 12px 32px rgba(90, 24, 154, 0.3),
+    0 4px 8px rgba(0, 223, 252, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Container del navbar con gap */
+.navbar .container-fluid {
+  gap: 14px;
+  align-items: center;
+  overflow: visible !important;
+  position: relative;
+}
+
+/* Asegurar que el nav-item del dropdown tenga posición relativa */
+.navbar-nav .nav-item.dropdown {
+  position: relative;
+}
+
+/* Cuando el dropdown está abierto, asegurar z-index */
+.navbar-nav .nav-item.dropdown.show {
+  z-index: 9999;
+}
+
+/* Brand/Logo con animación */
+.navbar-brand {
+  color: white !important;
+  font-weight: 700 !important;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navbar-brand:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 223, 252, 0.3);
+}
+
+/* Icono del navbar */
+.iconnavbar {
+  filter: drop-shadow(0 2px 4px rgba(0, 223, 252, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .iconnavbar {
+  transform: rotate(360deg) scale(1.1);
+}
+
+/* Items del nav con separación */
+.navbar-nav {
+  gap: 8px;
+}
+
+/* Nav links con efecto glassmorphism */
+.nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 500 !important;
+  padding: 10px 16px !important;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Efecto de brillo al hover */
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(0, 223, 252, 0.2), 
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.nav-link:hover::before {
+  left: 100%;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-3px);
+  box-shadow: 
+    0 4px 12px rgba(0, 223, 252, 0.3),
+    0 0 20px rgba(186, 1, 255, 0.2);
+}
+
+/* Iconos dentro de nav-link */
+.nav-link i {
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 0 4px rgba(0, 223, 252, 0.3));
+}
+
+.nav-link:hover i {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px rgba(0, 223, 252, 0.6));
+}
+
+/* Botón de tema (dark mode) */
+.btn.rounded-fill {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white !important;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn.rounded-fill:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: rotate(180deg) scale(1.1);
+  box-shadow: 0 0 20px rgba(0, 223, 252, 0.4);
+}
+
+.btn.rounded-fill i {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 4px rgba(0, 223, 252, 0.3));
+}
+
+/* Botón de publicar flotante */
+.navbar .btn-publicar {
+  /* Remover todos los estilos para este botón en el navbar */
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 50% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* El botón de publicar FUERA del navbar mantiene su estilo original */
+body > .btn-publicar,
+.container > .btn-publicar,
+.content .btn-publicar {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #ba01ff, #00dffc) !important;
+  border: none !important;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 16px rgba(186, 1, 255, 0.3),
+    0 0 20px rgba(0, 223, 252, 0.2);
+  transition: all 0.3s ease;
+  z-index: 1040;
+  overflow: hidden;
+}
+
+body > .btn-publicar::before,
+.container > .btn-publicar::before,
+.content .btn-publicar::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, 
+    rgba(255, 255, 255, 0.3) 0%, 
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+body > .btn-publicar:hover::before,
+.container > .btn-publicar:hover::before,
+.content .btn-publicar:hover::before {
+  opacity: 1;
+}
+
+body > .btn-publicar:hover,
+.container > .btn-publicar:hover,
+.content .btn-publicar:hover {
+  transform: scale(1.15) rotate(90deg);
+  box-shadow: 
+    0 6px 24px rgba(186, 1, 255, 0.5),
+    0 0 30px rgba(0, 223, 252, 0.4);
+}
+
+body > .btn-publicar i,
+.container > .btn-publicar i,
+.content .btn-publicar i {
+  color: white;
+  font-size: 1.8rem;
+  transition: transform 0.3s;
+}
+
+/* Toggler del menú móvil */
+.navbar-toggler {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 12px;
+  transition: all 0.3s;
+}
+
+.navbar-toggler:hover {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 223, 252, 0.3);
+}
+
+.navbar-toggler-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* Buscador con glassmorphism */
+.search-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.search-input:focus {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(0, 223, 252, 0.5) !important;
+  box-shadow: 
+    0 0 0 3px rgba(0, 223, 252, 0.1),
+    0 4px 12px rgba(0, 223, 252, 0.2);
+}
+
+.search-input.active {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Botón de búsqueda */
+.search-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 8px 12px;
+  transition: all 0.3s;
+}
+
+.search-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 223, 252, 0.3);
+}
+
+/* Dropdown del perfil */
+.navbar .dropdown {
+  position: static;
+}
+
+.navbar .dropdown-menu {
+  position: absolute !important;
+  background: rgba(26, 26, 46, 0.95) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(186, 1, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(186, 1, 255, 0.2);
+  padding: 12px;
+  margin-top: 12px !important;
+  z-index: 9999 !important;
+  top: 100% !important;
+  right: 0 !important;
+  left: auto !important;
+  transform: none !important;
+}
+
+/* Asegurar que el navbar NO tenga overflow */
+.navbar,
+.navbar .container-fluid {
+  overflow: visible !important;
+}
+
+.dropdown-item {
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: all 0.3s;
+  margin: 4px 0;
+}
+
+.dropdown-item:hover {
+  background: rgba(186, 1, 255, 0.2) !important;
+  transform: translateX(5px);
+  color: white !important;
+}
+
+.dropdown-item.text-danger:hover {
+  background: rgba(220, 53, 69, 0.2) !important;
+}
+
+.dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  margin: 8px 0;
+}
+
+/* Foto de perfil */
+.profile-pic {
+  border: 2px solid rgba(0, 223, 252, 0.5);
+  box-shadow: 0 0 15px rgba(0, 223, 252, 0.3);
+  transition: all 0.3s;
+}
+
+.profile-pic:hover {
+  border-color: rgba(186, 1, 255, 0.8);
+  box-shadow: 0 0 20px rgba(186, 1, 255, 0.5);
+  transform: scale(1.05);
+}
+
+/* Animación de entrada */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.navbar {
+  animation: slideDown 0.5s ease;
+}
+
+/* Responsive - Móvil */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: linear-gradient(160deg, 
+      rgba(186, 1, 255, 0.95), 
+      rgba(0, 223, 252, 0.85)
+    );
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    overflow: visible !important;
+  }
+
+  .navbar-nav {
+    gap: 10px;
+    overflow: visible !important;
+  }
+
+  .nav-link {
+    width: 100%;
+    text-align: left;
+  }
+
+  /* Dropdown en móvil - mantener absoluto */
+  .navbar .dropdown-menu {
+    position: absolute !important;
+    width: 200px;
+    right: 20px !important;
+    left: auto !important;
+    margin-top: 8px !important;
+  }
+
+  /* El botón de publicar en móvil */
+  body > .btn-publicar,
+  .container > .btn-publicar {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1045;
+  }
+}
+
+/* Modo oscuro - Más colorido también */
+[data-bs-theme="dark"] .navbar {
+  background: linear-gradient(160deg, 
+    rgba(90, 24, 154, 0.85), 
+    rgba(0, 135, 189, 0.75)
+  ) !important;
+}
+
+[data-bs-theme="dark"] .navbar.scrolled {
+  background: linear-gradient(160deg, 
+    rgba(90, 24, 154, 0.95), 
+    rgba(0, 135, 189, 0.85)
+  ) !important;
+}
+
+/* Partículas en el navbar más coloridas y visibles */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(186, 1, 255, 0.25) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 223, 252, 0.25) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(123, 44, 191, 0.20) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  animation: particleFloat 15s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    opacity: 0.8;
+    background-position: 0% 0%, 100% 100%, 50% 0%;
+  }
+  50% {
+    opacity: 1;
+    background-position: 20% 30%, 80% 70%, 60% 20%;
+  }
+}
+
+/* Asegurar que el contenido del navbar esté sobre las partículas */
+.navbar .container-fluid {
+  position: relative;
+  z-index: 1;
+}
+
+/* Fix para Bootstrap dropdown en navbar con efectos */
+.navbar-nav .dropdown-toggle::after {
+  vertical-align: middle;
+}
+
+/* Asegurar que el dropdown-menu se muestre encima de todo */
+.navbar .dropdown-menu.show {
+  display: block !important;
+  position: absolute !important;
+  transform: none !important;
+  will-change: transform;
+}
+
+/* Prevenir que el navbar colapse al abrir dropdown */
+.navbar.navbar-expand-lg {
+  overflow: visible !important;
+}
+
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-nav .dropdown-menu {
+    position: absolute !important;
+  }
+}
