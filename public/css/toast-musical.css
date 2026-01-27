@@ -1,0 +1,553 @@
+/* ============================================
+   TOAST MUSICAL ANIMADO
+   Toasts con notas musicales rodeando el perímetro
+   y gradientes radiales de fondo
+   ============================================ */
+
+/* Toast base mejorado */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  min-width: 320px;
+  max-width: 450px;
+  padding: 0;
+  border-radius: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(20px) scale(0.95);
+  z-index: 9999;
+  font-size: 0.95rem;
+  overflow: visible;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* Contenedor interno del toast */
+.toast-content {
+  position: relative;
+  padding: 18px 24px;
+  z-index: 2;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 16px;
+}
+
+/* Icono del toast */
+.toast-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Texto del toast */
+.toast-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* ============================================
+   FONDOS CON GRADIENTES RADIALES
+   ============================================ */
+
+/* Toast de éxito - Verde con gradientes radiales */
+.toast.success .toast-content {
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(5, 150, 105, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(52, 211, 153, 0.25) 0%, transparent 40%),
+    #047857;
+  background-size: 200% 200%;
+  animation: moveGradient 8s ease infinite;
+}
+
+/* Toast de error - Rojo con gradientes radiales */
+.toast.error .toast-content {
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(248, 113, 113, 0.25) 0%, transparent 40%),
+    #dc2626;
+  background-size: 200% 200%;
+  animation: moveGradient 8s ease infinite;
+}
+
+/* Animación de movimiento del gradiente */
+@keyframes moveGradient {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 25%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 75%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================
+   NOTAS MUSICALES RODEANDO EL TOAST
+   Similar al efecto eléctrico del video
+   ============================================ */
+
+/* Contenedor de notas musicales */
+.toast-notes {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Nota musical individual */
+.toast-note {
+  position: absolute;
+  font-size: 20px;
+  font-weight: bold;
+  opacity: 0;
+  animation: floatNote 3s ease-in-out infinite;
+}
+
+/* Posiciones alrededor del toast */
+/* Superior */
+.toast-note:nth-child(1) { top: 0; left: 10%; animation-delay: 0s; }
+.toast-note:nth-child(2) { top: 0; left: 30%; animation-delay: 0.3s; }
+.toast-note:nth-child(3) { top: 0; left: 50%; animation-delay: 0.6s; }
+.toast-note:nth-child(4) { top: 0; left: 70%; animation-delay: 0.9s; }
+.toast-note:nth-child(5) { top: 0; left: 90%; animation-delay: 1.2s; }
+
+/* Derecha */
+.toast-note:nth-child(6) { top: 25%; right: 0; animation-delay: 0.15s; }
+.toast-note:nth-child(7) { top: 50%; right: 0; animation-delay: 0.45s; }
+.toast-note:nth-child(8) { top: 75%; right: 0; animation-delay: 0.75s; }
+
+/* Inferior */
+.toast-note:nth-child(9) { bottom: 0; left: 10%; animation-delay: 1.05s; }
+.toast-note:nth-child(10) { bottom: 0; left: 30%; animation-delay: 1.35s; }
+.toast-note:nth-child(11) { bottom: 0; left: 50%; animation-delay: 1.65s; }
+.toast-note:nth-child(12) { bottom: 0; left: 70%; animation-delay: 1.95s; }
+.toast-note:nth-child(13) { bottom: 0; left: 90%; animation-delay: 2.25s; }
+
+/* Izquierda */
+.toast-note:nth-child(14) { top: 25%; left: 0; animation-delay: 2.55s; }
+.toast-note:nth-child(15) { top: 50%; left: 0; animation-delay: 2.85s; }
+.toast-note:nth-child(16) { top: 75%; left: 0; animation-delay: 0.2s; }
+
+/* Animación de aparición y flotación */
+@keyframes floatNote {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(0) scale(1.1);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+}
+
+/* Colores de notas según el tipo */
+.toast.success .toast-note {
+  color: #6ee7b7;
+  text-shadow: 0 0 10px #10b981, 0 0 20px #059669, 0 0 30px #34d399;
+  filter: drop-shadow(0 0 5px #10b981);
+}
+
+.toast.error .toast-note {
+  color: #fca5a5;
+  text-shadow: 0 0 10px #ef4444, 0 0 20px #dc2626, 0 0 30px #f87171;
+  filter: drop-shadow(0 0 5px #ef4444);
+}
+
+.toast.info .toast-note {
+  color: #7dd3fc;
+  text-shadow: 0 0 10px #0ea5e9, 0 0 20px #0284c7, 0 0 30px #38bdf8;
+  filter: drop-shadow(0 0 5px #0ea5e9);
+}
+
+.toast.warning .toast-note {
+  color: #fde68a;
+  text-shadow: 0 0 10px #f59e0b, 0 0 20px #d97706, 0 0 30px #fbbf24;
+  filter: drop-shadow(0 0 5px #f59e0b);
+}
+
+/* ============================================
+   VARIANTES ADICIONALES
+   ============================================ */
+
+/* Toast de información - Azul con gradientes radiales */
+.toast.info .toast-content {
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(2, 132, 199, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.25) 0%, transparent 40%),
+    #0284c7;
+  background-size: 200% 200%;
+  animation: moveGradient 8s ease infinite;
+}
+
+/* Toast de advertencia - Amarillo con gradientes radiales */
+.toast.warning .toast-content {
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(217, 119, 6, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(251, 191, 36, 0.25) 0%, transparent 40%),
+    #d97706;
+  background-size: 200% 200%;
+  animation: moveGradient 8s ease infinite;
+}
+
+/* ============================================
+   PARTÍCULAS MUSICALES FLOTANTES
+   ============================================ */
+
+/* Contenedor de partículas */
+.toast-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Partículas individuales */
+.toast-particle {
+  position: absolute;
+  font-size: 20px;
+  opacity: 0;
+  animation: floatParticle 3s ease-in-out infinite;
+}
+
+.toast-particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.toast-particle:nth-child(2) { left: 30%; animation-delay: 0.5s; }
+.toast-particle:nth-child(3) { left: 50%; animation-delay: 1s; }
+.toast-particle:nth-child(4) { left: 70%; animation-delay: 1.5s; }
+.toast-particle:nth-child(5) { left: 90%; animation-delay: 2s; }
+
+/* Animación de flotación */
+@keyframes floatParticle {
+  0% {
+    bottom: -20px;
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    bottom: 110%;
+    opacity: 0;
+    transform: translateY(-20px) rotate(360deg);
+  }
+}
+
+/* ============================================
+   EFECTO DE BRILLO EN EL BORDE
+   ============================================ */
+
+.toast-glow {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 16px;
+  z-index: 0;
+  opacity: 0.4;
+  filter: blur(8px);
+}
+
+.toast.success .toast-glow {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.toast.error .toast-glow {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.toast.info .toast-glow {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.toast.warning .toast-glow {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .toast {
+    min-width: 280px;
+    max-width: calc(100vw - 40px);
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .toast-content {
+    padding: 14px 18px;
+    font-size: 0.9rem;
+  }
+
+  .toast-icon {
+    font-size: 1.3rem;
+  }
+
+  .toast-note {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toast {
+    min-width: 260px;
+    right: 15px;
+    bottom: 15px;
+  }
+
+  .toast-note {
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   MODO OSCURO
+   ============================================ */
+
+[data-bs-theme="dark"] .toast {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================
+   PARTÍCULAS MUSICALES FLOTANTES
+   ============================================ */
+
+/* Contenedor de partículas */
+.toast-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Partículas individuales */
+.toast-particle {
+  position: absolute;
+  font-size: 20px;
+  opacity: 0;
+  animation: floatParticle 3s ease-in-out infinite;
+}
+
+.toast-particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.toast-particle:nth-child(2) { left: 30%; animation-delay: 0.5s; }
+.toast-particle:nth-child(3) { left: 50%; animation-delay: 1s; }
+.toast-particle:nth-child(4) { left: 70%; animation-delay: 1.5s; }
+.toast-particle:nth-child(5) { left: 90%; animation-delay: 2s; }
+
+/* Animación de flotación */
+@keyframes floatParticle {
+  0% {
+    bottom: -20px;
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    bottom: 110%;
+    opacity: 0;
+    transform: translateY(-20px) rotate(360deg);
+  }
+}
+
+/* ============================================
+   EFECTO DE BRILLO EN EL BORDE
+   ============================================ */
+
+.toast-glow {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 16px;
+  z-index: 0;
+  opacity: 0.4;
+  filter: blur(8px);
+}
+
+.toast.success .toast-glow {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.toast.error .toast-glow {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .toast {
+    min-width: 280px;
+    max-width: calc(100vw - 40px);
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .toast-content {
+    padding: 14px 18px;
+    font-size: 0.9rem;
+  }
+
+  .toast-icon {
+    font-size: 1.3rem;
+  }
+
+  .toast::after {
+    font-size: 14px;
+    letter-spacing: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toast {
+    min-width: 260px;
+    right: 15px;
+    bottom: 15px;
+  }
+
+  .toast::after {
+    font-size: 12px;
+    letter-spacing: 8px;
+  }
+}
+
+/* ============================================
+   MODO OSCURO
+   ============================================ */
+
+[data-bs-theme="dark"] .toast {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+}
+
+/* ============================================
+   VARIANTES ADICIONALES (OPCIONAL)
+   ============================================ */
+
+/* Toast de información */
+.toast.info {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+  background-size: 200% 200%;
+  animation: gradientInfo 3s ease infinite;
+}
+
+.toast.info::after {
+  color: #bae6fd;
+  text-shadow: 0 0 10px #0ea5e9, 0 0 20px #0284c7;
+  animation: rotateNotes 8s linear infinite, pulseBlue 2s ease-in-out infinite;
+}
+
+.toast.info .toast-glow {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes gradientInfo {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseBlue {
+  0%, 100% { 
+    text-shadow: 0 0 10px #0ea5e9, 0 0 20px #0284c7;
+    opacity: 0.6;
+  }
+  50% { 
+    text-shadow: 0 0 20px #0ea5e9, 0 0 40px #0284c7, 0 0 60px #38bdf8;
+    opacity: 0.9;
+  }
+}
+
+/* Toast de advertencia */
+.toast.warning {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+  background-size: 200% 200%;
+  animation: gradientWarning 3s ease infinite;
+}
+
+.toast.warning::after {
+  color: #fef3c7;
+  text-shadow: 0 0 10px #f59e0b, 0 0 20px #d97706;
+  animation: rotateNotes 8s linear infinite, pulseYellow 2s ease-in-out infinite;
+}
+
+.toast.warning .toast-glow {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes gradientWarning {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseYellow {
+  0%, 100% { 
+    text-shadow: 0 0 10px #f59e0b, 0 0 20px #d97706;
+    opacity: 0.6;
+  }
+  50% { 
+    text-shadow: 0 0 20px #f59e0b, 0 0 40px #d97706, 0 0 60px #fbbf24;
+    opacity: 0.9;
+  }
+}
