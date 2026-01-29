@@ -16,6 +16,14 @@
   let mouseY = 0;
   let isMouseMoving = false;
   let mouseTimeout;
+  let isEnabled = true; // Estado del cursor musical
+  let animationId = null;
+
+  // Cargar preferencia guardada
+  const savedPreference = localStorage.getItem('cursorMusicEnabled');
+  if (savedPreference !== null) {
+    isEnabled = savedPreference === 'true';
+  }
 
   // Notas musicales disponibles
   const musicalNotes = ['♪', '♫', '♬', '♩', '♭', '♮', '♯', '𝄞'];
@@ -94,6 +102,7 @@
     canvas.style.height = '100%';
     canvas.style.pointerEvents = 'none';
     canvas.style.zIndex = '9999';
+    canvas.style.display = isEnabled ? 'block' : 'none';
     document.body.appendChild(canvas);
     
     resizeCanvas();
@@ -108,6 +117,8 @@
 
   // Crear partículas
   function createParticles(x, y) {
+    if (!isEnabled) return;
+    
     for (let i = 0; i < config.particleCount; i++) {
       particles.push(new MusicNote(x, y));
     }
@@ -117,21 +128,28 @@
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Actualizar partículas
-    particles.forEach((particle, index) => {
-      particle.update();
-      particle.draw();
-      
-      if (particle.isDead()) {
-        particles.splice(index, 1);
-      }
-    });
+    if (isEnabled) {
+      // Actualizar partículas
+      particles.forEach((particle, index) => {
+        particle.update();
+        particle.draw();
+        
+        if (particle.isDead()) {
+          particles.splice(index, 1);
+        }
+      });
+    } else {
+      // Si está deshabilitado, limpiar partículas
+      particles = [];
+    }
     
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
   }
 
   // Event listeners del mouse
   function handleMouseMove(e) {
+    if (!isEnabled) return;
+    
     mouseX = e.clientX;
     mouseY = e.clientY;
     
@@ -153,6 +171,8 @@
 
   // Efecto especial en clicks
   function handleClick(e) {
+    if (!isEnabled) return;
+    
     const x = e.clientX;
     const y = e.clientY;
     
@@ -164,6 +184,36 @@
     }
   }
 
+  // Función pública para toggle
+  window.toggleCursorMusic = function() {
+    isEnabled = !isEnabled;
+    canvas.style.display = isEnabled ? 'block' : 'none';
+    localStorage.setItem('cursorMusicEnabled', isEnabled);
+    
+    // Actualizar icono del botón si existe
+    const btn = document.getElementById('btn-cursor-music');
+    if (btn) {
+      const icon = btn.querySelector('i');
+      if (icon) {
+        if (isEnabled) {
+          icon.className = 'bi bi-music-note-beamed';
+          btn.title = 'Desactivar cursor musical';
+        } else {
+          icon.className = 'bi bi-music-note';
+          btn.title = 'Activar cursor musical';
+        }
+      }
+    }
+    
+    console.log('🎵 Cursor musical:', isEnabled ? 'ACTIVADO' : 'DESACTIVADO');
+    return isEnabled;
+  };
+
+  // Obtener estado actual
+  window.getCursorMusicStatus = function() {
+    return isEnabled;
+  };
+
   // Inicializar
   function init() {
     initCanvas();
@@ -172,7 +222,7 @@
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('click', handleClick);
     
-    console.log('🎵 Cursor musical activado!');
+    console.log('🎵 Cursor musical inicializado -', isEnabled ? 'ACTIVADO' : 'DESACTIVADO');
   }
 
   // Desactivar si cambia a móvil
@@ -181,6 +231,9 @@
       canvas.remove();
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('click', handleClick);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
       console.log('🎵 Cursor musical desactivado (móvil)');
     } else if (window.innerWidth > 768 && !canvas.parentNode) {
       init();

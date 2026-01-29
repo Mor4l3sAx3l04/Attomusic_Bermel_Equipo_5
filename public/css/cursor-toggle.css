@@ -1,0 +1,132 @@
+/* ===== BOTÓN TOGGLE CURSOR MUSICAL ===== */
+
+/* Botón de cursor musical (al lado del de tema) */
+.btn-cursor-music {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white !important;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-cursor-music::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(186, 1, 255, 0.4), transparent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.btn-cursor-music:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.btn-cursor-music:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(186, 1, 255, 0.4);
+}
+
+.btn-cursor-music i {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 4px rgba(0, 223, 252, 0.3));
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-cursor-music:hover i {
+  filter: drop-shadow(0 0 8px rgba(186, 1, 255, 0.6));
+  animation: musicPulse 0.6s ease;
+}
+
+/* Animación de pulso musical */
+@keyframes musicPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Estado activo (cuando está encendido) */
+.btn-cursor-music.active {
+  background: linear-gradient(135deg, rgba(186, 1, 255, 0.3), rgba(0, 223, 252, 0.3)) !important;
+  border-color: rgba(186, 1, 255, 0.5);
+  box-shadow: 0 0 15px rgba(186, 1, 255, 0.3);
+}
+
+.btn-cursor-music.active i {
+  animation: musicNote 2s ease-in-out infinite;
+}
+
+/* Animación de nota musical */
+@keyframes musicNote {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-3px); }
+  75% { transform: translateY(3px); }
+}
+
+/* Estado inactivo (cuando está apagado) */
+.btn-cursor-music.inactive {
+  opacity: 0.6;
+}
+
+.btn-cursor-music.inactive:hover {
+  opacity: 1;
+}
+
+/* Responsive - ocultar en móvil ya que el efecto no funciona ahí */
+@media (max-width: 768px) {
+  .btn-cursor-music {
+    display: none !important;
+  }
+}
+
+/* Tooltip personalizado */
+.btn-cursor-music[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 26, 46, 0.95);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Agrupar botones de tema y cursor */
+.theme-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 991.98px) {
+  .theme-controls {
+    order: -1; /* Poner al principio en móvil */
+    justify-content: center;
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+  }
+}
