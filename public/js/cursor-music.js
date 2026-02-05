@@ -205,7 +205,7 @@
       }
     }
     
-    console.log('🎵 Cursor musical:', isEnabled ? 'ACTIVADO' : 'DESACTIVADO');
+    //console.log(' Cursor musical:', isEnabled ? 'ACTIVADO' : 'DESACTIVADO');
     return isEnabled;
   };
 
@@ -222,7 +222,7 @@
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('click', handleClick);
     
-    console.log('🎵 Cursor musical inicializado -', isEnabled ? 'ACTIVADO' : 'DESACTIVADO');
+    //console.log(' Cursor musical inicializado -', isEnabled ? 'ACTIVADO' : 'DESACTIVADO');
   }
 
   // Desactivar si cambia a móvil
@@ -234,7 +234,7 @@
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
-      console.log('🎵 Cursor musical desactivado (móvil)');
+      //console.log(' Cursor musical desactivado (móvil)');
     } else if (window.innerWidth > 768 && !canvas.parentNode) {
       init();
     }

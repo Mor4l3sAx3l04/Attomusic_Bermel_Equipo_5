@@ -3,7 +3,7 @@ let usuarioActualBaneo = null;
 
 // Inicializar el panel admin
 function init_panel_admin() {
-  //console.log('🔧 Inicializando panel admin...');
+  //console.log(' Inicializando panel admin...');
   
   verificarAccesoAdmin();
   cargarPublicacionesReportadas();
@@ -53,9 +53,7 @@ async function verificarAccesoAdmin() {
   }
 }
 
-// ========================================
 // SECCIÓN 1: PUBLICACIONES REPORTADAS
-// ========================================
 
 async function cargarPublicacionesReportadas() {
   const lista = document.getElementById('listaReportes');

@@ -144,7 +144,7 @@ let enviando = false; // - evita clics múltiples
       if (!res.ok) {
         // Aquí se MUESTRA el error que viene de Gemini
         mensajeError.classList.remove("d-none");
-        mensajeError.innerHTML = `❌ ${data.error}`;
+        mensajeError.innerHTML = ` ${data.error}`;
 
         btnSubmit.disabled = false;
         btnSubmit.textContent = "Publicar";
