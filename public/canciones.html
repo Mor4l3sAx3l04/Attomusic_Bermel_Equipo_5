@@ -23,7 +23,7 @@
 
   <div id="generos-canciones" style="margin:32px auto;max-width:1100px;"></div>
   
-  <!-- ✅ IMPORTAR EL MÓDULO REUTILIZABLE -->
+  <!--  IMPORTAR EL MÓDULO REUTILIZABLE -->
   <script src="js/detalleCancion.js"></script>
   
   <script>
@@ -49,7 +49,7 @@
           return null;
         }
         
-        //console.log('📦 Cargando desde caché');
+        //console.log('Cargando desde caché');
         return data.canciones;
       } catch (err) {
         console.error('Error leyendo caché:', err);
@@ -64,7 +64,7 @@
           canciones: canciones
         };
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        //console.log('💾 Canciones guardadas en caché');
+        //console.log(' Canciones guardadas en caché');
       } catch (err) {
         console.error('Error guardando caché:', err);
       }
@@ -127,7 +127,7 @@
         return;
       }
       
-      //console.log('🌐 No hay caché, haciendo peticiones a Spotify...');
+      //console.log(' No hay caché, haciendo peticiones a Spotify...');
       
       let html = "";
       generos.forEach(genero => {
@@ -197,7 +197,7 @@
       
       cont.innerHTML = html;
       
-      // ✅ Usar el módulo reutilizable para los clicks
+      // Usar el módulo reutilizable para los clicks
       generos.forEach(genero => {
         const generoId = genero.nombre.replace(/[^a-zA-Z0-9]/g,'');
         const tracks = cancionesCache[generoId] || [];
@@ -206,7 +206,7 @@
           const card = document.getElementById(`track-${generoId}-${idx}`);
           if (card) {
             card.addEventListener('click', () => {
-              // ✅ LLAMAR AL MÓDULO REUTILIZABLE
+              //  LLAMAR AL MÓDULO REUTILIZABLE
               DetalleCancion.mostrar(track.id, 'generos-canciones', () => {
                 cargarCancionesPopulares();
               });
@@ -256,7 +256,7 @@
           html += `</div>`;
           container.innerHTML = html;
           
-          // ✅ Usar el módulo reutilizable
+          //  Usar el módulo reutilizable
           tracks.forEach((track, idx) => {
             const card = document.getElementById(`track-${generoId}-${idx}`);
             if (card) {

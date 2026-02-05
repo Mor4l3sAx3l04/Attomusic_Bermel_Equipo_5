@@ -57,33 +57,67 @@
     const feed = document.getElementById("feedPublicaciones");
     if (!feed) return;
 
-    // Crear elemento de loading al final
-    const loadingDiv = document.createElement('div');
-    loadingDiv.id = 'loading-more';
-    loadingDiv.className = 'text-center py-4';
-    loadingDiv.style.display = 'none';
+    // Remover observer anterior si existe
+    if (window._scrollObserver) {
+      window._scrollObserver.disconnect();
+    }
+
+    // Crear o actualizar elemento de loading
+    let loadingDiv = document.getElementById('loading-more');
+    if (!loadingDiv) {
+      loadingDiv = document.createElement('div');
+      loadingDiv.id = 'loading-more';
+      loadingDiv.className = 'text-center py-4';
+      
+      // IMPORTANTE: Insertar DESPUÉS del feed, no dentro
+      if (feed.parentElement) {
+        feed.parentElement.appendChild(loadingDiv);
+      }
+    }
+
     loadingDiv.innerHTML = `
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Cargando más...</span>
       </div>
       <p class="text-muted mt-2">Cargando más publicaciones...</p>
     `;
-    feed.parentElement.appendChild(loadingDiv);
+    loadingDiv.style.display = 'none';
 
-    // Intersection Observer para detectar cuando llegamos al final
+    // Intersection Observer mejorado
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting && !cargando && hayMasPublicaciones) {
+          ('🔄 Intersection Observer activado - Cargando más...');
           cargarSiguientePagina();
         }
       });
     }, {
       root: null,
-      rootMargin: '200px', // Empezar a cargar 200px antes de llegar al final
+      rootMargin: '100px', // Reducido de 200px a 100px
       threshold: 0.1
     });
 
     observer.observe(loadingDiv);
+    window._scrollObserver = observer;
+
+    // FALLBACK: Detectar scroll manual por si el Observer falla
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        
+        // Si está a 300px del final
+        if (scrollHeight - scrollTop - clientHeight < 300) {
+          if (!cargando && hayMasPublicaciones) {
+            //console.log(' Scroll fallback activado - Cargando más...');
+            cargarSiguientePagina();
+          }
+        }
+      }, 100);
+    });
   }
 
   // ========== BÚSQUEDA ==========
@@ -103,7 +137,7 @@
     // Control de rate limiting
     const ahora = Date.now();
     if (ahora - ultimaPeticion < TIEMPO_MIN_ENTRE_PETICIONES) {
-      console.log('⏳ Esperando antes de hacer búsqueda...');
+      //console.log('Esperando antes de hacer búsqueda...');
       return;
     }
     ultimaPeticion = ahora;
@@ -144,7 +178,7 @@
 
   // ========== CARGA INICIAL Y PAGINADA ==========
 
-  window.cargarPublicaciones = async function(filtroCorreo = null) {
+    window.cargarPublicaciones = async function(filtroCorreo = null) {
     const feed = document.getElementById("feedPublicaciones") || document.getElementById("misPublicaciones");
     
     if (!feed) {
@@ -152,54 +186,42 @@
       return;
     }
 
-    // Control de rate limiting
-    const ahora = Date.now();
-    if (ahora - ultimaPeticion < TIEMPO_MIN_ENTRE_PETICIONES) {
-      console.log('⏳ Esperando antes de cargar publicaciones...');
-      return;
-    }
-    ultimaPeticion = ahora;
-
     try {
       feed.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>`;
       
-      const url = filtroCorreo 
-        ? `/api/perfil/${filtroCorreo}/publicaciones`
-        : '/api/publicaciones';
-      
-      const res = await fetch(url);
-      
-      if (!res.ok) {
-        console.error("Error al cargar publicaciones:", res.status);
-        feed.innerHTML = `<p class="text-danger">Error al cargar publicaciones (status ${res.status})</p>`;
-        return;
-      }
-
-      const data = await res.json();
-      
-      if (!Array.isArray(data) || data.length === 0) {
-        feed.innerHTML = filtroCorreo
-          ? `<div class="text-center py-5"><i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i><p class="text-muted mt-3">Aún no tienes publicaciones</p></div>`
-          : `<p class="text-muted">Aún no hay publicaciones.</p>`;
-        return;
-      }
-
-      // Guardar en caché
-      todasLasPublicaciones = data;
+      // Resetear estado
       paginaActual = 0;
       hayMasPublicaciones = true;
+      todasLasPublicaciones = []; // Limpiar caché
       
-      feed.innerHTML = "";
-
-      // Si es perfil propio, renderizar todo de una vez
+      // Si es perfil, cargar todas de una vez (sin cambios)
       if (filtroCorreo) {
+        const url = `/api/perfil/${filtroCorreo}/publicaciones`;
+        const res = await fetch(url);
+        
+        if (!res.ok) {
+          console.error("Error al cargar publicaciones:", res.status);
+          feed.innerHTML = `<p class="text-danger">Error al cargar publicaciones</p>`;
+          return;
+        }
+
+        const data = await res.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          feed.innerHTML = `<div class="text-center py-5"><i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i><p class="text-muted mt-3">Aún no tienes publicaciones</p></div>`;
+          return;
+        }
+
+        feed.innerHTML = "";
         data.forEach(pub => {
           const article = crearPublicacion(pub, true);
           feed.appendChild(article);
         });
+        
       } else {
-        // Si es feed principal, renderizar paginado
-        renderizarPublicacionesPaginadas();
+        // Feed principal: cargar primera página desde el servidor
+        feed.innerHTML = "";
+        await cargarSiguientePagina();
         setupInfiniteScroll();
       }
 
@@ -209,48 +231,20 @@
     }
   }
 
-  // Renderizar publicaciones desde caché con paginación
-  function renderizarPublicacionesPaginadas() {
-    const feed = document.getElementById("feedPublicaciones");
-    if (!feed) return;
-
-    const inicio = paginaActual * PUBLICACIONES_POR_PAGINA;
-    const fin = inicio + PUBLICACIONES_POR_PAGINA;
-    const publicacionesPagina = todasLasPublicaciones.slice(inicio, fin);
-
-    if (publicacionesPagina.length === 0) {
-      hayMasPublicaciones = false;
-      const loadingDiv = document.getElementById('loading-more');
-      if (loadingDiv) {
-        loadingDiv.innerHTML = '<p class="text-muted">No hay más publicaciones</p>';
-        setTimeout(() => {
-          loadingDiv.style.display = 'none';
-        }, 2000);
-      }
+ // Cargar siguiente página DESDE EL SERVIDOR
+  async function cargarSiguientePagina() {
+    if (cargando || !hayMasPublicaciones) {
+      //console.log(` Carga bloqueada - Cargando: ${cargando}, Hay más: ${hayMasPublicaciones}`);
       return;
     }
 
-    publicacionesPagina.forEach(pub => {
-      const article = crearPublicacion(pub, false);
-      feed.appendChild(article);
-    });
-
-    // Verificar si hay más publicaciones
-    if (fin >= todasLasPublicaciones.length) {
-      hayMasPublicaciones = false;
-      const loadingDiv = document.getElementById('loading-more');
-      if (loadingDiv) {
-        loadingDiv.innerHTML = '<p class="text-muted">No hay más publicaciones</p>';
-        setTimeout(() => {
-          loadingDiv.style.display = 'none';
-        }, 2000);
-      }
+    // Control de rate limiting
+    const ahora = Date.now();
+    if (ahora - ultimaPeticion < TIEMPO_MIN_ENTRE_PETICIONES) {
+      //console.log('Esperando antes de cargar más publicaciones...');
+      return;
     }
-  }
-
-  // Cargar siguiente página
-  async function cargarSiguientePagina() {
-    if (cargando || !hayMasPublicaciones) return;
+    ultimaPeticion = ahora;
 
     cargando = true;
     const loadingDiv = document.getElementById('loading-more');
@@ -258,18 +252,63 @@
       loadingDiv.style.display = 'block';
     }
 
-    // Simular delay para mejor UX
-    await new Promise(resolve => setTimeout(resolve, 500));
+    //console.log(` Solicitando página ${paginaActual}...`);
 
-    paginaActual++;
-    renderizarPublicacionesPaginadas();
+    try {
+      //  PETICIÓN AL BACKEND con paginación
+      const url = `/api/publicaciones?pagina=${paginaActual}&limite=${PUBLICACIONES_POR_PAGINA}`;
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        throw new Error(`Error HTTP: ${res.status}`);
+      }
 
-    cargando = false;
-    
-    if (!hayMasPublicaciones && loadingDiv) {
-      setTimeout(() => {
+      const data = await res.json();
+      //console.log('Datos recibidos:', data);
+      
+      // Renderizar publicaciones
+      const feed = document.getElementById("feedPublicaciones");
+      if (!feed) {
+        console.error('Feed no encontrado');
+        return;
+      }
+
+      if (data.publicaciones && data.publicaciones.length > 0) {
+        //console.log(`Renderizando ${data.publicaciones.length} publicaciones...`);
+        
+        data.publicaciones.forEach(pub => {
+          const article = crearPublicacion(pub, false);
+          feed.appendChild(article);
+        });
+
+        paginaActual++;
+        hayMasPublicaciones = data.hayMas;
+        
+        //console.log(`Página ${paginaActual - 1} cargada | Total mostrado: ${paginaActual * PUBLICACIONES_POR_PAGINA} | Hay más: ${hayMasPublicaciones}`);
+        
+      } else {
+        //console.log(' No hay más publicaciones en la respuesta');
+        hayMasPublicaciones = false;
+      }
+
+      // Actualizar UI del loading
+      if (!hayMasPublicaciones && loadingDiv) {
+        loadingDiv.innerHTML = '<p class="text-muted">✓ No hay más publicaciones</p>';
+        setTimeout(() => {
+          loadingDiv.style.display = 'none';
+        }, 2000);
+      } else if (loadingDiv) {
         loadingDiv.style.display = 'none';
-      }, 2000);
+      }
+
+    } catch (err) {
+      console.error('Error cargando siguiente página:', err);
+      hayMasPublicaciones = false;
+      if (window.mostrarToast) {
+        window.mostrarToast('Error al cargar más publicaciones', 'error');
+      }
+    } finally {
+      cargando = false;
     }
   }
 

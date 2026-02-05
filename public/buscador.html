@@ -21,20 +21,20 @@
     <div id="results-albums" class="search-results"></div>
   </div>
 
-  <!-- ✅ IMPORTAR EL MÓDULO REUTILIZABLE -->
+  <!-- IMPORTAR EL MÓDULO REUTILIZABLE -->
   <script src="js/detalleCancion.js"></script>
 
   <script>
-    // ✅ FUNCIÓN INIT PARA REINICIALIZAR CADA VEZ
+    // FUNCIÓN INIT PARA REINICIALIZAR CADA VEZ
     (function initBuscador() {
-      //console.log('🔍 Inicializando buscador...');
+      //console.log('Inicializando buscador...');
       
       // Inicializar módulo con email del usuario
       const userEmail = sessionStorage.getItem('userEmail') || sessionStorage.getItem('correo');
       DetalleCancion.init(userEmail);
 
       async function runSearch() {
-        //console.log('▶️ Ejecutando búsqueda...');
+        //console.log('Ejecutando búsqueda...');
         
         const searchStr = typeof window._searchParams === 'string' ? window._searchParams : window.location.search;
         window._searchParams = searchStr;
@@ -42,7 +42,7 @@
         const q = params.get("q");
         const type = params.get("type") || "track,artist,album";
 
-        //console.log('📝 Query:', q);
+        //console.log('Query:', q);
 
         if (!q) {
           document.getElementById("results-tracks").innerHTML = "<p>No se ingresó búsqueda.</p>";
@@ -64,9 +64,9 @@
           mostrarArtistas(data.artists?.items || []);
           mostrarAlbums(data.albums?.items || []);
           
-          //console.log('✅ Búsqueda completada');
+          //console.log(' Búsqueda completada');
         } catch (error) {
-          console.error('❌ Error en búsqueda:', error);
+          console.error(' Error en búsqueda:', error);
           document.getElementById("results-tracks").innerHTML = "<p style='color:red;'>Error al buscar. Intenta de nuevo.</p>";
         }
       }
@@ -99,7 +99,7 @@
           `;
           div.style.cursor = "pointer";
           
-          // ✅ USAR EL MÓDULO REUTILIZABLE
+          // USAR EL MÓDULO REUTILIZABLE
           div.addEventListener("click", () => {
             DetalleCancion.mostrar(item.id, 'main-content', () => {
               // Callback para volver a resultados
@@ -178,7 +178,7 @@
         });
       }
 
-      // ✅ EJECUTAR BÚSQUEDA AL CARGAR
+      // EJECUTAR BÚSQUEDA AL CARGAR
       runSearch();
     })();
   </script>

@@ -5,15 +5,15 @@
   const usuarioActual = window.getUsuarioActual ? window.getUsuarioActual() : null;
   const correoActual = usuarioActual?.correo || null;
 
-  //console.log('🚀 explorar.js cargado, usuario:', correoActual);
+  //console.log('explorar.js cargado, usuario:', correoActual);
 
   // ========== PERFILES POPULARES ==========
   window.cargarPerfilesPopulares = async function() {
-    //console.log('📊 Cargando perfiles populares...');
+    //console.log('Cargando perfiles populares...');
     const container = document.getElementById('listaPerfilesPopulares');
     
     if (!container) {
-      console.error('❌ No se encontró el contenedor listaPerfilesPopulares');
+      console.error(' No se encontró el contenedor listaPerfilesPopulares');
       return;
     }
 
@@ -21,14 +21,14 @@
       container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Cargando perfiles...</p></div>';
       
       const res = await fetch('/api/usuarios/populares?limit=20');
-      //console.log('📡 Respuesta fetch perfiles:', res.status);
+      //console.log(' Respuesta fetch perfiles:', res.status);
       
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
       }
 
       const usuarios = await res.json();
-      //console.log('👥 Usuarios recibidos:', usuarios.length);
+      //console.log(' Usuarios recibidos:', usuarios.length);
       
       container.innerHTML = '';
 
@@ -42,10 +42,10 @@
         container.appendChild(card);
       });
 
-      //console.log('✅ Perfiles cargados correctamente');
+      //console.log('Perfiles cargados correctamente');
 
     } catch (err) {
-      console.error('❌ Error cargando perfiles populares:', err);
+      console.error(' Error cargando perfiles populares:', err);
       container.innerHTML = `
         <div class="alert alert-danger text-center">
           <i class="bi bi-exclamation-triangle"></i>
@@ -179,11 +179,11 @@
 
   // ========== PUBLICACIONES DESTACADAS ==========
   window.cargarPublicacionesDestacadas = async function() {
-    //console.log('⭐ Cargando publicaciones destacadas...');
+    //console.log('Cargando publicaciones destacadas...');
     const container = document.getElementById('listaPublicacionesDestacadas');
     
     if (!container) {
-      console.error('❌ No se encontró el contenedor listaPublicacionesDestacadas');
+      console.error(' No se encontró el contenedor listaPublicacionesDestacadas');
       return;
     }
 
@@ -191,14 +191,14 @@
       container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Cargando publicaciones...</p></div>';
       
       const res = await fetch('/api/publicaciones/destacadas?limit=20');
-      //console.log('📡 Respuesta fetch destacadas:', res.status);
+      //console.log('Respuesta fetch destacadas:', res.status);
       
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
       }
 
       const publicaciones = await res.json();
-      //console.log('📝 Publicaciones recibidas:', publicaciones.length);
+      //console.log(' Publicaciones recibidas:', publicaciones.length);
       
       container.innerHTML = '';
 
@@ -279,10 +279,10 @@
         container.appendChild(article);
       });
 
-      //console.log('✅ Publicaciones destacadas cargadas');
+      //console.log(' Publicaciones destacadas cargadas');
 
     } catch (err) {
-      console.error('❌ Error cargando publicaciones destacadas:', err);
+      console.error(' Error cargando publicaciones destacadas:', err);
       container.innerHTML = `
         <div class="alert alert-danger text-center">
           <i class="bi bi-exclamation-triangle"></i>
@@ -294,11 +294,11 @@
 
   // ========== PUBLICACIONES DE SIGUIENDO ==========
   window.cargarPublicacionesSiguiendo = async function() {
-    //console.log('💙 Cargando publicaciones de seguidos...');
+    //console.log(' Cargando publicaciones de seguidos...');
     const container = document.getElementById('listaPublicacionesSiguiendo');
     
     if (!container) {
-      console.error('❌ No se encontró el contenedor listaPublicacionesSiguiendo');
+      console.error(' No se encontró el contenedor listaPublicacionesSiguiendo');
       return;
     }
 
@@ -316,14 +316,14 @@
       container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Cargando publicaciones...</p></div>';
       
       const res = await fetch(`/api/publicaciones/siguiendo?correo=${encodeURIComponent(correoActual)}`);
-      //console.log('📡 Respuesta fetch siguiendo:', res.status);
+      //console.log(' Respuesta fetch siguiendo:', res.status);
       
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
       }
 
       const publicaciones = await res.json();
-      //console.log('📝 Publicaciones de seguidos recibidas:', publicaciones.length);
+      //console.log(' Publicaciones de seguidos recibidas:', publicaciones.length);
       
       container.innerHTML = '';
 
@@ -405,10 +405,10 @@
         container.appendChild(article);
       });
 
-      //console.log('✅ Publicaciones de seguidos cargadas');
+      //console.log(' Publicaciones de seguidos cargadas');
 
     } catch (err) {
-      console.error('❌ Error cargando publicaciones de seguidos:', err);
+      console.error(' Error cargando publicaciones de seguidos:', err);
       container.innerHTML = `
         <div class="alert alert-danger text-center">
           <i class="bi bi-exclamation-triangle"></i>
@@ -429,11 +429,11 @@
 // Ejecutar la comprobación del tab activo (sea que DOMContentLoaded ya pasó o no)
 function cargarSeccionInicialSiCorresponde() {
   try {
-    //console.log('🔎 Comprobando tab activo al inicio...');
+    //console.log(' Comprobando tab activo al inicio...');
     const activeTab = document.querySelector(".nav-link.active");
 
     if (!activeTab) {
-      console.warn('⚠️ No se encontró .nav-link.active');
+      console.warn(' No se encontró .nav-link.active');
       return;
     }
 
@@ -447,10 +447,10 @@ function cargarSeccionInicialSiCorresponde() {
     } else if (target === "#seccion-siguiendo") {
       cargarPublicacionesSiguiendo();
     } else {
-      //console.log('ℹ️ Ninguna sección a cargar para target:', target);
+      //console.log('ℹ Ninguna sección a cargar para target:', target);
     }
   } catch (err) {
-    console.error('❌ Error en cargarSeccionInicialSiCorresponde:', err);
+    console.error(' Error en cargarSeccionInicialSiCorresponde:', err);
   }
 }
 
@@ -465,13 +465,13 @@ if (document.readyState === 'loading') {
 // Re-ejecutar la carga inicial si se vuelve a la sección Explorar
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
-    //console.log("🔄 Volviste a esta sección — revisando tab activo...");
+    //console.log(" Volviste a esta sección — revisando tab activo...");
     cargarSeccionInicialSiCorresponde();
   }
 });
 
 window.init_explorar = function () {
-  //console.log("🔄 Reinicializando explorar.js...");
+  //console.log(" Reinicializando explorar.js...");
   cargarSeccionInicialSiCorresponde();
 };
 
@@ -487,14 +487,14 @@ document.addEventListener("click", function (e) {
                     new URL(link.href).searchParams.get("id");
 
   if (!idUsuario) {
-    console.error("❌ No se encontró el ID de usuario en load-page-perfil");
+    console.error(" No se encontró el ID de usuario en load-page-perfil");
     return;
   }
 
   if (typeof loadPage === "function") {
     loadPage(`perfil-usuario.html?id=${idUsuario}`);
   } else {
-    console.warn("⚠️ loadPage no está disponible, abriendo normal");
+    console.warn(" loadPage no está disponible, abriendo normal");
     window.location.href = `perfil-usuario.html?id=${idUsuario}`;
   }
 });

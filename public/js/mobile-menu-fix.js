@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
   const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse) || new bootstrap.Collapse(navbarCollapse, { toggle: false });
 
-  // 1️⃣ CERRAR MENÚ AL HACER CLICK EN UN ENLACE (excepto dropdown)
+  //  CERRAR MENÚ AL HACER CLICK EN UN ENLACE (excepto dropdown)
   navLinks.forEach(link => {
     link.addEventListener('click', function(e) {
-      // ✅ NO CERRAR si es un dropdown toggle (perfil)
+      // NO CERRAR si es un dropdown toggle (perfil)
       if (this.classList.contains('dropdown-toggle')) {
         return; // Dejar que el dropdown funcione normalmente
       }
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // ✅ CERRAR MENÚ AL HACER BÚSQUEDA
+  //  CERRAR MENÚ AL HACER BÚSQUEDA
   const searchBtn = document.getElementById('searchBtn');
   const searchInput = document.getElementById('searchInput');
 
@@ -56,14 +56,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // 2️⃣ CERRAR MENÚ AL HACER CLICK FUERA (en el backdrop)
+  // CERRAR MENÚ AL HACER CLICK FUERA (en el backdrop)
   document.addEventListener('click', function(event) {
     const navbar = document.querySelector('.navbar');
     const navbarToggler = document.querySelector('.navbar-toggler');
     
     // Si el menú está abierto
     if (navbarCollapse.classList.contains('show')) {
-      // ✅ NO CERRAR si el click fue en el dropdown del perfil o sus items
+      //  NO CERRAR si el click fue en el dropdown del perfil o sus items
       const dropdownMenu = event.target.closest('.dropdown-menu');
       const dropdownToggle = event.target.closest('.dropdown-toggle');
       
@@ -78,14 +78,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // 3️⃣ CERRAR MENÚ AL PRESIONAR ESC
+  //  CERRAR MENÚ AL PRESIONAR ESC
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape' && navbarCollapse.classList.contains('show')) {
       bsCollapse.hide();
     }
   });
 
-  // 4️⃣ PREVENIR SCROLL DEL BODY CUANDO EL MENÚ ESTÁ ABIERTO
+  //  PREVENIR SCROLL DEL BODY CUANDO EL MENÚ ESTÁ ABIERTO
   navbarCollapse.addEventListener('show.bs.collapse', function() {
     if (window.innerWidth < 992) { // Solo en móvil
       document.body.style.overflow = 'hidden';
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = '';
   });
 
-  // 5️⃣ CERRAR MENÚ CUANDO SE CAMBIA A VISTA DESKTOP
+  // CERRAR MENÚ CUANDO SE CAMBIA A VISTA DESKTOP
   window.addEventListener('resize', function() {
     if (window.innerWidth >= 992 && navbarCollapse.classList.contains('show')) {
       bsCollapse.hide();
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }); 
 
-  // ✅ CERRAR MENÚ AL HACER CLICK EN ITEMS DEL DROPDOWN DEL PERFIL
+  //  CERRAR MENÚ AL HACER CLICK EN ITEMS DEL DROPDOWN DEL PERFIL
 const dropdownItems = document.querySelectorAll('#perfil-container .dropdown-item');
 dropdownItems.forEach(item => {
   item.addEventListener('click', function() {
@@ -118,5 +118,5 @@ dropdownItems.forEach(item => {
   });
 });
 
-  //console.log('✅ Mobile menu fix cargado');
+  //console.log(' Mobile menu fix cargado');
 });

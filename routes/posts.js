@@ -81,8 +81,38 @@ router.post("/publicacion", getUserFromEmail, async (req, res) => {
 // RUTA: Obtener todas las publicaciones
 router.get("/publicaciones", async (req, res) => {
   try {
-    const result = await pool.query(queries.getAllPosts);
-    return res.json(result.rows);
+    const pagina = parseInt(req.query.pagina) || 0;
+    const limite = parseInt(req.query.limite) || 10;
+    const offset = pagina * limite;
+
+    console.log(`Backend - Página: ${pagina}, Límite: ${limite}, Offset: ${offset}`);
+
+    const result = await pool.query(`
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, 
+            p.publicacion, p.fecha_pub,
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album, 
+            c.url_preview, c.imagen_url AS imagen_cancion,
+            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      ORDER BY p.fecha_pub DESC
+      LIMIT $1 OFFSET $2
+    `, [limite, offset]);
+
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM publicacion');
+    const total = parseInt(countResult.rows[0].total);
+    const hayMas = (offset + limite) < total;
+
+    console.log(`Backend - Enviando ${result.rows.length} publicaciones | Total: ${total} | Hay más: ${hayMas}`);
+
+    return res.json({
+      publicaciones: result.rows,
+      hayMas: hayMas,
+      total: total,
+      paginaActual: pagina
+    });
   } catch (err) {
     console.error("Error en /api/publicaciones:", err);
     return responses.error(res, "Error obteniendo publicaciones");
@@ -93,14 +123,19 @@ router.get("/publicaciones", async (req, res) => {
 router.get("/publicaciones/buscar", async (req, res) => {
   try {
     const { q } = req.query;
+    const pagina = parseInt(req.query.pagina) || 0;
+    const limite = parseInt(req.query.limite) || 20; // Más resultados en búsqueda
+    const offset = pagina * limite;
 
     if (!q || q.trim().length === 0) {
       return responses.badRequest(res, "Parámetro de búsqueda vacío");
     }
 
     const result = await pool.query(`
-      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
-            c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, 
+            p.publicacion, p.fecha_pub,
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album, 
+            c.url_preview, c.imagen_url AS imagen_cancion,
             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
       FROM publicacion p
@@ -108,7 +143,8 @@ router.get("/publicaciones/buscar", async (req, res) => {
       LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
       WHERE p.publicacion ILIKE $1 OR u.usuario ILIKE $1
       ORDER BY p.fecha_pub DESC
-    `, [`%${q}%`]);
+      LIMIT $2 OFFSET $3
+    `, [`%${q}%`, limite, offset]);
 
     return res.json(result.rows);
   } catch (err) {
