@@ -2510,3 +2510,43 @@ button {
 .container-fluid {
   z-index: auto !important;
 }
+
+.perfil-container.con-fondo-personalizado {
+    position: relative;
+    z-index: 1;
+}
+.perfil-container.con-fondo-personalizado::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* Capa oscura para que el texto sea legible */
+    border-radius: inherit;
+    z-index: -1;
+}
+
+/* Si la publicación tiene fondo personalizado, hacemos transparentes los hijos */
+.publicacion-item.has-custom-bg {
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Un borde sutil */
+    color: white !important;
+}
+
+.publicacion-item.has-custom-bg .pub-cancion, 
+.publicacion-item.has-custom-bg .pub-content,
+.publicacion-item.has-custom-bg .pub-header {
+    background-color: transparent !important; /* Quitamos el fondo gris/negro por defecto */
+}
+
+/* Mejoramos la legibilidad del texto sobre imágenes */
+.publicacion-item.has-custom-bg .pub-text,
+.publicacion-item.has-custom-bg .pub-username,
+.publicacion-item.has-custom-bg .pub-cancion-nombre {
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+    color: #fff;
+}
+
+/* El contenedor de la canción suele tener un fondo sólido, lo volvemos semi-transparente */
+.publicacion-item.has-custom-bg .pub-cancion {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(5px); /* Efecto cristal para que se vea moderno */
+    border-radius: 10px;
+}

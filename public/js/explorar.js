@@ -56,31 +56,32 @@
   };
 
   function crearTarjetaUsuario(user, posicion) {
-    const div = document.createElement('div');
-    div.className = 'perfil-card mb-3 fade-in';
-    
-    const esTuPerfil = correoActual && user.correo === correoActual;
-    const medallaIcon = posicion <= 3 ? getMedallaIcon(posicion) : `<span class="posicion-numero">#${posicion}</span>`;
-    
-    const escapeHtml = window.escapeHtml || ((text) => {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    });
-    
+  const div = document.createElement('div');
+  div.className = 'perfil-card mb-3 fade-in';
+  
+  const esTuPerfil = correoActual && user.correo === correoActual;
+  const medallaIcon = posicion <= 3 ? getMedallaIcon(posicion) : `<span class="posicion-numero">#${posicion}</span>`;
+  
+  // LOGICA DEL FONDO: Si no hay fondo_perfil, usamos el degradado morado por defecto
+  const fondoStyle = user.fondo_perfil 
+      ? `background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('${user.fondo_perfil}');`
+      : `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`;
+      
     div.innerHTML = `
+      <div class="perfil-card-banner" style="${fondoStyle}"></div>
+      
       <div class="perfil-card-content">
         <div class="perfil-ranking">${medallaIcon}</div>
         
         <div class="perfil-avatar-container">
           ${user.foto ? 
-            `<img src="${user.foto}" alt="${escapeHtml(user.usuario)}" class="perfil-avatar-img">` :
+            `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="perfil-avatar-img">` :
             `<div class="perfil-avatar-placeholder">${user.usuario.charAt(0).toUpperCase()}</div>`
           }
         </div>
         
         <div class="perfil-info">
-          <h5 class="perfil-username">@${escapeHtml(user.usuario)}</h5>
+          <h5 class="perfil-username">@${window.escapeHtml(user.usuario)}</h5>
           <p class="perfil-stats">
             <i class="bi bi-people-fill"></i> ${user.num_seguidores} seguidores
           </p>
@@ -94,7 +95,7 @@
             </button>
           ` : ''}
           <a href="perfil-usuario.html?id=${user.id_usuario}" class="btn-ver-perfil load-page-perfil" data-id="${user.id_usuario}">
-            <i class="bi bi-eye"></i> Ver perfil
+            <i class="bi bi-eye"></i>
           </a>
         </div>
       </div>
@@ -357,6 +358,13 @@
       publicaciones.forEach(pub => {
         const article = document.createElement('article');
         article.className = 'publicacion-item mb-4 fade-in';
+
+        if (pub.fondo_publicaciones) {
+            article.style.backgroundImage = `url('${pub.fondo_publicaciones}')`;
+            article.style.backgroundSize = "cover";
+            article.style.backgroundPosition = "center";
+            article.classList.add("has-custom-bg"); // Para que el CSS quite el fondo oscuro
+        }
         
         const fecha = new Date(pub.fecha_pub);
         const fechaFormateada = formatearFecha(fecha);

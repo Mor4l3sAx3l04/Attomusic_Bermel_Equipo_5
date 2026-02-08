@@ -89,6 +89,7 @@ router.get("/publicaciones", async (req, res) => {
 
     const result = await pool.query(`
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, 
+            u.fondo_publicaciones,
             p.publicacion, p.fecha_pub,
             c.id_cancion, c.nombre AS cancion, c.artista, c.album, 
             c.url_preview, c.imagen_url AS imagen_cancion,
@@ -133,6 +134,7 @@ router.get("/publicaciones/buscar", async (req, res) => {
 
     const result = await pool.query(`
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, 
+            u.fondo_publicaciones,
             p.publicacion, p.fecha_pub,
             c.id_cancion, c.nombre AS cancion, c.artista, c.album, 
             c.url_preview, c.imagen_url AS imagen_cancion,
@@ -159,7 +161,7 @@ router.get("/publicaciones/destacadas", async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
 
     const result = await pool.query(`
-      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,u.fondo_publicaciones,
              c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
              COUNT(DISTINCT r.id_reaccion) as likes,
              COUNT(DISTINCT co.id_comentario) as comentarios
@@ -188,7 +190,7 @@ router.get("/publicaciones/siguiendo", getUserFromEmail, async (req, res) => {
     const id_usuario = req.user.id_usuario;
 
     const result = await pool.query(`
-      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub, u.fondo_publicaciones,
              c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
              (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
              (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios

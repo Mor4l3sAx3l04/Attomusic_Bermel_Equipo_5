@@ -315,14 +315,24 @@
   // ========== CREAR PUBLICACIÓN HTML ==========
 
   function crearPublicacion(pub, esPerfilPropio = false) {
+    console.log("Datos de la publicación:",pub);
     const article = document.createElement("article");
     article.className = "publicacion-item mb-4 fade-in";
+
+    if (pub.fondo_publicaciones) {
+        article.style.backgroundImage = `url(${pub.fondo_publicaciones})`;
+        article.style.backgroundSize = "cover";
+        article.style.backgroundPosition = "center";
+        article.classList.add("has-custom-bg"); // Clase para estilos CSS
+    }
+
+    article.style.boxShadow = "inset 0 0 0 2000px rgba(0, 0, 0, 0.3)";
     
     const fecha = new Date(pub.fecha_pub);
     const fechaFormateada = window.formatearFecha(fecha);
     const yaLeDioLike = userLikesCache.has(pub.id_publicacion);
 
-    article.innerHTML = `
+    article.innerHTML = ` 
       <div class="pub-header">
         ${esPerfilPropio ? `
           <small class="pub-fecha">${fechaFormateada}</small>
