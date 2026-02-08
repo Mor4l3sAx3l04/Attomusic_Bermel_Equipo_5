@@ -543,6 +543,15 @@ window.cargarPerfil = async function() {
       document.getElementById("perfilNombre").textContent = data.usuario;
       document.getElementById("perfilCorreo").textContent = data.correo;
       
+      const perfilContainer = document.querySelector(".perfil-container");
+        if (perfilContainer && data.fondo_perfil) {
+            perfilContainer.style.backgroundImage = `url(${data.fondo_perfil})`;
+            perfilContainer.style.backgroundSize = "cover";
+            perfilContainer.style.backgroundPosition = "center";
+            // Opcional: añadir una clase para que el texto resalte sobre el fondo
+            perfilContainer.classList.add("con-fondo-personalizado");
+        }
+
       const fecha = new Date(data.fecha_reg);
       document.getElementById("perfilFecha").textContent = fecha.toLocaleDateString('es-MX', { 
         year: 'numeric', 
@@ -569,6 +578,40 @@ window.cargarPerfil = async function() {
   }
 }
 
+// Función para guardar los fondos personalizados
+window.guardarEstilos = async function(e) {
+  if (e) e.preventDefault();
+  
+  const usuarioActual = window.getUsuarioActual();
+  const imgPerfil = document.getElementById('imgPreviewPerfil').src;
+  const imgPosts = document.getElementById('imgPreviewPosts').src;
+
+  // Solo enviamos si hay algo nuevo (si el src empieza con data:image es que es un Base64 nuevo)
+  const body = { correo: usuarioActual.correo };
+  if (imgPerfil.startsWith('data:image')) body.fondo_perfil = imgPerfil;
+  if (imgPosts.startsWith('data:image')) body.fondo_publicaciones = imgPosts;
+
+  try {
+    const res = await fetch("/api/perfil", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (res.ok) {
+      window.showToast("¡Estilos actualizados! Recargando...", "success");
+      bootstrap.Modal.getInstance(document.getElementById("modalEstilos")).hide();
+      // Recargamos el perfil para ver los cambios
+      await window.cargarPerfil();
+    } else {
+      window.showToast("Error al guardar estilos", "error");
+    }
+  } catch (err) {
+    console.error(err);
+    window.showToast("Error de conexión", "error");
+  }
+}
+
 window.inicializarPerfil = function() {
   const usuarioActual = window.getUsuarioActual();
   
@@ -577,6 +620,10 @@ window.inicializarPerfil = function() {
 // Cambiar foto
   const btnCambiarFoto = document.getElementById("btnCambiarFoto");
   const inputFoto = document.getElementById("inputFoto");
+  const formEstilos = document.getElementById("formEstilos");
+  if (formEstilos) {
+      formEstilos.onsubmit = window.guardarEstilos;
+  }
   
   if (btnCambiarFoto && inputFoto) {
     btnCambiarFoto.onclick = () => {

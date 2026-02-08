@@ -12,7 +12,8 @@ router.get("/perfil/:correo", async (req, res) => {
     const { correo } = req.params;
 
     const userResult = await pool.query(
-      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado 
+      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado,
+      fondo_perfil, fondo_publicaciones
       FROM usuario WHERE correo = $1`,
       [correo]
     );
@@ -34,8 +35,8 @@ router.get("/perfil-publico/:id_usuario", async (req, res) => {
     const { id_usuario } = req.params;
 
     const userResult = await pool.query(
-      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado 
-      FROM usuario WHERE id_usuario = $1`,
+      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado, fondo_perfil 
+       FROM usuario WHERE id_usuario = $1`, 
       [id_usuario]
     );
 
@@ -53,7 +54,7 @@ router.get("/perfil-publico/:id_usuario", async (req, res) => {
 // RUTA: Actualizar perfil del usuario
 router.put("/perfil", getUserFromEmail, async (req, res) => {
   try {
-    const { nuevoUsuario, nuevoCorreo, foto } = req.body;
+    const { nuevoUsuario, nuevoCorreo, foto, fondo_perfil, fondo_publicaciones } = req.body;
     const correo = req.user.correo;
 
     // Verificar si el nuevo correo ya existe
@@ -85,37 +86,34 @@ router.put("/perfil", getUserFromEmail, async (req, res) => {
       }
     }
 
-    // Construir query dinámica
     const updates = [];
     const values = [];
     let paramCounter = 1;
 
-    if (nuevoUsuario) {
-      updates.push(`usuario = $${paramCounter++}`);
-      values.push(nuevoUsuario);
+    if (nuevoUsuario) { updates.push(`usuario = $${paramCounter++}`); values.push(nuevoUsuario); }
+    if (nuevoCorreo) { updates.push(`correo = $${paramCounter++}`); values.push(nuevoCorreo); }
+    if (foto !== undefined) { updates.push(`foto = $${paramCounter++}`); values.push(foto); }
+    
+    // NUEVOS CAMPOS DE ESTILO
+    if (fondo_perfil !== undefined) { 
+      updates.push(`fondo_perfil = $${paramCounter++}`); 
+      values.push(fondo_perfil); 
     }
-    if (nuevoCorreo) {
-      updates.push(`correo = $${paramCounter++}`);
-      values.push(nuevoCorreo);
-    }
-    if (foto !== undefined) {
-      updates.push(`foto = $${paramCounter++}`);
-      values.push(foto);
+    if (fondo_publicaciones !== undefined) { 
+      updates.push(`fondo_publicaciones = $${paramCounter++}`); 
+      values.push(fondo_publicaciones); 
     }
 
-    if (updates.length === 0) {
-      return responses.badRequest(res, "No hay datos para actualizar");
-    }
+    if (updates.length === 0) return responses.badRequest(res, "No hay datos");
 
     values.push(correo);
     const query = `UPDATE usuario SET ${updates.join(", ")} WHERE correo = $${paramCounter}`;
-
     await pool.query(query, values);
 
-    return res.json({ message: "Perfil actualizado correctamente" });
+    return res.json({ message: "Perfil y estilos actualizados" });
   } catch (err) {
-    console.error("Error actualizando perfil:", err);
-    return responses.error(res, "Error actualizando perfil");
+    console.error("Error actualizando:", err);
+    return responses.error(res, "Error al actualizar");
   }
 });
 
@@ -126,9 +124,11 @@ router.get("/perfil/:correo/publicaciones", async (req, res) => {
 
     const result = await pool.query(`
       SELECT p.id_publicacion, p.publicacion, p.fecha_pub,
-            c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.imagen_url AS imagen_cancion,
-            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
-            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+             u.id_usuario, u.usuario, u.correo, u.foto, 
+             u.fondo_publicaciones, -- <--- ESTA ES LA LÍNEA CLAVE
+             c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.imagen_url AS imagen_cancion,
+             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
       FROM publicacion p
       JOIN usuario u ON p.id_usuario = u.id_usuario
       LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
@@ -144,14 +144,22 @@ router.get("/perfil/:correo/publicaciones", async (req, res) => {
 });
 
 // RUTA: Obtener publicaciones de un usuario (por ID)
+// En routes/users.js
 router.get("/usuario/:id_usuario/publicaciones", async (req, res) => {
   try {
     const { id_usuario } = req.params;
-    const result = await pool.query(queries.getPostsByUserId, [id_usuario]);
+    const result = await pool.query(`
+      SELECT p.*, u.usuario, u.foto, u.fondo_publicaciones, -- <--- IMPORTANTE
+            c.nombre AS cancion, c.artista, c.imagen_url AS imagen_cancion
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      WHERE u.id_usuario = $1
+      ORDER BY p.fecha_pub DESC
+    `, [id_usuario]);
     return res.json(result.rows);
   } catch (err) {
-    console.error("Error obteniendo publicaciones del usuario:", err);
-    return responses.error(res, "Error obteniendo publicaciones");
+    return responses.error(res, "Error al obtener publicaciones");
   }
 });
 
@@ -327,12 +335,12 @@ router.get("/usuarios/populares", async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
 
     const result = await pool.query(`
-      SELECT u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg,
-            COUNT(s.id_seguimiento) as num_seguidores
+      SELECT u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg, u.fondo_perfil,
+             COUNT(s.id_seguimiento) as num_seguidores
       FROM usuario u
       LEFT JOIN seguimiento s ON u.id_usuario = s.id_usuario_seguido
       WHERE u.estado = 'activo'
-      GROUP BY u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg
+      GROUP BY u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg, u.fondo_perfil
       ORDER BY num_seguidores DESC, u.fecha_reg DESC
       LIMIT $1
     `, [limit]);
