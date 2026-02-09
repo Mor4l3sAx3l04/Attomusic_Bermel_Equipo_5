@@ -16,7 +16,10 @@
 
   <div style="text-align: center;">
 
-    <p class="title"> Últimas Publicaciones </p><br>
+    <div class="news-header mb-5 fade-up-section text-center">
+      <h1 id="titulo-noticias" style="font-size: 70px;"></h1>
+      <p class="text-muted">Observa los gustos de la gente.</p>
+    </div>
     
     <div class="buscador-container mb-4">
       <div class="input-group">
@@ -87,6 +90,8 @@
       }
     });
   })();
+
+  animarTituloGlobal('#titulo-noticias', 'Últimas Publicaciones');
 </script>
 </body>
 </html>

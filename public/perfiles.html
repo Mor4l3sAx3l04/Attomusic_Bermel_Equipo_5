@@ -16,17 +16,17 @@
   <ul class="nav nav-pills mb-4 justify-content-center" id="explorarTabs" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="tab-perfiles" data-bs-toggle="pill" data-bs-target="#seccion-perfiles" type="button" role="tab">
-        <i class="bi bi-people-fill"></i> Perfiles populares
+        Perfiles populares
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="tab-destacadas" data-bs-toggle="pill" data-bs-target="#seccion-destacadas" type="button" role="tab">
-        <i class="bi bi-star-fill"></i> Publicaciones destacadas
+        Publicaciones destacadas
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="tab-siguiendo" data-bs-toggle="pill" data-bs-target="#seccion-siguiendo" type="button" role="tab">
-        <i class="bi bi-rss-fill"></i> Siguiendo
+        Siguiendo
       </button>
     </li>
   </ul>
@@ -36,9 +36,9 @@
     
     <!-- Sección: Perfiles populares -->
     <div class="tab-pane fade show active" id="seccion-perfiles" role="tabpanel">
-      <div class="section-header mb-4">
-        <h3><i class="bi bi-trophy-fill"></i> Usuarios con más seguidores</h3>
-        <p class="text-muted">Descubre los perfiles más populares de la comunidad</p>
+      <div class="news-header mb-5 fade-up-section text-center">
+        <h1 id="tp-populares" style="font-size: 70px;"></h1>
+        <p class="text-muted">Los perfiles más populares de la comunidad.</p>
       </div>
       <div id="listaPerfilesPopulares">
         <div class="text-center py-5">
@@ -51,9 +51,9 @@
 
     <!-- Sección: Publicaciones destacadas -->
     <div class="tab-pane fade" id="seccion-destacadas" role="tabpanel">
-      <div class="section-header mb-4">
-        <h3><i class="bi bi-fire"></i> Publicaciones más populares</h3>
-        <p class="text-muted">Las publicaciones con más likes de la comunidad</p>
+      <div class="news-header mb-5 fade-up-section text-center">
+        <h1 id="titulo-destacadas" style="font-size: 70px;"></h1>
+        <p class="text-muted">Las publicaciones más destacadas de la comunidad.</p>
       </div>
       <div id="listaPublicacionesDestacadas">
         <div class="text-center py-5">
@@ -66,9 +66,9 @@
 
     <!-- Sección: Siguiendo -->
     <div class="tab-pane fade" id="seccion-siguiendo" role="tabpanel">
-      <div class="section-header mb-4">
-        <h3><i class="bi bi-heart-fill"></i> Actividad de quienes sigues</h3>
-        <p class="text-muted">Publicaciones recientes de usuarios que sigues</p>
+      <div class="news-header mb-5 fade-up-section text-center">
+        <h1 id="titulo-siguiendo" style="font-size: 70px;"></h1>
+        <p class="text-muted">Las publicaciones de los usuarios que sigues.</p>
       </div>
       <div id="listaPublicacionesSiguiendo">
         <div class="text-center py-5">
@@ -86,5 +86,10 @@
 
   <script src="/js/explorar.js"></script>
 
+<script>
+  animarTituloGlobal('#tp-populares', 'Perfiles Populares');
+  animarTituloGlobal('#titulo-destacadas', 'Publicaciones Destacadas');
+  animarTituloGlobal('#titulo-siguiendo', 'Siguiendo');
+</script>
 </body>
 </html>

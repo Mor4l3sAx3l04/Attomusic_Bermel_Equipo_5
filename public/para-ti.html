@@ -7,51 +7,42 @@
 <body>
 
 <div style="max-width:900px;margin:32px auto;padding:0 20px;">
-  <h2 style="color:#5a189a;font-weight:900;margin-bottom:24px;">
-    🎵 Para Ti
-  </h2>
-  
-  <p style="color:#777;margin-bottom:32px;">
-    Basado en tus gustos musicales
-  </p>
+  <div class="news-header mb-5 fade-up-section text-center">
+    <h1 id="titulo-siguiendo" style="font-size: 70px;"></h1>
+    <p class="text-muted">Basado en tus gustos musicales.</p>
+  </div>
 
-  <!-- Tabs -->
   <ul class="nav nav-tabs mb-4" role="tablist">
     <li class="nav-item">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-publicaciones">
-        📰 Publicaciones
+        Publicaciones
       </button>
     </li>
     <li class="nav-item">
       <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-usuarios">
-        👥 Usuarios Similares
+        Usuarios Similares
       </button>
     </li>
     <li class="nav-item">
       <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-analisis">
-        📊 Tu Análisis
+        Tu Análisis
       </button>
     </li>
   </ul>
 
   <div class="tab-content">
-    <!-- Tab: Publicaciones Recomendadas -->
     <div class="tab-pane fade show active" id="tab-publicaciones">
       <div id="recomendaciones-feed"></div>
     </div>
-
-    <!-- Tab: Usuarios Similares -->
     <div class="tab-pane fade" id="tab-usuarios">
       <div id="usuarios-similares"></div>
     </div>
-
-    <!-- Tab: Análisis de Gustos -->
     <div class="tab-pane fade" id="tab-analisis">
       <div id="analisis-gustos"></div>
     </div>
   </div>
 </div>
-
+<script>animarTituloGlobal('#titulo-siguiendo', 'Para Ti');</script>
 <script>
 (function() {
   'use strict';
@@ -417,6 +408,5 @@
 
 })();
 </script>
-
 </body>
 </html>

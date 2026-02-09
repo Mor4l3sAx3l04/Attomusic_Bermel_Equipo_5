@@ -14,7 +14,10 @@
 <body>
 
 <div id="nav-generos" style="max-width:1100px;margin:32px auto 0 auto;">
-  <h2 style="color:#5a189a;font-weight:900;text-align:center;">🎶 Canciones Populares por Género</h2>
+  <div class="news-header mb-5 fade-up-section text-center">
+    <h1 id="titulo-buscador" style="font-size: 70px;"></h1>
+    <p class="text-muted">Las canciónes más populares por género.</p>
+  </div>
   <div style="display:flex;justify-content:center;margin:18px 0 0 0;">
     <select id="select-genero" style="padding:8px 18px;border-radius:16px;font-size:1.1rem;font-weight:700;color:#5a189a;background:#f3e8ff;border:1.5px solid #ba01ff;min-width:220px;max-width:100%;">
       <option value="" disabled selected>Selecciona un género...</option>
@@ -23,9 +26,10 @@
 
   <div id="generos-canciones" style="margin:32px auto;max-width:1100px;"></div>
   
-  <!--  IMPORTAR EL MÓDULO REUTILIZABLE -->
   <script src="js/detalleCancion.js"></script>
-  
+  <script>
+    animarTituloGlobal('#titulo-buscador', 'Canciones Populares por Género');
+  </script>
   <script>
   function mainCanciones() {
     // Inicializar módulo con email del usuario

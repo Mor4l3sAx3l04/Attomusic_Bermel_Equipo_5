@@ -53,6 +53,53 @@ async function verificarAccesoAdmin() {
   }
 }
 
+// Variables temporales para el modal
+let idAEliminar = null;
+let tipoAEliminar = null; // 'publicacion' o 'usuario'
+
+const modalConfirm = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
+
+// Función que se llama desde los botones de la lista (el icono de basura)
+window.prepararEliminacion = function(id, tipo, nombre = "") {
+    idAEliminar = id;
+    tipoAEliminar = tipo;
+    
+    const titulo = tipo === 'usuario' ? "Eliminar Usuario" : "Eliminar Publicación";
+    const mensaje = tipo === 'usuario' 
+        ? `¿Realmente deseas eliminar a "${nombre}"? Se borrarán todos sus datos.` 
+        : "¿Estás seguro de borrar esta publicación permanentemente?";
+
+    document.getElementById('confirmTitle').innerText = titulo;
+    document.getElementById('confirmMessage').innerText = mensaje;
+    
+    modalConfirm.show();
+};
+
+// El único que borra de verdad es este botón (el del modal)
+document.getElementById('btnConfirmarAccion').addEventListener('click', async () => {
+    if (!idAEliminar) return;
+
+    const url = tipoAEliminar === 'usuario' 
+        ? `/api/admin/usuario/${idAEliminar}` 
+        : `/api/admin/publicacion/${idAEliminar}`;
+
+    try {
+        const res = await fetch(url, { method: 'DELETE' });
+        if (res.ok) {
+            window.mostrarToast(`${tipoAEliminar.charAt(0).toUpperCase() + tipoAEliminar.slice(1)} eliminado`, "success");
+            // Recargar las listas
+            cargarUsuarios();
+            cargarPublicacionesReportadas();
+            cargarTodasPublicaciones();
+        }
+    } catch (err) {
+        console.error("Error al eliminar:", err);
+    }
+
+    modalConfirm.hide();
+    idAEliminar = null; // Limpiar
+});
+
 // SECCIÓN 1: PUBLICACIONES REPORTADAS
 
 async function cargarPublicacionesReportadas() {
@@ -122,7 +169,7 @@ function crearCardReporte(reporte) {
         <i class="bi bi-check-circle"></i>
         Marcar como Resuelto
       </button>
-      <button class="btn-action btn-eliminar" onclick="eliminarPublicacionAdmin(${reporte.id_publicacion})">
+      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${pub.id_publicacion}, 'publicacion')">
         <i class="bi bi-trash"></i>
         Eliminar Publicación
       </button>
@@ -169,10 +216,7 @@ async function limpiarReportesResueltos() {
     window.mostrarToast("Error de conexión", "error");
   }
 }
-
-// ========================================
 // SECCIÓN 2: TODAS LAS PUBLICACIONES
-// ========================================
 
 async function cargarTodasPublicaciones() {
   const lista = document.getElementById('listaPublicaciones');
@@ -235,7 +279,7 @@ function crearCardPublicacion(pub) {
     </div>
     
     <div class="reporte-acciones">
-      <button class="btn-action btn-eliminar" onclick="eliminarPublicacionAdmin(${pub.id_publicacion})">
+      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${pub.id_publicacion}, 'publicacion')">
         <i class="bi bi-trash"></i>
         Eliminar
       </button>
@@ -246,7 +290,22 @@ function crearCardPublicacion(pub) {
 }
 
 async function eliminarPublicacionAdmin(idPublicacion) {
-  if (!confirm('¿Estás seguro de eliminar esta publicación? Esta acción no se puede deshacer.')) return;
+  pedirConfirmacion(
+    "Eliminar Publicación", 
+    "¿Estás seguro de que quieres borrar esta publicación de forma permanente?", 
+    async () => {
+      try {
+        const res = await fetch(`/api/admin/publicacion/${idPublicacion}`, { method: 'DELETE' });
+        if (res.ok) {
+          window.mostrarToast("Publicación eliminada", "success");
+          cargarPublicacionesReportadas();
+          cargarTodasPublicaciones();
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+  );
   
   try {
     const res = await fetch(`/api/admin/publicacion/${idPublicacion}`, {
@@ -277,10 +336,7 @@ function filtrarPublicaciones() {
     card.style.display = texto.includes(busqueda) ? 'block' : 'none';
   });
 }
-
-// ========================================
 // SECCIÓN 3: GESTIÓN DE USUARIOS
-// ========================================
 
 async function cargarUsuarios() {
   const lista = document.getElementById('listaUsuarios');
@@ -368,7 +424,7 @@ function crearCardUsuario(user) {
         </button>
       `}
       
-      <button class="btn-action btn-eliminar" onclick="eliminarUsuario(${user.id_usuario}, '${window.escapeHtml(user.usuario)}')">
+      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${user.id_usuario}, 'usuario', '${window.escapeHtml(user.usuario)}')">
         <i class="bi bi-trash"></i>
         Eliminar
       </button>
@@ -468,7 +524,21 @@ async function desbanearUsuario(idUsuario) {
 }
 
 async function eliminarUsuario(idUsuario, nombreUsuario) {
-  if (!confirm(`¿Estás seguro de eliminar al usuario "${nombreUsuario}"? Esta acción no se puede deshacer y eliminará todas sus publicaciones.`)) return;
+  pedirConfirmacion(
+    "Eliminar Usuario", 
+    `¿Realmente deseas eliminar a "${nombreUsuario}"? Se borrarán todos sus datos y publicaciones.`, 
+    async () => {
+      try {
+        const res = await fetch(`/api/admin/usuario/${idUsuario}`, { method: 'DELETE' });
+        if (res.ok) {
+          window.mostrarToast("Usuario eliminado del sistema", "success");
+          cargarUsuarios();
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+  );
   
   try {
     const res = await fetch(`/api/admin/usuario/${idUsuario}`, {
