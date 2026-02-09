@@ -13,12 +13,16 @@
 </head>
 <body>
 
-  <div class="search-results-title text-center" style="margin-bottom: 30px;">Últimas noticias de música</div>
+  <div class="news-header mb-5 fade-up-section text-center">
+    <h1 id="titulo-noticias" style="font-size: 70px;"></h1>
+    <p class="text-muted">Entérate de lo último en el mundo musical.</p>
+  </div>
   <div class="container-noticias"></div>
 
   <script src="/js/noticias.js"></script>
   <script>
     if (window.mainNoticias) window.mainNoticias();
+    animarTituloGlobal('#titulo-noticias', 'Últimas Novedades');
   </script>
 </body>
 </html>

@@ -1110,3 +1110,23 @@ window.cargarPerfil = async function() {
     cargarStatsSeguidores(); // SIN AWAIT
   }, 500);
 }
+
+window.animarTituloGlobal = function(selector, texto) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    
+    el.innerHTML = '';
+    el.classList.add('titulo-wow'); // Le ponemos el brillo automáticamente
+    
+    let i = 0;
+    const velocidad = 40; 
+
+    function escribir() {
+        if (i < texto.length) {
+            el.innerHTML += texto.charAt(i);
+            i++;
+            setTimeout(escribir, velocidad);
+        }
+    }
+    escribir();
+};

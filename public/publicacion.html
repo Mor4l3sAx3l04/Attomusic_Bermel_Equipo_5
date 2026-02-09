@@ -8,13 +8,13 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="transition-bg">
-  <main class="container py-5 content fade-in">
-    <h2 class="text-center mb-4 fw-bold">Crear nueva publicación</h2>
+  <main class="container content fade-in">
+      <div class="news-header mb-5 fade-up-section text-center">
+        <h1 id="titulo-siguiendo" style="font-size: 60px;"></h1>
+        <p class="text-muted">Comparte con los demás usuarios tus gustos musicales.</p>
+      </div>
 
-    <div id="mensajeError" class="alert alert-danger d-none" role="alert">
-      
-    </div>
-
+    <div id="mensajeError" class="alert alert-danger d-none" role="alert"></div>
 
     <form id="formPublicacion" class="publicacion-card p-4 rounded shadow">
       <div class="mb-3">
@@ -40,5 +40,6 @@
   </main>
 
   <script src="./js/publicacion.js"></script>
+  <script>animarTituloGlobal('#titulo-siguiendo', 'Crear Nueva Publicación');</script>
 </body>
 </html>

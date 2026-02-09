@@ -4,19 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Admin</title>
+  <link rel="stylesheet" href="css/panel-admin.css">
 </head>
 <body>
   <div class="admin-panel-container">
-    <!-- Header del Panel -->
-    <div class="admin-header">
-      <h1 class="admin-title">
-        <i class="bi bi-shield-lock-fill"></i>
-        Panel de Administración
-      </h1>
-      <p class="admin-subtitle">Gestión completa del sistema</p>
-    </div>
+    <div class="news-header mb-5 fade-up-section text-center">
+        <h1 id="titulo-siguiendo" style="font-size: 70px;"></h1>
+        <p class="text-muted">Gestión completa del sistema administrativo.</p>
+      </div>
 
-    <!-- Navegación de Tabs -->
     <ul class="nav nav-tabs admin-tabs" id="adminTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes" type="button">
@@ -41,13 +37,10 @@
       </li>
     </ul>
 
-    <!-- Contenido de las Tabs -->
     <div class="tab-content admin-content" id="adminTabsContent">
-      
-      <!-- TAB 1: Publicaciones Reportadas -->
       <div class="tab-pane fade show active" id="reportes" role="tabpanel">
         <div class="admin-section-header">
-          <h2><i class="bi bi-flag-fill"></i> Publicaciones Reportadas</h2>
+          <h2 id="pub-rep">Publicaciones Reportadas</h2>
           <button class="btn btn-outline-danger btn-sm" onclick="limpiarReportesResueltos()">
             <i class="bi bi-check2-all"></i> Limpiar Resueltos
           </button>
@@ -60,10 +53,9 @@
         </div>
       </div>
 
-      <!-- TAB 2: Todas las Publicaciones -->
       <div class="tab-pane fade" id="publicaciones" role="tabpanel">
         <div class="admin-section-header">
-          <h2><i class="bi bi-file-text-fill"></i> Todas las Publicaciones</h2>
+          <h2 id="pub-t">Todas las Publicaciones</h2>
           <div class="admin-filters">
             <input type="text" class="form-control form-control-sm" id="buscarPublicacion" placeholder="Buscar por usuario o contenido...">
             <button class="btn btn-outline-primary btn-sm" onclick="cargarTodasPublicaciones()">
@@ -79,10 +71,9 @@
         </div>
       </div>
 
-      <!-- TAB 3: Gestión de Usuarios -->
       <div class="tab-pane fade" id="usuarios" role="tabpanel">
         <div class="admin-section-header">
-          <h2><i class="bi bi-people-fill"></i> Gestión de Usuarios</h2>
+          <h2 id="gestion-usu">Gestión de Usuarios</h2>
           <div class="admin-filters">
             <input type="text" class="form-control form-control-sm" id="buscarUsuario" placeholder="Buscar usuario...">
             <select class="form-select form-select-sm" id="filtroRol">
@@ -102,11 +93,9 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- Modal para Baneo Temporal -->
   <div class="modal fade" id="modalBaneo" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -137,376 +126,33 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm"> <div class="modal-content bg-dark border-0 shadow-lg text-center p-3" style="border-radius: 25px;">
+        <div class="modal-body">
+          <div class="mb-3">
+              <i class="bi bi-trash3-fill text-danger" style="font-size: 2.5rem;"></i>
+          </div>
+          <h5 class="titulo-wow mb-2" id="confirmTitle" style="font-size: 1.2rem;"></h5>
+          <p id="confirmMessage" class="text-white-50 small px-2"></p>
+        </div>
+        <div class="d-flex justify-content-center gap-2 pb-2">
+          <button type="button" class="btn btn-link text-decoration-none text-muted" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger btn-sm px-4" id="btnConfirmarAccion" style="border-radius: 12px; font-weight: 600;">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/panel-admin.js"></script>
-  
-  <style>
-    .admin-panel-container {
-      padding: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+  <script>
+    animarTituloGlobal('#titulo-siguiendo', 'Panel de Administrador');
+    animarTituloGlobal('#pub-rep', 'Publicaciones Reportadas');
+    animarTituloGlobal('#pub-t', 'Todas las Publicaciones');
+    animarTituloGlobal('#gestion-usu', 'Gestión de Usuarios');
 
-    .admin-header {
-      text-align: center;
-      margin-bottom: 30px;
-      padding: 30px;
-      background: linear-gradient(135deg, #ba01ff 0%, #00dffc 100%);
-      border-radius: 16px;
-      color: white;
-      box-shadow: 0 8px 24px rgba(186, 1, 255, 0.3);
-    }
-
-    .admin-title {
-      font-size: 2rem;
-      font-weight: 900;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .admin-subtitle {
-      margin: 8px 0 0 0;
-      opacity: 0.9;
-      font-size: 1.1rem;
-    }
-
-    .admin-tabs {
-      border-bottom: 2px solid #ba01ff;
-      margin-bottom: 24px;
-    }
-
-    .admin-tabs .nav-link {
-      color: #666;
-      font-weight: 600;
-      padding: 12px 24px;
-      border: none;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .admin-tabs .nav-link:hover {
-      color: #ba01ff;
-      border-bottom-color: rgba(186, 1, 255, 0.3);
-    }
-
-    .admin-tabs .nav-link.active {
-      color: #ba01ff;
-      background: linear-gradient(to bottom, rgba(186, 1, 255, 0.1), transparent);
-      border-bottom-color: #ba01ff;
-    }
-
-    .admin-tabs .badge {
-      margin-left: 4px;
-    }
-
-    .admin-content {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .admin-section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid #f0f0f0;
-    }
-
-    .admin-section-header h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #333;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .admin-filters {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .admin-filters input,
-    .admin-filters select {
-      max-width: 250px;
-    }
-
-    .admin-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* Cards de Reportes */
-    .reporte-card {
-      background: #fff;
-      border: 2px solid #ff4444;
-      border-radius: 12px;
-      padding: 20px;
-      transition: all 0.3s;
-    }
-
-    .reporte-card:hover {
-      box-shadow: 0 4px 16px rgba(255, 68, 68, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .reporte-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-
-    .reporte-info {
-      flex: 1;
-    }
-
-    .reporte-usuario {
-      font-weight: 700;
-      color: #333;
-      font-size: 1.1rem;
-    }
-
-    .reporte-fecha {
-      color: #999;
-      font-size: 0.9rem;
-    }
-
-    .reporte-contador {
-      background: #ff4444;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .reporte-contenido {
-      background: #f8f9fa;
-      padding: 16px;
-      border-radius: 8px;
-      margin: 12px 0;
-      color: #555;
-      line-height: 1.6;
-    }
-
-    .reporte-acciones {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-
-    /* Cards de Publicaciones */
-    .publicacion-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 20px;
-      transition: all 0.3s;
-    }
-
-    .publicacion-card:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
-    }
-
-    /* Cards de Usuarios */
-    .usuario-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      transition: all 0.3s;
-    }
-
-    .usuario-card:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .usuario-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .usuario-avatar-text {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ba01ff, #00dffc);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: white;
-    }
-
-    .usuario-info {
-      flex: 1;
-    }
-
-    .usuario-nombre {
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #333;
-      margin: 0;
-    }
-
-    .usuario-correo {
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    .usuario-rol {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 4px;
-    }
-
-    .usuario-rol.admin {
-      background: linear-gradient(135deg, #ba01ff, #00dffc);
-      color: white;
-    }
-
-    .usuario-rol.usuario {
-      background: #e0e0e0;
-      color: #666;
-    }
-
-    .usuario-acciones {
-      display: flex;
-      gap: 8px;
-    }
-
-    .usuario-baneado {
-      border: 2px solid #ff6b6b;
-      background: #fff5f5;
-    }
-
-    .badge-baneado {
-      background: #ff6b6b;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Botones de acciones */
-    .btn-action {
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: all 0.3s;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .btn-eliminar {
-      background: #ff4444;
-      color: white;
-    }
-
-    .btn-resolver {
-      background: #4CAF50;
-      color: white;
-    }
-
-    .btn-banear {
-      background: #ff9800;
-      color: white;
-    }
-
-    .btn-cambiar-rol {
-      background: linear-gradient(135deg, #ba01ff, #00dffc);
-      color: white;
-    }
-
-    /* Modo Oscuro */
-    [data-bs-theme="dark"] .admin-content {
-      background: #1a1a1a;
-    }
-
-    [data-bs-theme="dark"] .reporte-card,
-    [data-bs-theme="dark"] .publicacion-card,
-    [data-bs-theme="dark"] .usuario-card {
-      background: #2a2a2a;
-      border-color: #444;
-    }
-
-    [data-bs-theme="dark"] .reporte-contenido {
-      background: #1a1a1a;
-    }
-
-    [data-bs-theme="dark"] .admin-section-header h2,
-    [data-bs-theme="dark"] .reporte-usuario,
-    [data-bs-theme="dark"] .usuario-nombre {
-      color: #fff;
-    }
-
-    [data-bs-theme="dark"] .reporte-contenido,
-    [data-bs-theme="dark"] .usuario-correo {
-      color: #ccc;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .admin-section-header {
-        flex-direction: column;
-        gap: 16px;
-        align-items: flex-start;
-      }
-
-      .admin-filters {
-        flex-direction: column;
-        width: 100%;
-      }
-
-      .admin-filters input,
-      .admin-filters select {
-        max-width: 100%;
-      }
-
-      .usuario-card {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .usuario-acciones {
-        width: 100%;
-        flex-wrap: wrap;
-      }
-    }
-  </style>
+  document.querySelectorAll('.modal').forEach(modal => {
+    document.body.appendChild(modal);
+  });
+  </script>
 </body>
 </html>

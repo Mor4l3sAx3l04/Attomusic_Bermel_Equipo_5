@@ -12,18 +12,25 @@
   </button>
   
   <div id="main-content">
-    <h2 class="search-results-title">🔎 Resultados de búsqueda</h2>
-    <h3 class="search-section-title">Canciones</h3>
-    <div id="results-tracks" class="search-results"></div>
-    <h3 class="search-section-title">Artistas</h3>
-    <div id="results-artists" class="search-results"></div>
-    <h3 class="search-section-title">Álbumes</h3>
-    <div id="results-albums" class="search-results"></div>
+    <div class="news-header mb-5 fade-up-section text-center">
+      <h1 id="titulo-buscador" style="font-size: 70px;"></h1>
+      <p class="text-muted">Aquí tienes el resultado de tu búsqueda.</p>
+    </div>
+    <h1 class="search-section-title text-center" id="songs" style="font-size: 40px;">Canciones</h1>
+      <div id="results-tracks" class="search-results"></div>
+    <h1 class="search-section-title text-center" id="artists" style="font-size: 40px;">Artistas</h1>
+      <div id="results-artists" class="search-results"></div>
+    <h1 class="search-section-title text-center" id="albums" style="font-size: 40px;">Álbumes</h1>
+      <div id="results-albums" class="search-results"></div>
   </div>
 
-  <!-- IMPORTAR EL MÓDULO REUTILIZABLE -->
   <script src="js/detalleCancion.js"></script>
-
+  <script>
+    animarTituloGlobal('#titulo-buscador', 'Resultados de búsqueda');
+    animarTituloGlobal('#songs', 'Canciones');
+    animarTituloGlobal('#artists', 'Artistas');
+    animarTituloGlobal('#albums', 'Álbumes');
+  </script>
   <script>
     // FUNCIÓN INIT PARA REINICIALIZAR CADA VEZ
     (function initBuscador() {
