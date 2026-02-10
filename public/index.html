@@ -69,13 +69,12 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
-                <!-- Aquí se mostrará el nombre del usuario -->
                 <span class="dropdown-item-text fw-bold" id="perfil-nombre"></span>
               </li>
               <li><a class="dropdown-item load-page" href="perfil.html">Ver Perfil</a></li>
               <li id="panel-admin-link" style="display: none;">
                 <a class="dropdown-item load-page" href="panel-admin.html">
-                  <i class="bi bi-shield-lock-fill"></i> Panel Admin
+                Panel Admin
                 </a>
               </li>
               <li><hr class="dropdown-divider load-page"></li>
@@ -95,155 +94,147 @@
     <div id="main-content"></div>
   </div>
 
-<!-- Modal de Login Mejorado -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
-      <div class="modal-body p-0">
-        <div style="padding: 48px 40px;">
-          <!-- Header con logo -->
-          <div style="text-align: center; margin-bottom: 32px;">
-            <div style="width: 80px; height: 80px; margin: 0 auto 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
-              <span style="font-size: 2.5rem; color: white;"><img alt="Icono" class="iconnavbar" src="images/iconowhite.png"></span>
-            </div>
-            <h1 style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">ATTOMUSIC</h1>
-            <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">Inicia sesión para continuar</p>
-          </div>
-
-          <form method="post" action="/login" id="loginForm">
-            <!-- Usuario -->
-            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-              <input type="text" required class="input-animated" id="loginUser" name="usuario"
-                style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
-              <label class="label-animated" for="loginUser" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
-                Usuario
-              </label>
-              <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+        <div class="modal-body p-0">
+          <div style="padding: 48px 40px;">
+            <!-- Header con logo -->
+            <div style="text-align: center; margin-bottom: 32px;">
+              <div style="width: 80px; height: 80px; margin: 0 auto 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
+                <span style="font-size: 2.5rem; color: white;"><img alt="Icono" class="iconnavbar" src="images/iconowhite.png"></span>
+              </div>
+              <h1 style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">ATTOMUSIC</h1>
+              <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">Inicia sesión para continuar</p>
             </div>
 
-            <!-- Contraseña -->
-            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-              <input type="password" required class="input-animated" id="loginPassword" name="contrasena"
-                style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
-              <label class="label-animated" for="loginPassword" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
-                Contraseña
-              </label>
-              <i class="bi bi-lock-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-              <button type="button" class="btn-eye-login" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ba01ff; cursor: pointer; font-size: 1.2rem; z-index: 10;">
-                <i class="bi bi-eye-slash" style="color: #111;"></i>
+            <form method="post" action="/login" id="loginForm">
+
+              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+                <input type="text" required class="input-animated" id="loginUser" name="usuario"
+                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+                <label class="label-animated" for="loginUser" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                  Usuario
+                </label>
+                <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+                <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+              </div>
+
+              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+                <input type="password" required class="input-animated" id="loginPassword" name="contrasena"
+                  style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
+                <label class="label-animated" for="loginPassword" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
+                  Contraseña
+                </label>
+                <i class="bi bi-lock-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+                <button type="button" class="btn-eye-login" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ba01ff; cursor: pointer; font-size: 1.2rem; z-index: 10;">
+                  <i class="bi bi-eye-slash" style="color: #111;"></i>
+                </button>
+                <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+              </div>
+
+              <div style="text-align: right; margin-bottom: 24px;">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#resetModal" data-bs-dismiss="modal" style="color: #5a189a; text-decoration: none; font-weight: 500;">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
+
+              <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(186,1,255,0.3);"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
+                Iniciar Sesión
               </button>
-              <span class="input-border" style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+
+              <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
+                <p style="color: #5a189a; margin: 0;">
+                  ¿No tienes cuenta? 
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#registroModal" data-bs-dismiss="modal" 
+                    style="color: #ba01ff; text-decoration: none; font-weight: 700; transition: color 0.3s;"
+                    onmouseover="this.style.color='#00dffc'"
+                    onmouseout="this.style.color='#ba01ff'">
+                    Regístrate aquí
+                  </a>
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="resetModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+        <div class="modal-body p-0">
+          <div style="padding: 48px 40px;">
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 32px;">
+              <div style="width: 80px; height: 80px; margin: 0 auto 16px;
+                          background: linear-gradient(160deg, #ba01ff, #00dffc);
+                          border-radius: 20px; display: flex;
+                          align-items: center; justify-content: center;
+                          box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
+                <img alt="Icono" class="iconnavbar" src="images/iconowhite.png" style="width:50px;">
+              </div>
+              <h1 style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Restablecer Contraseña</h1>
+              <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">
+                Ingresa tus datos para continuar
+              </p>
             </div>
 
-            <!-- Olvidó contraseña -->
-            <div style="text-align: right; margin-bottom: 24px;">
-              <a href="#" data-bs-toggle="modal" data-bs-target="#resetModal" data-bs-dismiss="modal" style="color: #5a189a; text-decoration: none; font-weight: 500;">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
+            <form id="resetForm">
 
-            <!-- Botón submit -->
-            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(186,1,255,0.3);"
-              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
-              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
-              Iniciar Sesión
-            </button>
+              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
+                <input type="text" required class="input-animated" id="resetName" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
+                <label class="label-animated" for="resetName" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%);color: #999; font-size: 1rem; transition: all 0.3s;">
+                  Nombre de usuario
+                </label>
+                <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%;transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              </div>
 
-            <!-- Registro -->
+              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
+                <input type="email" required class="input-animated" id="resetEmail" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
+                <label class="label-animated" for="resetEmail" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
+                  Correo electrónico
+                </label>
+                <i class="bi bi-envelope-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              </div>
+
+              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+                <input type="password" required class="input-animated" id="resetPassword" style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
+                <label class="label-animated" for="resetPassword" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
+                  Nueva contraseña
+                </label>
+                <i class="bi bi-lock-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+                <button type="button" class="btn-eye-reset" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; z-index: 10;">
+                  <i class="bi bi-eye-slash" style="color: #111;"></i>
+                </button>
+              </div>
+
+              <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc);color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
+                Restablecer Contraseña
+              </button>
+            </form>
+
             <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
-              <p style="color: #5a189a; margin: 0;">
-                ¿No tienes cuenta? 
-                <a href="#" data-bs-toggle="modal" data-bs-target="#registroModal" data-bs-dismiss="modal" 
-                  style="color: #ba01ff; text-decoration: none; font-weight: 700; transition: color 0.3s;"
-                  onmouseover="this.style.color='#00dffc'"
-                  onmouseout="this.style.color='#ba01ff'">
-                  Regístrate aquí
+              <p style="color: #5a189a;">
+                ¿Recordaste tu contraseña?
+                <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal"
+                  data-bs-dismiss="modal"
+                  style="color: #ba01ff; font-weight: 700; text-decoration: none;">
+                  Inicia sesión
                 </a>
               </p>
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de Restablecer Contraseña -->
-<div class="modal fade" id="resetModal" tabindex="-1" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
-      <div class="modal-body p-0">
-        <div style="padding: 48px 40px;">
-          <!-- Header -->
-          <div style="text-align: center; margin-bottom: 32px;">
-            <div style="width: 80px; height: 80px; margin: 0 auto 16px;
-                        background: linear-gradient(160deg, #ba01ff, #00dffc);
-                        border-radius: 20px; display: flex;
-                        align-items: center; justify-content: center;
-                        box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
-              <img alt="Icono" class="iconnavbar" src="images/iconowhite.png" style="width:50px;">
-            </div>
-            <h1 style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Restablecer Contraseña</h1>
-            <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">
-              Ingresa tus datos para continuar
-            </p>
-          </div>
-
-          <form id="resetForm">
-
-            <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
-              <input type="text" required class="input-animated" id="resetName" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
-              <label class="label-animated" for="resetName" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%);color: #999; font-size: 1rem; transition: all 0.3s;">
-                Nombre de usuario
-              </label>
-              <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%;transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-            </div>
-
-            <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
-              <input type="email" required class="input-animated" id="resetEmail" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
-              <label class="label-animated" for="resetEmail" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
-                Correo electrónico
-              </label>
-              <i class="bi bi-envelope-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-            </div>
-
-            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-              <input type="password" required class="input-animated" id="resetPassword" style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
-              <label class="label-animated" for="resetPassword" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
-                Nueva contraseña
-              </label>
-              <i class="bi bi-lock-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-              <button type="button" class="btn-eye-reset" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; z-index: 10;">
-                <i class="bi bi-eye-slash" style="color: #111;"></i>
-              </button>
-            </div>
-
-            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc);color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
-              Restablecer Contraseña
-            </button>
-          </form>
-
-          <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
-            <p style="color: #5a189a;">
-              ¿Recordaste tu contraseña?
-              <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal"
-                data-bs-dismiss="modal"
-                style="color: #ba01ff; font-weight: 700; text-decoration: none;">
-                Inicia sesión
-              </a>
-            </p>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-
-  <!-- Modal de Registro Mejorado -->
   <div class="modal fade" id="registroModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
         <div class="modal-body p-0">
           <div style="padding: 48px 40px;">

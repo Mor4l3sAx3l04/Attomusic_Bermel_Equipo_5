@@ -412,18 +412,6 @@ function crearCardUsuario(user) {
         ${user.rol === 'admin' ? 'Hacer Usuario' : 'Hacer Admin'}
       </button>
       
-      ${estaActivo ? `
-        <button class="btn-action btn-banear" onclick="abrirModalBaneo(${user.id_usuario}, '${window.escapeHtml(user.usuario)}')">
-          <i class="bi bi-clock-history"></i>
-          Banear
-        </button>
-      ` : `
-        <button class="btn-action btn-resolver" onclick="desbanearUsuario(${user.id_usuario})">
-          <i class="bi bi-check-circle"></i>
-          Desbanear
-        </button>
-      `}
-      
       <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${user.id_usuario}, 'usuario', '${window.escapeHtml(user.usuario)}')">
         <i class="bi bi-trash"></i>
         Eliminar
