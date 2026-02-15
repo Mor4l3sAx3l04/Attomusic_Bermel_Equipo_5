@@ -1,50 +1,42 @@
-//Función para mostrar notificaciones
-function showToast(message, type = "success") {
-const toast = document.getElementById("toast");
-toast.textContent = message;
-toast.className = `toast show ${type}`;
-setTimeout(() => {
-toast.className = "toast";
-}, 3000);
-}
+//Función showToast eliminada para usar la versión musical global
 
 //Sanitización y validación global
 function sanitizeInput(str) {
-if (typeof str !== "string") return "";
-str = str.replace(/<[^>]*>?/gm, "");
-str = str.replace(/(javascript:|data:|vbscript:)/gi, "");
-str = str.replace(/<\?(php)?[\s\S]*?\?>/gi, "");
-str = str.replace(/<style[\s\S]*?<\/style>/gi, "");
-str = str.replace(/<script[\s\S]*?<\/script>/gi, "");
-str = str.trim().replace(/\s{2,}/g, " ");
-return str;
+  if (typeof str !== "string") return "";
+  str = str.replace(/<[^>]*>?/gm, "");
+  str = str.replace(/(javascript:|data:|vbscript:)/gi, "");
+  str = str.replace(/<\?(php)?[\s\S]*?\?>/gi, "");
+  str = str.replace(/<style[\s\S]*?<\/style>/gi, "");
+  str = str.replace(/<script[\s\S]*?<\/script>/gi, "");
+  str = str.trim().replace(/\s{2,}/g, " ");
+  return str;
 }
 
 function isNotEmpty(str) {
-return typeof str === "string" && str.trim().length > 0;
+  return typeof str === "string" && str.trim().length > 0;
 }
 
 function allowOnlyNumbers(e) {
-if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
+  if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Tab") {
     e.preventDefault();
-}
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-//Inicializar tooltips de Bootstrap
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+  //Inicializar tooltips de Bootstrap
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
     new bootstrap.Tooltip(tooltipTriggerEl);
-});
+  });
 
-//Carga inicial
-loadPage('bienvenido.html');
+  //Carga inicial
+  loadPage('bienvenido.html');
 
-//Buscador
-const searchBtn = document.getElementById("searchBtn");
-const searchInput = document.getElementById("searchInput");
+  //Buscador
+  const searchBtn = document.getElementById("searchBtn");
+  const searchInput = document.getElementById("searchInput");
 
-if (searchBtn && searchInput) {
+  if (searchBtn && searchInput) {
     // Función para realizar búsqueda
     function realizarBusqueda() {
       const query = sanitizeInput(searchInput.value.trim());
@@ -78,115 +70,115 @@ if (searchBtn && searchInput) {
     });
 
     // Quitar el error al escribir
-    searchInput.addEventListener("input", function() {
+    searchInput.addEventListener("input", function () {
       if (this.value.trim().length > 0) {
         this.classList.remove("is-invalid");
       }
     });
 
     // Quitar el error al hacer blur
-    searchInput.addEventListener("blur", function() {
+    searchInput.addEventListener("blur", function () {
       if (isNotEmpty(this.value)) {
         this.classList.remove("is-invalid");
       }
     });
-}
+  }
 
-//Formularios (registro/login/comentarios) 
-document.querySelectorAll("form").forEach(form => {
-    form.addEventListener("submit", function(e) {
-    let valid = true;
-    this.querySelectorAll("input, textarea").forEach(input => {
+  //Formularios (registro/login/comentarios) 
+  document.querySelectorAll("form").forEach(form => {
+    form.addEventListener("submit", function (e) {
+      let valid = true;
+      this.querySelectorAll("input, textarea").forEach(input => {
         input.value = sanitizeInput(input.value);
         if (!isNotEmpty(input.value)) {
-        valid = false;
-        input.classList.add("is-invalid");
-        setTimeout(() => input.classList.remove("is-invalid"), 5000);
+          valid = false;
+          input.classList.add("is-invalid");
+          setTimeout(() => input.classList.remove("is-invalid"), 5000);
         } else {
-        input.classList.remove("is-invalid");
+          input.classList.remove("is-invalid");
         }
         if (input.type === "number" && !/^\d+$/.test(input.value)) {
-        valid = false;
-        input.classList.add("is-invalid");
-        setTimeout(() => input.classList.remove("is-invalid"), 2000);
+          valid = false;
+          input.classList.add("is-invalid");
+          setTimeout(() => input.classList.remove("is-invalid"), 2000);
         }
-    });
-    if (!valid) {
+      });
+      if (!valid) {
         e.preventDefault();
         alert("Por favor, completa todos los campos correctamente.");
-    }
+      }
     });
 
-// Validación en tiempo real para números
+    // Validación en tiempo real para números
     form.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener("keypress", allowOnlyNumbers);
+      input.addEventListener("keypress", allowOnlyNumbers);
     });
 
-// Quitar el rojo al interactuar
+    // Quitar el rojo al interactuar
     form.querySelectorAll("input, textarea").forEach(input => {
-    input.addEventListener("input", function() {
+      input.addEventListener("input", function () {
         if (isNotEmpty(this.value)) this.classList.remove("is-invalid");
-    });
-    input.addEventListener("focus", function() {
+      });
+      input.addEventListener("focus", function () {
         this.classList.remove("is-invalid");
+      });
     });
-    });
-});
+  });
 
-//Animación de labels y toggles de contraseñas
-const inputs = document.querySelectorAll('.input-animated');
-inputs.forEach(input => {
+  //Animación de labels y toggles de contraseñas
+  const inputs = document.querySelectorAll('.input-animated');
+  inputs.forEach(input => {
     const label = input.parentElement.querySelector('.label-animated');
     const border = input.parentElement.querySelector('.input-border');
 
-    input.addEventListener('focus', function() {
-    if (label) {
+    input.addEventListener('focus', function () {
+      if (label) {
         label.style.top = '-10px';
         label.style.fontSize = '0.85rem';
         label.style.color = '#ba01ff';
         label.style.fontWeight = '600';
-    }
-    if (border) border.style.width = '100%';
-    this.style.borderColor = '#00dffc';
-    this.style.boxShadow = '0 0 0 3px rgba(0,223,252,0.1)';
+      }
+      if (border) border.style.width = '100%';
+      this.style.borderColor = '#00dffc';
+      this.style.boxShadow = '0 0 0 3px rgba(0,223,252,0.1)';
     });
 
-    input.addEventListener('blur', function() {
-    if (this.value === '' && label) {
+    input.addEventListener('blur', function () {
+      if (this.value === '' && label) {
         label.style.top = '50%';
         label.style.fontSize = '1rem';
         label.style.color = '#999';
         label.style.fontWeight = '400';
-    }
-    if (border) border.style.width = '0%';
-    this.style.borderColor = '#ba01ff';
-    this.style.boxShadow = 'none';
+      }
+      if (border) border.style.width = '0%';
+      this.style.borderColor = '#ba01ff';
+      this.style.boxShadow = 'none';
     });
 
     if (input.value !== '' && label) {
-    label.style.top = '-10px';
-    label.style.fontSize = '0.85rem';
-    label.style.color = '#ba01ff';
-    label.style.fontWeight = '600';
+      label.style.top = '-10px';
+      label.style.fontSize = '0.85rem';
+      label.style.color = '#ba01ff';
+      label.style.fontWeight = '600';
     }
-});
+  });
 
-//Toggle de contraseñas (login y registro)
-function setupPasswordToggle(buttonSelector, inputId) {
+  //Toggle de contraseñas (login y registro)
+  function setupPasswordToggle(buttonSelector, inputId) {
     const btn = document.querySelector(buttonSelector);
     const input = document.getElementById(inputId);
     if (btn && input) {
-    btn.addEventListener('click', function() {
+      btn.addEventListener('click', function () {
         const isPassword = input.type === 'password';
         input.type = isPassword ? 'text' : 'password';
         const icon = this.querySelector('i');
         icon.classList.toggle('bi-eye-slash');
         icon.classList.toggle('bi-eye');
-    });
+      });
     }
-}
-setupPasswordToggle('.btn-eye-login', 'loginPassword');
-setupPasswordToggle('#togglePassword', 'registerPassword');
+  }
+  setupPasswordToggle('.btn-eye-login', 'loginPassword');
+  setupPasswordToggle('#togglePassword', 'registerPassword');
 });
 
 //Carga dinámica de páginas
@@ -228,22 +220,22 @@ function loadPage(url) {
 
       // Procesar scripts
       const scripts = Array.from(mainContent.querySelectorAll('script'));
-      
+
       // Primero cargar scripts externos
       const externalScripts = scripts.filter(s => s.src);
       const inlineScripts = scripts.filter(s => !s.src);
-      
+
       Promise.all(
         externalScripts.map(oldScript => {
           return new Promise((resolve, reject) => {
             const src = oldScript.src;
-            
+
             // Si ya está cargado, resolver inmediatamente
             if (window._loadedScripts.has(src)) {
               //console.log(' Script desde caché, pero ejecutando init nuevamente:', src);
 
               // Intentar ejecutar una función init si existe
-              const scriptName = src.split('/').pop().replace('.js','');
+              const scriptName = src.split('/').pop().replace('.js', '');
               const initFn = window[`init_${scriptName}`];
 
               if (typeof initFn === 'function') {
@@ -253,44 +245,44 @@ function loadPage(url) {
               resolve();
               return;
             }
-            
+
             const newScript = document.createElement('script');
             newScript.src = src;
             newScript.async = false;
-            
+
             newScript.onload = () => {
               window._loadedScripts.add(src);
               //console.log(' Script cargado:', src);
               resolve();
             };
-            
+
             newScript.onerror = () => {
               console.error(' Error cargando:', src);
               reject(new Error(`Failed to load ${src}`));
             };
-            
+
             document.head.appendChild(newScript);
           });
         })
       )
-      .then(() => {
-        // Luego ejecutar scripts inline
-        inlineScripts.forEach(oldScript => {
-          const newScript = document.createElement('script');
-          newScript.textContent = oldScript.textContent;
-          document.body.appendChild(newScript);
+        .then(() => {
+          // Luego ejecutar scripts inline
+          inlineScripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            newScript.textContent = oldScript.textContent;
+            document.body.appendChild(newScript);
+          });
+
+          // Aplicar estilos después de que todo cargó
+          setTimeout(() => {
+            if (typeof aplicarColoresIconos === 'function') {
+              aplicarColoresIconos();
+            }
+          }, 300);
+        })
+        .catch(error => {
+          console.error(' Error cargando scripts:', error);
         });
-        
-        // Aplicar estilos después de que todo cargó
-        setTimeout(() => {
-          if (typeof aplicarColoresIconos === 'function') {
-            aplicarColoresIconos();
-          }
-        }, 300);
-      })
-      .catch(error => {
-        console.error(' Error cargando scripts:', error);
-      });
     })
     .catch(error => {
       console.error(' Error fetch:', error);
@@ -300,7 +292,7 @@ function loadPage(url) {
 }
 
 // Event delegation para links dinámicos
-document.addEventListener("click", function(e) {
+document.addEventListener("click", function (e) {
   const link = e.target.closest(".load-page");
   if (link) {
     e.preventDefault();
@@ -314,80 +306,80 @@ document.addEventListener("click", function(e) {
 //REGISTRO
 const formRegistro = document.getElementById("registroForm");
 if (formRegistro) {
-formRegistro.addEventListener("submit", async function (e) {
-e.preventDefault();
+  formRegistro.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-const usuario = document.getElementById("registerName").value.trim();
-const correo = document.getElementById("registerEmail").value.trim();
-const contrasena = document.getElementById("registerPassword").value.trim();
+    const usuario = document.getElementById("registerName").value.trim();
+    const correo = document.getElementById("registerEmail").value.trim();
+    const contrasena = document.getElementById("registerPassword").value.trim();
 
-if (!usuario || !correo || !contrasena) {
-    showToast("Por favor llena todos los campos.", "error");
-    return;
-}
-
-try {
-    const response = await fetch("/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ usuario, correo, contrasena }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-    showToast(data.message || "Usuario registrado correctamente", "success");
-    bootstrap.Modal.getInstance(document.getElementById("registroModal")).hide();
-    this.reset();
-
-    localStorage.setItem("usuario", JSON.stringify({ usuario, correo }));
-    
-    sessionStorage.setItem('correo', correo);
-    sessionStorage.setItem('usuario', usuario);
-
-    actualizarInterfaz();
-
-    } else {
-    showToast(data.error || "Error al registrar usuario", "error");
+    if (!usuario || !correo || !contrasena) {
+      showToast("Por favor llena todos los campos.", "error");
+      return;
     }
-} catch (err) {
-    console.error(err);
-    showToast("Error de conexión con el servidor", "error");
-}
-});
+
+    try {
+      const response = await fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuario, correo, contrasena }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast(data.message || "Usuario registrado correctamente", "success");
+        bootstrap.Modal.getInstance(document.getElementById("registroModal")).hide();
+        this.reset();
+
+        localStorage.setItem("usuario", JSON.stringify({ usuario, correo }));
+
+        sessionStorage.setItem('correo', correo);
+        sessionStorage.setItem('usuario', usuario);
+
+        actualizarInterfaz();
+
+      } else {
+        showToast(data.error || "Error al registrar usuario", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error de conexión con el servidor", "error");
+    }
+  });
 }
 
 //LOGIN
 const formLogin = document.getElementById("loginForm");
 if (formLogin) {
-    formLogin.addEventListener("submit", async function (e) {
+  formLogin.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const usuario = document.getElementById("loginUser").value.trim();
     const contrasena = document.getElementById("loginPassword").value.trim();
 
     if (!usuario || !contrasena) {
-        showToast("Por favor ingresa tus datos.", "error");
-        return;
+      showToast("Por favor ingresa tus datos.", "error");
+      return;
     }
 
     try {
-        const response = await fetch("/login", {
+      const response = await fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usuario, contrasena }),
-        });
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (response.ok) {
+      if (response.ok) {
         showToast(data.message || "Inicio de sesión exitoso", "success");
         bootstrap.Modal.getInstance(document.getElementById("loginModal")).hide();
         this.reset();
 
-        localStorage.setItem("usuario", JSON.stringify({ 
-            usuario: data.user.usuario, 
-            correo: data.user.correo 
+        localStorage.setItem("usuario", JSON.stringify({
+          usuario: data.user.usuario,
+          correo: data.user.correo
         }));
 
         sessionStorage.setItem('correo', data.user.correo);
@@ -400,20 +392,20 @@ if (formLogin) {
 
         actualizarInterfaz();
 
-        } else {
+      } else {
         showToast(data.error || "Usuario o contraseña incorrectos", "error");
-        }
+      }
     } catch (err) {
-        console.error(err);
-        showToast("Error al conectar con el servidor", "error");
+      console.error(err);
+      showToast("Error al conectar con el servidor", "error");
     }
-    });
+  });
 }
 
 //RESTABLECER CONTRASEÑA
 const formReset = document.getElementById("resetForm");
 if (formReset) {
-    formReset.addEventListener("submit", async function (e) {
+  formReset.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const nombre = document.getElementById("resetName").value.trim();
@@ -421,49 +413,49 @@ if (formReset) {
     const nuevaContrasena = document.getElementById("resetPassword").value.trim();
 
     if (!nombre || !correo || !nuevaContrasena) {
-        showToast("Por favor completa todos los campos.", "error");
-        return;
+      showToast("Por favor completa todos los campos.", "error");
+      return;
     }
 
     if (nuevaContrasena.length < 6) {
-        showToast("La contraseña debe tener al menos 6 caracteres.", "error");
-        return;
+      showToast("La contraseña debe tener al menos 6 caracteres.", "error");
+      return;
     }
 
     try {
-        const response = await fetch("/reset-password", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre, correo, nuevaContrasena }),
-        });
+      const response = await fetch("/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, correo, nuevaContrasena }),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (response.ok) {
-            showToast(data.message || "Contraseña actualizada correctamente", "success");
-            bootstrap.Modal.getInstance(document.getElementById("resetModal")).hide();
-            this.reset();
-        } else {
-            showToast(data.error || "No se pudo actualizar la contraseña", "error");
-        }
-        } catch (err) {
-        console.error(err);
-        showToast("Error de conexión con el servidor", "error");
-        }
-    });
-
-// Toggle para mostrar/ocultar contraseña
-    const btnEyeReset = document.querySelector('.btn-eye-reset');
-    const resetPasswordInput = document.getElementById('resetPassword');
-    if (btnEyeReset && resetPasswordInput) {
-    btnEyeReset.addEventListener('click', function() {
-        const isPassword = resetPasswordInput.type === 'password';
-        resetPasswordInput.type = isPassword ? 'text' : 'password';
-        const icon = this.querySelector('i');
-        icon.classList.toggle('bi-eye-slash');
-        icon.classList.toggle('bi-eye');
-    });
+      if (response.ok) {
+        showToast(data.message || "Contraseña actualizada correctamente", "success");
+        bootstrap.Modal.getInstance(document.getElementById("resetModal")).hide();
+        this.reset();
+      } else {
+        showToast(data.error || "No se pudo actualizar la contraseña", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error de conexión con el servidor", "error");
     }
+  });
+
+  // Toggle para mostrar/ocultar contraseña
+  const btnEyeReset = document.querySelector('.btn-eye-reset');
+  const resetPasswordInput = document.getElementById('resetPassword');
+  if (btnEyeReset && resetPasswordInput) {
+    btnEyeReset.addEventListener('click', function () {
+      const isPassword = resetPasswordInput.type === 'password';
+      resetPasswordInput.type = isPassword ? 'text' : 'password';
+      const icon = this.querySelector('i');
+      icon.classList.toggle('bi-eye-slash');
+      icon.classList.toggle('bi-eye');
+    });
+  }
 }
 
 async function actualizarInterfaz() {
@@ -480,7 +472,7 @@ async function actualizarInterfaz() {
       const res = await fetch(`/api/perfil/${usuario.correo}`);
       if (res.ok) {
         const data = await res.json();
-        
+
         // Actualizar foto en el dropdown
         const perfilPic = perfilContainer.querySelector('.profile-pic');
         if (perfilPic && data.foto) {
@@ -496,13 +488,13 @@ async function actualizarInterfaz() {
       console.warn("No se pudo cargar la foto del perfil");
     }
 
-// Mostrar perfil y ocultar botones
+    // Mostrar perfil y ocultar botones
     btnLogin.style.display = "none";
     btnRegister.style.display = "none";
     perfilContainer.style.display = "inline-block";
     perfilNombre.textContent = usuario.usuario;
   } else {
-// Mostrar botones, ocultar perfil
+    // Mostrar botones, ocultar perfil
     btnLogin.style.display = "inline-block";
     btnRegister.style.display = "inline-block";
     perfilContainer.style.display = "none";
@@ -517,7 +509,7 @@ document.getElementById("btn-logout").addEventListener("click", () => {
   sessionStorage.removeItem('usuario');
   sessionStorage.removeItem('id_usuario');
   sessionStorage.removeItem('rol');
-  
+
   showToast("Sesión cerrada correctamente", "success");
   actualizarInterfaz();
 });
@@ -526,9 +518,9 @@ document.getElementById("btn-logout").addEventListener("click", () => {
 window.addEventListener("DOMContentLoaded", actualizarInterfaz);
 
 //GESTIÓN DE PERFIL
-window.cargarPerfil = async function() {
+window.cargarPerfil = async function () {
   const usuarioActual = window.getUsuarioActual();
-  
+
   if (!usuarioActual || !usuarioActual.correo) {
     window.mostrarToast("Debes iniciar sesión para ver tu perfil", "error");
     setTimeout(() => loadPage('bienvenido.html'), 2000);
@@ -542,20 +534,20 @@ window.cargarPerfil = async function() {
     if (res.ok) {
       document.getElementById("perfilNombre").textContent = data.usuario;
       document.getElementById("perfilCorreo").textContent = data.correo;
-      
+
       const perfilContainer = document.querySelector(".perfil-container");
-        if (perfilContainer && data.fondo_perfil) {
-            perfilContainer.style.backgroundImage = `url(${data.fondo_perfil})`;
-            perfilContainer.style.backgroundSize = "cover";
-            perfilContainer.style.backgroundPosition = "center";
-            // Opcional: añadir una clase para que el texto resalte sobre el fondo
-            perfilContainer.classList.add("con-fondo-personalizado");
-        }
+      if (perfilContainer && data.fondo_perfil) {
+        perfilContainer.style.backgroundImage = `url(${data.fondo_perfil})`;
+        perfilContainer.style.backgroundSize = "cover";
+        perfilContainer.style.backgroundPosition = "center";
+        // Opcional: añadir una clase para que el texto resalte sobre el fondo
+        perfilContainer.classList.add("con-fondo-personalizado");
+      }
 
       const fecha = new Date(data.fecha_reg);
-      document.getElementById("perfilFecha").textContent = fecha.toLocaleDateString('es-MX', { 
-        year: 'numeric', 
-        month: 'long' 
+      document.getElementById("perfilFecha").textContent = fecha.toLocaleDateString('es-MX', {
+        year: 'numeric',
+        month: 'long'
       });
 
       if (data.foto) {
@@ -566,8 +558,8 @@ window.cargarPerfil = async function() {
       document.getElementById("editCorreo").value = data.correo;
 
       setTimeout(actualizarLabelsInput, 100);
-      
-// Cargar publicaciones del usuario
+
+      // Cargar publicaciones del usuario
       window.cargarPublicaciones(usuarioActual.correo);
     } else {
       window.mostrarToast(data.error || "Error al cargar perfil", "error");
@@ -579,9 +571,9 @@ window.cargarPerfil = async function() {
 }
 
 // Función para guardar los fondos personalizados
-window.guardarEstilos = async function(e) {
+window.guardarEstilos = async function (e) {
   if (e) e.preventDefault();
-  
+
   const usuarioActual = window.getUsuarioActual();
   const imgPerfil = document.getElementById('imgPreviewPerfil').src;
   const imgPosts = document.getElementById('imgPreviewPosts').src;
@@ -612,19 +604,19 @@ window.guardarEstilos = async function(e) {
   }
 }
 
-window.inicializarPerfil = function() {
+window.inicializarPerfil = function () {
   const usuarioActual = window.getUsuarioActual();
-  
+
   if (!usuarioActual) return;
 
-// Cambiar foto
+  // Cambiar foto
   const btnCambiarFoto = document.getElementById("btnCambiarFoto");
   const inputFoto = document.getElementById("inputFoto");
   const formEstilos = document.getElementById("formEstilos");
   if (formEstilos) {
-      formEstilos.onsubmit = window.guardarEstilos;
+    formEstilos.onsubmit = window.guardarEstilos;
   }
-  
+
   if (btnCambiarFoto && inputFoto) {
     btnCambiarFoto.onclick = () => {
       const opcion = confirm("¿Deseas tomar una foto con la cámara?\n\nAcepta: Cámara\nCancelar: Seleccionar archivo");
@@ -641,7 +633,7 @@ window.inicializarPerfil = function() {
     };
   }
 
-// Editar perfil
+  // Editar perfil
   const formEditarPerfil = document.getElementById("formEditarPerfil");
   if (formEditarPerfil) {
     formEditarPerfil.onsubmit = async (e) => {
@@ -650,7 +642,7 @@ window.inicializarPerfil = function() {
     };
   }
 
-// Editar publicación
+  // Editar publicación
   const formEditarPublicacion = document.getElementById("formEditarPublicacion");
   if (formEditarPublicacion) {
     formEditarPublicacion.onsubmit = async (e) => {
@@ -664,7 +656,7 @@ window.inicializarPerfil = function() {
 
 async function subirFoto(file) {
   const usuarioActual = window.getUsuarioActual();
-  
+
   if (!file.type.startsWith('image/')) {
     window.mostrarToast("Por favor selecciona una imagen válida", "error");
     return;
@@ -678,12 +670,12 @@ async function subirFoto(file) {
   const reader = new FileReader();
   reader.onload = async (e) => {
     const fotoBase64 = e.target.result;
-    
+
     try {
       const res = await fetch("/api/perfil", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           correo: usuarioActual.correo,
           foto: fotoBase64
         })
@@ -708,7 +700,7 @@ async function subirFoto(file) {
 async function abrirCamara() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    
+
     const modal = document.createElement('div');
     modal.className = 'camera-modal';
     modal.innerHTML = `
@@ -732,7 +724,7 @@ async function abrirCamara() {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
-      
+
       canvas.toBlob(async (blob) => {
         await subirFoto(blob);
         stream.getTracks().forEach(track => track.stop());
@@ -765,7 +757,7 @@ async function actualizarPerfil() {
     const res = await fetch("/api/perfil", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         correo: usuarioActual.correo,
         nuevoUsuario,
         nuevoCorreo
@@ -789,7 +781,7 @@ async function actualizarPerfil() {
   }
 }
 
-window.editarPublicacion = function(id, texto) {
+window.editarPublicacion = function (id, texto) {
   document.getElementById("editPubId").value = id;
   document.getElementById("editPubTexto").value = texto;
   new bootstrap.Modal(document.getElementById("editarPublicacionModal")).show();
@@ -809,7 +801,7 @@ async function guardarEdicionPublicacion() {
     const res = await fetch(`/api/publicacion/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         correo: usuarioActual.correo,
         publicacion: texto
       })
@@ -830,9 +822,9 @@ async function guardarEdicionPublicacion() {
   }
 }
 
-window.eliminarPublicacion = async function(id) {
+window.eliminarPublicacion = async function (id) {
   const usuarioActual = window.getUsuarioActual();
-  
+
   if (!confirm("¿Estás seguro de eliminar esta publicación?")) {
     return;
   }
@@ -861,17 +853,17 @@ window.eliminarPublicacion = async function(id) {
 function setupInputAnimations() {
   document.querySelectorAll('.input-animated').forEach(input => {
     const label = input.parentElement?.querySelector('.label-animated');
-    
+
     if (!label) return;
-    
-    input.addEventListener('focus', function() {
+
+    input.addEventListener('focus', function () {
       label.style.top = '-10px';
       label.style.fontSize = '0.85rem';
       label.style.color = '#ba01ff';
       label.style.fontWeight = '600';
     });
 
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
       if (this.value === '') {
         label.style.top = '50%';
         label.style.fontSize = '1rem';
@@ -905,8 +897,8 @@ function actualizarLabelsInput() {
 function aplicarColoresIconos() {
   const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
   const colorIconos = isDark ? '#aaa' : '#5a189a';
-  
-// Aplicar colores a todos los iconos de acciones
+
+  // Aplicar colores a todos los iconos de acciones
   document.querySelectorAll('.btn-icon-action, .pub-btn, .pub-stats i, .perfil-fecha i, .section-title i').forEach(el => {
     if (!el.closest('.pub-btn-like.liked')) {
       el.style.color = colorIconos;
@@ -917,12 +909,12 @@ function aplicarColoresIconos() {
 // Ejecutar al cargar
 window.addEventListener('DOMContentLoaded', () => {
   aplicarColoresIconos();
-  
-// Observar cambios en el tema
+
+  // Observar cambios en el tema
   const observer = new MutationObserver(() => {
     aplicarColoresIconos();
   });
-  
+
   observer.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-bs-theme']
@@ -931,7 +923,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Ejecutar cada vez que se carga una página nueva
 const originalLoadPage = loadPage;
-window.loadPage = function(url) {
+window.loadPage = function (url) {
   originalLoadPage(url);
   setTimeout(() => {
     aplicarColoresIconos();
@@ -940,13 +932,13 @@ window.loadPage = function(url) {
 
 // Dentro de loadPage, después de mainContent.innerHTML = html;
 setTimeout(() => {
-    if (window.aplicarColoresIconos) {
-        window.aplicarColoresIconos();
-    }
+  if (window.aplicarColoresIconos) {
+    window.aplicarColoresIconos();
+  }
 }, 300);
 
 //SISTEMA DE SEGUIDORES
-window.mostrarSeguidores = async function() {
+window.mostrarSeguidores = async function () {
   const usuarioActual = window.getUsuarioActual();
   if (!usuarioActual) return;
 
@@ -976,7 +968,7 @@ window.mostrarSeguidores = async function() {
   }
 }
 
-window.mostrarSeguidos = async function() {
+window.mostrarSeguidos = async function () {
   const usuarioActual = window.getUsuarioActual();
   if (!usuarioActual) return;
 
@@ -1026,10 +1018,10 @@ async function crearItemUsuario(user) {
 
   div.innerHTML = `
     <div class="user-item-content">
-      ${user.foto ? 
-        `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="user-item-avatar">` :
-        `<div class="user-item-avatar-text">${user.usuario.charAt(0).toUpperCase()}</div>`
-      }
+      ${user.foto ?
+      `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="user-item-avatar">` :
+      `<div class="user-item-avatar-text">${user.usuario.charAt(0).toUpperCase()}</div>`
+    }
       <div class="user-item-info">
         <strong>${window.escapeHtml(user.usuario)}</strong>
         <small>${window.escapeHtml(user.correo)}</small>
@@ -1076,7 +1068,7 @@ async function toggleSeguirModal(idUsuario, btnElement) {
         btnElement.querySelector('i').className = 'bi bi-person-plus';
         btnElement.querySelector('span').textContent = 'Seguir';
       }
-      
+
       cargarStatsSeguidores(); // SIN AWAIT
     }
   } catch (err) {
@@ -1094,7 +1086,7 @@ async function cargarStatsSeguidores() {
 
     const numSeguidores = document.getElementById('numSeguidores');
     const numSeguidos = document.getElementById('numSeguidos');
-    
+
     if (numSeguidores) numSeguidores.textContent = data.seguidores;
     if (numSeguidos) numSeguidos.textContent = data.seguidos;
   } catch (err) {
@@ -1104,29 +1096,29 @@ async function cargarStatsSeguidores() {
 
 // Modificar window.cargarPerfil para agregar stats
 const cargarPerfilOriginal = window.cargarPerfil;
-window.cargarPerfil = async function() {
+window.cargarPerfil = async function () {
   await cargarPerfilOriginal();
   setTimeout(() => {
     cargarStatsSeguidores(); // SIN AWAIT
   }, 500);
 }
 
-window.animarTituloGlobal = function(selector, texto) {
-    const el = document.querySelector(selector);
-    if (!el) return;
-    
-    el.innerHTML = '';
-    el.classList.add('titulo-wow'); // Le ponemos el brillo automáticamente
-    
-    let i = 0;
-    const velocidad = 40; 
+window.animarTituloGlobal = function (selector, texto) {
+  const el = document.querySelector(selector);
+  if (!el) return;
 
-    function escribir() {
-        if (i < texto.length) {
-            el.innerHTML += texto.charAt(i);
-            i++;
-            setTimeout(escribir, velocidad);
-        }
+  el.innerHTML = '';
+  el.classList.add('titulo-wow'); // Le ponemos el brillo automáticamente
+
+  let i = 0;
+  const velocidad = 40;
+
+  function escribir() {
+    if (i < texto.length) {
+      el.innerHTML += texto.charAt(i);
+      i++;
+      setTimeout(escribir, velocidad);
     }
-    escribir();
+  }
+  escribir();
 };

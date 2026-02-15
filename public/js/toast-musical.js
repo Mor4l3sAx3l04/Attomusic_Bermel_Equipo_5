@@ -151,6 +151,13 @@ const toastWarning = (message, duration = 3000) => {
  * @param {string} message - Mensaje a mostrar
  * @param {string} type - Tipo: 'success' o 'error'
  */
-function showToast(message, type = 'success') {
+/**
+ * Función compatible con el sistema anterior
+ * Mantiene la función showToast() original y agrega window.mostrarToast
+ */
+window.showToast = function(message, type = 'success') {
   showMusicalToast(message, type, 3000);
-}
+};
+
+// Asegurar que mostrarToast (usado en utils.js y otros) también use el estilo musical
+window.mostrarToast = window.showToast;
