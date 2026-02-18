@@ -4,26 +4,26 @@ let usuarioActualBaneo = null;
 // Inicializar el panel admin
 function init_panel_admin() {
   //console.log(' Inicializando panel admin...');
-  
+
   verificarAccesoAdmin();
   cargarPublicacionesReportadas();
-  
+
   // Event listeners para búsqueda en tiempo real
   const buscarPub = document.getElementById('buscarPublicacion');
   if (buscarPub) {
     buscarPub.addEventListener('input', filtrarPublicaciones);
   }
-  
+
   const buscarUser = document.getElementById('buscarUsuario');
   if (buscarUser) {
     buscarUser.addEventListener('input', filtrarUsuarios);
   }
-  
+
   const filtroRol = document.getElementById('filtroRol');
   if (filtroRol) {
     filtroRol.addEventListener('change', filtrarUsuarios);
   }
-  
+
   // Cargar datos cuando se cambia de tab
   document.getElementById('publicaciones-tab')?.addEventListener('shown.bs.tab', cargarTodasPublicaciones);
   document.getElementById('usuarios-tab')?.addEventListener('shown.bs.tab', cargarUsuarios);
@@ -32,17 +32,17 @@ function init_panel_admin() {
 // Verificar que el usuario sea admin
 async function verificarAccesoAdmin() {
   const usuario = window.getUsuarioActual();
-  
+
   if (!usuario) {
     window.mostrarToast("Debes iniciar sesión", "error");
     setTimeout(() => loadPage('bienvenido.html'), 2000);
     return;
   }
-  
+
   try {
     const res = await fetch(`/api/usuario/${usuario.correo}/rol`);
     const data = await res.json();
-    
+
     if (!res.ok || data.rol !== 'admin') {
       window.mostrarToast("No tienes permisos de administrador", "error");
       setTimeout(() => loadPage('bienvenido.html'), 2000);
@@ -60,44 +60,44 @@ let tipoAEliminar = null; // 'publicacion' o 'usuario'
 const modalConfirm = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
 
 // Función que se llama desde los botones de la lista (el icono de basura)
-window.prepararEliminacion = function(id, tipo, nombre = "") {
-    idAEliminar = id;
-    tipoAEliminar = tipo;
-    
-    const titulo = tipo === 'usuario' ? "Eliminar Usuario" : "Eliminar Publicación";
-    const mensaje = tipo === 'usuario' 
-        ? `¿Realmente deseas eliminar a "${nombre}"? Se borrarán todos sus datos.` 
-        : "¿Estás seguro de borrar esta publicación permanentemente?";
+window.prepararEliminacion = function (id, tipo, nombre = "") {
+  idAEliminar = id;
+  tipoAEliminar = tipo;
 
-    document.getElementById('confirmTitle').innerText = titulo;
-    document.getElementById('confirmMessage').innerText = mensaje;
-    
-    modalConfirm.show();
+  const titulo = tipo === 'usuario' ? "Eliminar Usuario" : "Eliminar Publicación";
+  const mensaje = tipo === 'usuario'
+    ? `¿Realmente deseas eliminar a "${nombre}"? Se borrarán todos sus datos.`
+    : "¿Estás seguro de borrar esta publicación permanentemente?";
+
+  document.getElementById('confirmTitle').innerText = titulo;
+  document.getElementById('confirmMessage').innerText = mensaje;
+
+  modalConfirm.show();
 };
 
 // El único que borra de verdad es este botón (el del modal)
 document.getElementById('btnConfirmarAccion').addEventListener('click', async () => {
-    if (!idAEliminar) return;
+  if (!idAEliminar) return;
 
-    const url = tipoAEliminar === 'usuario' 
-        ? `/api/admin/usuario/${idAEliminar}` 
-        : `/api/admin/publicacion/${idAEliminar}`;
+  const url = tipoAEliminar === 'usuario'
+    ? `/api/admin/usuario/${idAEliminar}`
+    : `/api/admin/publicacion/${idAEliminar}`;
 
-    try {
-        const res = await fetch(url, { method: 'DELETE' });
-        if (res.ok) {
-            window.mostrarToast(`${tipoAEliminar.charAt(0).toUpperCase() + tipoAEliminar.slice(1)} eliminado`, "success");
-            // Recargar las listas
-            cargarUsuarios();
-            cargarPublicacionesReportadas();
-            cargarTodasPublicaciones();
-        }
-    } catch (err) {
-        console.error("Error al eliminar:", err);
+  try {
+    const res = await fetch(url, { method: 'DELETE' });
+    if (res.ok) {
+      window.mostrarToast(`${tipoAEliminar.charAt(0).toUpperCase() + tipoAEliminar.slice(1)} eliminado`, "success");
+      // Recargar las listas
+      cargarUsuarios();
+      cargarPublicacionesReportadas();
+      cargarTodasPublicaciones();
     }
+  } catch (err) {
+    console.error("Error al eliminar:", err);
+  }
 
-    modalConfirm.hide();
-    idAEliminar = null; // Limpiar
+  modalConfirm.hide();
+  idAEliminar = null; // Limpiar
 });
 
 // SECCIÓN 1: PUBLICACIONES REPORTADAS
@@ -105,13 +105,13 @@ document.getElementById('btnConfirmarAccion').addEventListener('click', async ()
 async function cargarPublicacionesReportadas() {
   const lista = document.getElementById('listaReportes');
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
-  
+
   try {
     const res = await fetch('/api/admin/reportes');
     const reportes = await res.json();
-    
+
     document.getElementById('badge-reportes').textContent = reportes.length;
-    
+
     if (reportes.length === 0) {
       lista.innerHTML = `
         <div class="text-center p-5">
@@ -122,13 +122,13 @@ async function cargarPublicacionesReportadas() {
       `;
       return;
     }
-    
+
     lista.innerHTML = '';
     reportes.forEach(reporte => {
       const card = crearCardReporte(reporte);
       lista.appendChild(card);
     });
-    
+
   } catch (err) {
     console.error("Error cargando reportes:", err);
     lista.innerHTML = '<div class="alert alert-danger">Error al cargar reportes</div>';
@@ -139,9 +139,9 @@ function crearCardReporte(reporte) {
   const div = document.createElement('div');
   div.className = 'reporte-card';
   div.dataset.reporteId = reporte.id_publicacion;
-  
+
   const fecha = new Date(reporte.fecha_pub);
-  
+
   div.innerHTML = `
     <div class="reporte-header">
       <div class="reporte-info">
@@ -175,18 +175,18 @@ function crearCardReporte(reporte) {
       </button>
     </div>
   `;
-  
+
   return div;
 }
 
 async function resolverReporte(idPublicacion) {
   if (!confirm('¿Marcar este reporte como resuelto?')) return;
-  
+
   try {
     const res = await fetch(`/api/admin/reporte/${idPublicacion}/resolver`, {
       method: 'POST'
     });
-    
+
     if (res.ok) {
       window.mostrarToast("Reporte resuelto", "success");
       cargarPublicacionesReportadas();
@@ -201,12 +201,12 @@ async function resolverReporte(idPublicacion) {
 
 async function limpiarReportesResueltos() {
   if (!confirm('¿Eliminar todos los reportes marcados como resueltos?')) return;
-  
+
   try {
     const res = await fetch('/api/admin/reportes/limpiar', {
       method: 'DELETE'
     });
-    
+
     if (res.ok) {
       window.mostrarToast("Reportes limpiados", "success");
       cargarPublicacionesReportadas();
@@ -221,78 +221,69 @@ async function limpiarReportesResueltos() {
 async function cargarTodasPublicaciones() {
   const lista = document.getElementById('listaPublicaciones');
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
-  
+
   try {
     const res = await fetch('/api/admin/publicaciones');
     const publicaciones = await res.json();
-    
+
     document.getElementById('badge-publicaciones').textContent = publicaciones.length;
-    
+
     if (publicaciones.length === 0) {
       lista.innerHTML = '<div class="text-center p-5 text-muted">No hay publicaciones</div>';
       return;
     }
-    
+
     lista.innerHTML = '';
     publicaciones.forEach(pub => {
       const card = crearCardPublicacion(pub);
       lista.appendChild(card);
     });
-    
+
   } catch (err) {
     console.error("Error cargando publicaciones:", err);
     lista.innerHTML = '<div class="alert alert-danger">Error al cargar publicaciones</div>';
   }
 }
 
+// Puente para que PublicacionCard pueda eliminar
+window.eliminarPublicacion = function (id) {
+  prepararEliminacion(id, 'publicacion');
+};
+
 function crearCardPublicacion(pub) {
+  if (window.PublicacionCard) {
+    // En panel admin mostramos info del usuario y botón eliminar
+    // No mostramos likes/comments interactivos, solo contadores (que ya vienen en el footer por defecto si no se ocultan)
+    // Pero PublicacionCard por defecto muestra botones de like/comment.
+    // Podemos ocultarlos con mostrarBotonesInteraccion: false
+    // Y mostrar el de eliminar con mostrarBotonEliminar: true
+
+    const card = new window.PublicacionCard(pub, {
+      mostrarBotonesInteraccion: false, // Solo visual
+      mostrarBotonSeguir: false,
+      mostrarBotonEliminar: true,
+      mostrarBotonEditar: false,
+      // Hack: para mostrar contadores estáticos, PublicacionCard usa _renderFooter. 
+      // Si mostrarBotonesInteraccion es false, muestra stats estáticos. perfecto.
+      esPerfilPropio: false // Para no activar modo edición completo
+    });
+
+    // Ajustamos un poco el estilo si es necesario, o lo dejamos tal cual.
+    // PublicacionCard ya tiene estilos.
+    return card.element;
+  }
+
+  // Fallback (código original simplificado)
   const div = document.createElement('div');
   div.className = 'publicacion-card';
-  div.dataset.pubId = pub.id_publicacion;
-  
-  const fecha = new Date(pub.fecha_pub);
-  
-  div.innerHTML = `
-    <div class="reporte-header">
-      <div class="reporte-info">
-        <div class="reporte-usuario">
-          <i class="bi bi-person-circle"></i>
-          ${window.escapeHtml(pub.usuario)}
-        </div>
-        <div class="reporte-fecha">
-          <i class="bi bi-calendar"></i>
-          ${fecha.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-        </div>
-      </div>
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <span class="badge bg-info">
-          <i class="bi bi-heart-fill"></i> ${pub.likes || 0}
-        </span>
-        <span class="badge bg-secondary">
-          <i class="bi bi-chat-fill"></i> ${pub.comentarios || 0}
-        </span>
-      </div>
-    </div>
-    
-    <div class="reporte-contenido">
-      ${window.escapeHtml(pub.publicacion)}
-    </div>
-    
-    <div class="reporte-acciones">
-      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${pub.id_publicacion}, 'publicacion')">
-        <i class="bi bi-trash"></i>
-        Eliminar
-      </button>
-    </div>
-  `;
-  
+  div.textContent = 'Error: PublicacionCard no cargado';
   return div;
 }
 
 async function eliminarPublicacionAdmin(idPublicacion) {
   pedirConfirmacion(
-    "Eliminar Publicación", 
-    "¿Estás seguro de que quieres borrar esta publicación de forma permanente?", 
+    "Eliminar Publicación",
+    "¿Estás seguro de que quieres borrar esta publicación de forma permanente?",
     async () => {
       try {
         const res = await fetch(`/api/admin/publicacion/${idPublicacion}`, { method: 'DELETE' });
@@ -306,15 +297,15 @@ async function eliminarPublicacionAdmin(idPublicacion) {
       }
     }
   );
-  
+
   try {
     const res = await fetch(`/api/admin/publicacion/${idPublicacion}`, {
       method: 'DELETE'
     });
-    
+
     if (res.ok) {
       window.mostrarToast("Publicación eliminada", "success");
-      
+
       // Actualizar ambas listas
       cargarPublicacionesReportadas();
       cargarTodasPublicaciones();
@@ -330,7 +321,7 @@ async function eliminarPublicacionAdmin(idPublicacion) {
 function filtrarPublicaciones() {
   const busqueda = document.getElementById('buscarPublicacion').value.toLowerCase();
   const cards = document.querySelectorAll('.publicacion-card');
-  
+
   cards.forEach(card => {
     const texto = card.textContent.toLowerCase();
     card.style.display = texto.includes(busqueda) ? 'block' : 'none';
@@ -341,24 +332,24 @@ function filtrarPublicaciones() {
 async function cargarUsuarios() {
   const lista = document.getElementById('listaUsuarios');
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
-  
+
   try {
     const res = await fetch('/api/admin/usuarios');
     const usuarios = await res.json();
-    
+
     document.getElementById('badge-usuarios').textContent = usuarios.length;
-    
+
     if (usuarios.length === 0) {
       lista.innerHTML = '<div class="text-center p-5 text-muted">No hay usuarios</div>';
       return;
     }
-    
+
     lista.innerHTML = '';
     usuarios.forEach(user => {
       const card = crearCardUsuario(user);
       lista.appendChild(card);
     });
-    
+
   } catch (err) {
     console.error("Error cargando usuarios:", err);
     lista.innerHTML = '<div class="alert alert-danger">Error al cargar usuarios</div>';
@@ -370,17 +361,17 @@ function crearCardUsuario(user) {
   div.className = 'usuario-card';
   div.dataset.userId = user.id_usuario;
   div.dataset.userRol = user.rol;
-  
+
   const estaActivo = !user.fecha_baneo || new Date(user.fecha_baneo) < new Date();
-  
+
   if (!estaActivo) {
     div.classList.add('usuario-baneado');
   }
-  
+
   const fechaReg = new Date(user.fecha_reg);
-  
+
   div.innerHTML = `
-    ${user.foto ? 
+    ${user.foto ?
       `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="usuario-avatar">` :
       `<div class="usuario-avatar-text">${user.usuario.charAt(0).toUpperCase()}</div>`
     }
@@ -418,23 +409,23 @@ function crearCardUsuario(user) {
       </button>
     </div>
   `;
-  
+
   return div;
 }
 
 async function cambiarRolUsuario(idUsuario, rolActual) {
   const nuevoRol = rolActual === 'admin' ? 'usuario' : 'admin';
   const textoRol = nuevoRol === 'admin' ? 'administrador' : 'usuario';
-  
+
   if (!confirm(`¿Cambiar este usuario a ${textoRol}?`)) return;
-  
+
   try {
     const res = await fetch(`/api/admin/usuario/${idUsuario}/rol`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nuevoRol })
     });
-    
+
     if (res.ok) {
       window.mostrarToast(`Rol cambiado a ${textoRol}`, "success");
       cargarUsuarios();
@@ -452,7 +443,7 @@ function abrirModalBaneo(idUsuario, nombreUsuario) {
   document.getElementById('baneoUsuarioNombre').textContent = nombreUsuario;
   document.getElementById('baneoDias').value = 7;
   document.getElementById('baneoMotivo').value = '';
-  
+
   const modal = new bootstrap.Modal(document.getElementById('modalBaneo'));
   modal.show();
 }
@@ -460,24 +451,24 @@ function abrirModalBaneo(idUsuario, nombreUsuario) {
 async function confirmarBaneo() {
   const dias = parseInt(document.getElementById('baneoDias').value);
   const motivo = document.getElementById('baneoMotivo').value.trim();
-  
+
   if (!dias || dias < 1) {
     window.mostrarToast("Ingresa un número de días válido", "error");
     return;
   }
-  
+
   if (!motivo) {
     window.mostrarToast("Debes ingresar un motivo", "error");
     return;
   }
-  
+
   try {
     const res = await fetch(`/api/admin/usuario/${usuarioActualBaneo}/banear`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dias, motivo })
     });
-    
+
     if (res.ok) {
       window.mostrarToast("Usuario baneado correctamente", "success");
       bootstrap.Modal.getInstance(document.getElementById('modalBaneo')).hide();
@@ -493,12 +484,12 @@ async function confirmarBaneo() {
 
 async function desbanearUsuario(idUsuario) {
   if (!confirm('¿Desbanear a este usuario?')) return;
-  
+
   try {
     const res = await fetch(`/api/admin/usuario/${idUsuario}/desbanear`, {
       method: 'POST'
     });
-    
+
     if (res.ok) {
       window.mostrarToast("Usuario desbaneado", "success");
       cargarUsuarios();
@@ -513,8 +504,8 @@ async function desbanearUsuario(idUsuario) {
 
 async function eliminarUsuario(idUsuario, nombreUsuario) {
   pedirConfirmacion(
-    "Eliminar Usuario", 
-    `¿Realmente deseas eliminar a "${nombreUsuario}"? Se borrarán todos sus datos y publicaciones.`, 
+    "Eliminar Usuario",
+    `¿Realmente deseas eliminar a "${nombreUsuario}"? Se borrarán todos sus datos y publicaciones.`,
     async () => {
       try {
         const res = await fetch(`/api/admin/usuario/${idUsuario}`, { method: 'DELETE' });
@@ -527,12 +518,12 @@ async function eliminarUsuario(idUsuario, nombreUsuario) {
       }
     }
   );
-  
+
   try {
     const res = await fetch(`/api/admin/usuario/${idUsuario}`, {
       method: 'DELETE'
     });
-    
+
     if (res.ok) {
       window.mostrarToast("Usuario eliminado", "success");
       cargarUsuarios();
@@ -549,14 +540,14 @@ function filtrarUsuarios() {
   const busqueda = document.getElementById('buscarUsuario').value.toLowerCase();
   const rolFiltro = document.getElementById('filtroRol').value;
   const cards = document.querySelectorAll('.usuario-card');
-  
+
   cards.forEach(card => {
     const texto = card.textContent.toLowerCase();
     const rol = card.dataset.userRol;
-    
+
     const cumpleBusqueda = texto.includes(busqueda);
     const cumpleRol = !rolFiltro || rol === rolFiltro;
-    
+
     card.style.display = (cumpleBusqueda && cumpleRol) ? 'flex' : 'none';
   });
 }

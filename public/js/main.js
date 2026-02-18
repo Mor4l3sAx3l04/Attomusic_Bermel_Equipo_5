@@ -604,6 +604,76 @@ window.guardarEstilos = async function (e) {
   }
 }
 
+// Función para cargar mis publicaciones
+window.cargarPublicaciones = async function (correo) {
+  const container = document.getElementById("misPublicaciones");
+  if (!container) return;
+
+  container.innerHTML = '<div class="text-center p-3"><div class="spinner-border text-primary"></div></div>';
+
+  try {
+    const res = await fetch(`/api/publicaciones/usuario/${correo}`);
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || 'Error cargando publicaciones');
+
+    container.innerHTML = '';
+
+    if (data.length === 0) {
+      container.innerHTML = '<p class="text-center text-muted p-4">Aún no has publicado nada.</p>';
+      return;
+    }
+
+    data.forEach(pub => {
+      if (window.PublicacionCard) {
+        const card = new window.PublicacionCard(pub, {
+          esPerfilPropio: true,
+          correoActual: correo,
+          mostrarBotonesInteraccion: true,
+          mostrarBotonSeguir: false,
+          mostrarBotonEditar: true,
+          mostrarBotonEliminar: true
+        });
+        container.appendChild(card.element);
+      }
+    });
+
+  } catch (err) {
+    console.error("Error cargando mis publicaciones:", err);
+    const idUsuario = sessionStorage.getItem('id_usuario');
+    if (idUsuario) {
+      try {
+        const res2 = await fetch(`/api/publicaciones/usuario/${idUsuario}`);
+        const data2 = await res2.json();
+        if (res2.ok) {
+          container.innerHTML = '';
+          if (data2.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted p-4">Aún no has publicado nada.</p>';
+            return;
+          }
+          data2.forEach(pub => {
+            if (window.PublicacionCard) {
+              const card = new window.PublicacionCard(pub, {
+                esPerfilPropio: true,
+                correoActual: correo,
+                mostrarBotonesInteraccion: true,
+                mostrarBotonSeguir: false,
+                mostrarBotonEditar: true,
+                mostrarBotonEliminar: true
+              });
+              container.appendChild(card.element);
+            }
+          });
+          return;
+        }
+      } catch (e) { console.error(e); }
+    }
+    container.innerHTML = '<div class="alert alert-danger">Error cargando publicaciones</div>';
+  }
+};
+
+
+
 window.inicializarPerfil = function () {
   const usuarioActual = window.getUsuarioActual();
 

@@ -1,245 +1,309 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perfil de Usuario - AttoMusic</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-<link rel="stylesheet" href="css/style.css">
-<style>
-.perfil-header {
-    /* Fondo oscuro por defecto */
-    background-color: #222;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    padding: 3rem 0;
-    color: white;
-    margin-bottom: 2rem;
-    border-radius: 12px;
-    position: relative;
-    /* Transición suave para cuando cargue la imagen */
-    transition: background 0.5s ease-in-out;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de Usuario - AttoMusic</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .perfil-header {
+      /* Fondo oscuro por defecto */
+      background-color: #222;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      padding: 3rem 0;
+      color: white;
+      margin-bottom: 2rem;
+      border-radius: 12px;
+      position: relative;
+      /* Transición suave para cuando cargue la imagen */
+      transition: background 0.5s ease-in-out;
+    }
 
-  /* Añadimos un pequeño sombreado interno para que el texto resalte siempre */
-  .perfil-header {
-    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* --- ESTILOS DE PUBLICACIONES --- */
-  .publicacion-item {
-    background: #fff; /* Fondo por defecto */
-    border-radius: 12px;
-    padding: 1.5rem;
-    position: relative;
-    border: 1px solid #eee;
-  }
+    /* Añadimos un pequeño sombreado interno para que el texto resalte siempre */
+    .perfil-header {
+      box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.3);
+    }
 
-  .publicacion-item.has-custom-bg {
-    background-size: cover;
-    background-position: center;
-    border: none;
-    color: white;
-    overflow: hidden;
-    min-height: 200px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-  }
+    /* --- ESTILOS DE PUBLICACIONES --- */
+    .publicacion-item {
+      background: #fff;
+      /* Fondo por defecto */
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      border: 1px solid #eee;
+    }
 
-  /* Velo oscuro para legibilidad */
-  .publicacion-item.has-custom-bg::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.4); 
-    z-index: 1;
-  }
+    .publicacion-item.has-custom-bg {
+      background-size: cover;
+      background-position: center;
+      border: none;
+      color: white;
+      overflow: hidden;
+      min-height: 200px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
 
-  .publicacion-item.has-custom-bg > * {
-    position: relative;
-    z-index: 2;
-  }
+    /* Velo oscuro para legibilidad */
+    .publicacion-item.has-custom-bg::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
 
-  /* --- OTROS ESTILOS (AVATAR, STATS) --- */
-  .perfil-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-  .perfil-avatar-placeholder { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: bold; border: 4px solid white; }
-  .perfil-info h2 { margin: 0; font-size: 2rem; }
-  .perfil-stats { display: flex; gap: 2rem; margin-top: 1rem; }
-  .stat-item .number { font-size: 1.5rem; font-weight: bold; display: block; }
-  .btn-seguir-perfil { background: white; color: #667eea; border: 2px solid white; padding: 0.5rem 2rem; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-block; cursor: pointer; }
-  .btn-seguir-perfil.siguiendo { background: rgba(255,255,255,0.2); color: white; }
-  .back-button { color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
-</style>
+    .publicacion-item.has-custom-bg>* {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* --- OTROS ESTILOS (AVATAR, STATS) --- */
+    .perfil-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .perfil-avatar-placeholder {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+      border: 4px solid white;
+    }
+
+    .perfil-info h2 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .perfil-stats {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item .number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: block;
+    }
+
+    .btn-seguir-perfil {
+      background: white;
+      color: #667eea;
+      border: 2px solid white;
+      padding: 0.5rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .btn-seguir-perfil.siguiendo {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .back-button {
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="perfil-header" id="headerFondo">
-  <div class="container">
-    <div class="d-flex align-items-center gap-4">
-      <div id="perfilAvatar"></div>
-      <div class="perfil-info flex-grow-1">
-        <h2 id="perfilUsuario">Cargando...</h2>
-        <p class="mb-0" id="perfilCorreo"></p>
-        <small id="perfilFecha"></small>
-        <div class="perfil-stats mt-3">
-          <div class="stat-item"><span class="number" id="statSeguidores">0</span><span class="label">Seguidores</span></div>
-          <div class="stat-item"><span class="number" id="statSeguidos">0</span><span class="label">Siguiendo</span></div>
-          <div class="stat-item"><span class="number" id="statPublicaciones">0</span><span class="label">Publicaciones</span></div>
+  <div class="perfil-header" id="headerFondo">
+    <div class="container">
+      <div class="d-flex align-items-center gap-4">
+        <div id="perfilAvatar"></div>
+        <div class="perfil-info flex-grow-1">
+          <h2 id="perfilUsuario">Cargando...</h2>
+          <p class="mb-0" id="perfilCorreo"></p>
+          <small id="perfilFecha"></small>
+          <div class="perfil-stats mt-3">
+            <div class="stat-item"><span class="number" id="statSeguidores">0</span><span
+                class="label">Seguidores</span></div>
+            <div class="stat-item"><span class="number" id="statSeguidos">0</span><span class="label">Siguiendo</span>
+            </div>
+            <div class="stat-item"><span class="number" id="statPublicaciones">0</span><span
+                class="label">Publicaciones</span></div>
+          </div>
         </div>
+        <div id="btnSeguirContainer"></div>
       </div>
-      <div id="btnSeguirContainer"></div>
     </div>
   </div>
-</div>
 
-<div class="container">
-  <h4 class="mb-4">Publicaciones</h4>
-  <div id="publicacionesUsuario" class="publicaciones-usuario"></div>
-</div>
-<script src="js/utils.js"></script>
-<script>
-(async function() {
-  const usuarioActual = window.getUsuarioActual();
-  const correoActual = usuarioActual?.correo || null;
-  let idUsuario = window._perfilUsuarioId || new URLSearchParams(window.location.search).get('id');
+  <div class="container">
+    <h4 class="mb-4">Publicaciones</h4>
+    <div id="publicacionesUsuario" class="publicaciones-usuario"></div>
+  </div>
+  <script src="js/utils.js"></script>
+  <script>
+    (async function () {
+      const usuarioActual = window.getUsuarioActual();
+      const correoActual = usuarioActual?.correo || null;
+      let idUsuario = window._perfilUsuarioId || new URLSearchParams(window.location.search).get('id');
 
-  if (!idUsuario) {
-    window.mostrarToast('Usuario no especificado', 'error');
-    return;
-  }
-
-  // 1. CARGAR DATOS DEL PERFIL Y FONDO
-async function cargarPerfil() {
-    try {
-      const res = await fetch(`/api/perfil-publico/${idUsuario}`);
-      const perfilData = await res.json();
-
-      const headerElement = document.getElementById('headerFondo');
-      
-      if (headerElement) {
-        if (perfilData.fondo_perfil) {
-          // IMPORTANTE: Se debe poner el gradiente Y la imagen juntos para que se mezclen
-          const fondoFinal = `linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7)), url('${perfilData.fondo_perfil}')`;
-          headerElement.style.backgroundImage = fondoFinal;
-        } else {
-          // Fondo por defecto si el usuario no tiene uno
-          headerElement.style.backgroundImage = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
-        }
-      }
-
-      // --- RENDERIZAR AVATAR ---
-      const avatarContainer = document.getElementById('perfilAvatar');
-      avatarContainer.innerHTML = perfilData.foto 
-        ? `<img src="${perfilData.foto}" class="perfil-avatar">`
-        : `<div class="perfil-avatar-placeholder">${perfilData.usuario.charAt(0).toUpperCase()}</div>`;
-
-      // --- RELLENAR DATOS ---
-      document.getElementById('perfilUsuario').textContent = '@' + perfilData.usuario;
-      document.getElementById('perfilCorreo').textContent = perfilData.correo;
-      
-      const fecha = new Date(perfilData.fecha_reg);
-      document.getElementById('perfilFecha').textContent = 'Se unió en ' + fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-
-      // --- LÓGICA DE BOTONES ---
-      const btnContainer = document.getElementById('btnSeguirContainer');
-      if (correoActual && correoActual !== perfilData.correo) {
-        btnContainer.innerHTML = `<button id="btnSeguirPerfil" class="btn-seguir-perfil">Seguir</button>`;
-        verificarSiguiendo();
-        document.getElementById('btnSeguirPerfil').onclick = toggleSeguir;
-      } else if (correoActual === perfilData.correo) {
-        btnContainer.innerHTML = `<a href="perfiles.html" class="btn-seguir-perfil load-page"><i class="bi bi-pencil"></i> Editar perfil</a>`;
-      }
-    } catch (err) { 
-      console.error("Error cargando el perfil:", err); 
-    }
-  }
-
-  // 2. FUNCIÓN ÚNICA PARA CREAR PUBLICACIONES (CORREGIDA)
-  function crearPublicacion(pub) {
-    const article = document.createElement('article');
-    article.className = 'publicacion-item mb-4 fade-in';
-
-    // APLICAR FONDO DINÁMICO
-    if (pub.fondo_publicaciones) {
-      article.classList.add('has-custom-bg');
-      article.style.backgroundImage = `url('${pub.fondo_publicaciones}')`;
-    }
-
-    const fecha = window.formatearFecha ? window.formatearFecha(new Date(pub.fecha_pub)) : new Date(pub.fecha_pub).toLocaleDateString();
-
-    article.innerHTML = `
-      <div class="pub-header"><small>${fecha}</small></div>
-      <div class="pub-content"><p>${window.escapeHtml(pub.publicacion)}</p></div>
-      ${pub.cancion ? `
-        <div class="pub-cancion d-flex align-items-center gap-3 p-2 bg-dark bg-opacity-25 rounded">
-          <img src="${pub.imagen_cancion || 'img/default-album.png'}" width="50" height="50" class="rounded">
-          <div>
-            <div class="fw-bold">${window.escapeHtml(pub.cancion)}</div>
-            <small>${window.escapeHtml(pub.artista || '')}</small>
-          </div>
-        </div>` : ''}
-      <div class="pub-stats mt-2">
-        <span class="me-3"><i class="bi bi-heart-fill"></i> ${pub.likes || 0}</span>
-        <span><i class="bi bi-chat-fill"></i> ${pub.comentarios || 0}</span>
-      </div>
-    `;
-    return article;
-  }
-
-  // 3. CARGAR PUBLICACIONES
-  async function cargarPublicaciones() {
-    try {
-      const res = await fetch(`/api/usuario/${idUsuario}/publicaciones`);
-      const publicaciones = await res.json();
-      document.getElementById('statPublicaciones').textContent = publicaciones.length;
-      const container = document.getElementById('publicacionesUsuario');
-      container.innerHTML = '';
-      
-      if (publicaciones.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted">No hay publicaciones.</p>';
+      if (!idUsuario) {
+        window.mostrarToast('Usuario no especificado', 'error');
         return;
       }
 
-      publicaciones.forEach(pub => container.appendChild(crearPublicacion(pub)));
-    } catch (err) { console.error(err); }
-  }
+      // 1. CARGAR DATOS DEL PERFIL Y FONDO
+      async function cargarPerfil() {
+        try {
+          const res = await fetch(`/api/perfil-publico/${idUsuario}`);
+          const perfilData = await res.json();
 
-  // Funciones auxiliares (Stats y Seguir)
-  async function cargarEstadisticas() {
-    const res = await fetch(`/api/usuario-stats/${idUsuario}`);
-    const stats = await res.json();
-    document.getElementById('statSeguidores').textContent = stats.seguidores;
-    document.getElementById('statSeguidos').textContent = stats.seguidos;
-  }
+          const headerElement = document.getElementById('headerFondo');
 
-  async function verificarSiguiendo() {
-    const res = await fetch(`/api/siguiendo-usuario/${idUsuario}?correo=${encodeURIComponent(correoActual)}`);
-    const data = await res.json();
-    const btn = document.getElementById('btnSeguirPerfil');
-    if (data.siguiendo) {
-      btn.classList.add('siguiendo');
-      btn.innerHTML = '<i class="bi bi-person-check-fill"></i> Siguiendo';
-    }
-  }
+          if (headerElement) {
+            if (perfilData.fondo_perfil) {
+              // IMPORTANTE: Se debe poner el gradiente Y la imagen juntos para que se mezclen
+              const fondoFinal = `linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7)), url('${perfilData.fondo_perfil}')`;
+              headerElement.style.backgroundImage = fondoFinal;
+            } else {
+              // Fondo por defecto si el usuario no tiene uno
+              headerElement.style.backgroundImage = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+            }
+          }
 
-  async function toggleSeguir() {
-    const res = await fetch(`/api/seguir/${idUsuario}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ correo: correoActual })
-    });
-    if (res.ok) {
-      verificarSiguiendo();
-      cargarEstadisticas();
-    }
-  }
+          // --- RENDERIZAR AVATAR ---
+          const avatarContainer = document.getElementById('perfilAvatar');
+          avatarContainer.innerHTML = perfilData.foto
+            ? `<img src="${perfilData.foto}" class="perfil-avatar">`
+            : `<div class="perfil-avatar-placeholder">${perfilData.usuario.charAt(0).toUpperCase()}</div>`;
 
-  // Inicialización
-  await cargarPerfil();
-  await cargarEstadisticas();
-  await cargarPublicaciones();
-})();
-</script>
+          // --- RELLENAR DATOS ---
+          document.getElementById('perfilUsuario').textContent = '@' + perfilData.usuario;
+          document.getElementById('perfilCorreo').textContent = perfilData.correo;
+
+          const fecha = new Date(perfilData.fecha_reg);
+          document.getElementById('perfilFecha').textContent = 'Se unió en ' + fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+          // --- LÓGICA DE BOTONES ---
+          const btnContainer = document.getElementById('btnSeguirContainer');
+          if (correoActual && correoActual !== perfilData.correo) {
+            btnContainer.innerHTML = `<button id="btnSeguirPerfil" class="btn-seguir-perfil">Seguir</button>`;
+            verificarSiguiendo();
+            document.getElementById('btnSeguirPerfil').onclick = toggleSeguir;
+          } else if (correoActual === perfilData.correo) {
+            btnContainer.innerHTML = `<a href="perfiles.html" class="btn-seguir-perfil load-page"><i class="bi bi-pencil"></i> Editar perfil</a>`;
+          }
+        } catch (err) {
+          console.error("Error cargando el perfil:", err);
+        }
+      }
+
+      // 2. FUNCIÓN ÚNICA PARA CREAR PUBLICACIONES (CORREGIDA)
+      // 2. FUNCIÓN ÚNICA PARA CREAR PUBLICACIONES (REFACTORIZADO)
+      function crearPublicacion(pub) {
+        if (window.PublicacionCard) {
+          // Determinamos si es perfil propio comparando correos (ya que tenemos correoActual y perfilData no está en este scope directo, pero pub tiene id_usuario... 
+          // Mejor usamos los datos disponibles.
+          // En perfil-usuario.html, data.forEach(pub) ... pub tiene usuario info.
+
+          const isOwn = correoActual && pub.correo === correoActual;
+
+          const card = new window.PublicacionCard(pub, {
+            esPerfilPropio: isOwn,
+            correoActual: correoActual,
+            mostrarBotonesInteraccion: true, // Permitir likes coments
+            // Nota: Para "yaLeDioLike" necesitaríamos el cache de likes, que no tenemos aquí fácil.
+            // Si no lo pasamos, saldrá como no-liked.
+            // Una mejora sería cargar los likes del usuario en perfil-usuario.html también.
+            // Por ahora, lo dejamos así para consistencia visual.
+            mostrarBotonSeguir: false, // En perfil de usuario ya hay botón de seguir arriba
+            mostrarOpcionesAdmin: isOwn
+          });
+          return card.element;
+        }
+
+        // Fallback simple si fallase la carga
+        const div = document.createElement('div');
+        div.textContent = 'Error cargando componente';
+        return div;
+      }
+
+      // 3. CARGAR PUBLICACIONES
+      async function cargarPublicaciones() {
+        try {
+          const res = await fetch(`/api/usuario/${idUsuario}/publicaciones`);
+          const publicaciones = await res.json();
+          document.getElementById('statPublicaciones').textContent = publicaciones.length;
+          const container = document.getElementById('publicacionesUsuario');
+          container.innerHTML = '';
+
+          if (publicaciones.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted">No hay publicaciones.</p>';
+            return;
+          }
+
+          publicaciones.forEach(pub => container.appendChild(crearPublicacion(pub)));
+        } catch (err) { console.error(err); }
+      }
+
+      // Funciones auxiliares (Stats y Seguir)
+      async function cargarEstadisticas() {
+        const res = await fetch(`/api/usuario-stats/${idUsuario}`);
+        const stats = await res.json();
+        document.getElementById('statSeguidores').textContent = stats.seguidores;
+        document.getElementById('statSeguidos').textContent = stats.seguidos;
+      }
+
+      async function verificarSiguiendo() {
+        const res = await fetch(`/api/siguiendo-usuario/${idUsuario}?correo=${encodeURIComponent(correoActual)}`);
+        const data = await res.json();
+        const btn = document.getElementById('btnSeguirPerfil');
+        if (data.siguiendo) {
+          btn.classList.add('siguiendo');
+          btn.innerHTML = '<i class="bi bi-person-check-fill"></i> Siguiendo';
+        }
+      }
+
+      async function toggleSeguir() {
+        const res = await fetch(`/api/seguir/${idUsuario}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo: correoActual })
+        });
+        if (res.ok) {
+          verificarSiguiendo();
+          cargarEstadisticas();
+        }
+      }
+
+      // Inicialización
+      await cargarPerfil();
+      await cargarEstadisticas();
+      await cargarPublicaciones();
+    })();
+  </script>
 </body>
+
 </html>

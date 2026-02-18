@@ -1,6 +1,6 @@
 // feed-publicaciones.js OPTIMIZADO CON INFINITE SCROLL
 
-(function() {
+(function () {
   'use strict';
 
   let usuarioActual = window.getUsuarioActual();
@@ -20,11 +20,11 @@
   let usuariosSeguidosCache = new Set();
 
   // ========== CACHÉ Y OPTIMIZACIÓN ==========
-  
+
   // Cargar likes del usuario
   async function cargarLikesCache() {
     if (!correoActual) return;
-    
+
     try {
       const res = await fetch(`/api/usuario/likes?correo=${encodeURIComponent(correoActual)}`);
       if (res.ok) {
@@ -39,7 +39,7 @@
   // Cargar usuarios seguidos
   async function cargarUsuariosSeguidosCache() {
     if (!correoActual) return;
-    
+
     try {
       const res = await fetch(`/api/usuario/${correoActual}/seguidos`);
       if (res.ok) {
@@ -68,7 +68,7 @@
       loadingDiv = document.createElement('div');
       loadingDiv.id = 'loading-more';
       loadingDiv.className = 'text-center py-4';
-      
+
       // IMPORTANTE: Insertar DESPUÉS del feed, no dentro
       if (feed.parentElement) {
         feed.parentElement.appendChild(loadingDiv);
@@ -108,7 +108,7 @@
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollHeight = document.documentElement.scrollHeight;
         const clientHeight = document.documentElement.clientHeight;
-        
+
         // Si está a 300px del final
         if (scrollHeight - scrollTop - clientHeight < 300) {
           if (!cargando && hayMasPublicaciones) {
@@ -121,10 +121,10 @@
   }
 
   // ========== BÚSQUEDA ==========
-  
-  window.buscarPublicaciones = async function(query) {
+
+  window.buscarPublicaciones = async function (query) {
     const feed = document.getElementById("feedPublicaciones");
-    
+
     if (!query || query.trim().length === 0) {
       // Si se limpia la búsqueda, resetear y cargar desde caché
       paginaActual = 0;
@@ -144,16 +144,16 @@
 
     try {
       feed.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Buscando...</span></div></div>`;
-      
+
       const res = await fetch(`/api/publicaciones/buscar?q=${encodeURIComponent(query)}`);
-      
+
       if (!res.ok) {
         throw new Error('Error en búsqueda');
       }
 
       const data = await res.json();
       feed.innerHTML = "";
-      
+
       if (!Array.isArray(data) || data.length === 0) {
         feed.innerHTML = `
           <div class="text-center py-5">
@@ -178,9 +178,9 @@
 
   // ========== CARGA INICIAL Y PAGINADA ==========
 
-    window.cargarPublicaciones = async function(filtroCorreo = null) {
+  window.cargarPublicaciones = async function (filtroCorreo = null) {
     const feed = document.getElementById("feedPublicaciones") || document.getElementById("misPublicaciones");
-    
+
     if (!feed) {
       console.error("No se encontró el contenedor de publicaciones");
       return;
@@ -188,17 +188,17 @@
 
     try {
       feed.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>`;
-      
+
       // Resetear estado
       paginaActual = 0;
       hayMasPublicaciones = true;
       todasLasPublicaciones = []; // Limpiar caché
-      
+
       // Si es perfil, cargar todas de una vez (sin cambios)
       if (filtroCorreo) {
         const url = `/api/perfil/${filtroCorreo}/publicaciones`;
         const res = await fetch(url);
-        
+
         if (!res.ok) {
           console.error("Error al cargar publicaciones:", res.status);
           feed.innerHTML = `<p class="text-danger">Error al cargar publicaciones</p>`;
@@ -206,7 +206,7 @@
         }
 
         const data = await res.json();
-        
+
         if (!Array.isArray(data) || data.length === 0) {
           feed.innerHTML = `<div class="text-center py-5"><i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i><p class="text-muted mt-3">Aún no tienes publicaciones</p></div>`;
           return;
@@ -217,7 +217,7 @@
           const article = crearPublicacion(pub, true);
           feed.appendChild(article);
         });
-        
+
       } else {
         // Feed principal: cargar primera página desde el servidor
         feed.innerHTML = "";
@@ -231,7 +231,7 @@
     }
   }
 
- // Cargar siguiente página DESDE EL SERVIDOR
+  // Cargar siguiente página DESDE EL SERVIDOR
   async function cargarSiguientePagina() {
     if (cargando || !hayMasPublicaciones) {
       //console.log(` Carga bloqueada - Cargando: ${cargando}, Hay más: ${hayMasPublicaciones}`);
@@ -258,14 +258,14 @@
       //  PETICIÓN AL BACKEND con paginación
       const url = `/api/publicaciones?pagina=${paginaActual}&limite=${PUBLICACIONES_POR_PAGINA}`;
       const res = await fetch(url);
-      
+
       if (!res.ok) {
         throw new Error(`Error HTTP: ${res.status}`);
       }
 
       const data = await res.json();
       //console.log('Datos recibidos:', data);
-      
+
       // Renderizar publicaciones
       const feed = document.getElementById("feedPublicaciones");
       if (!feed) {
@@ -275,7 +275,7 @@
 
       if (data.publicaciones && data.publicaciones.length > 0) {
         //console.log(`Renderizando ${data.publicaciones.length} publicaciones...`);
-        
+
         data.publicaciones.forEach(pub => {
           const article = crearPublicacion(pub, false);
           feed.appendChild(article);
@@ -283,9 +283,9 @@
 
         paginaActual++;
         hayMasPublicaciones = data.hayMas;
-        
+
         //console.log(`Página ${paginaActual - 1} cargada | Total mostrado: ${paginaActual * PUBLICACIONES_POR_PAGINA} | Hay más: ${hayMasPublicaciones}`);
-        
+
       } else {
         //console.log(' No hay más publicaciones en la respuesta');
         hayMasPublicaciones = false;
@@ -314,292 +314,43 @@
 
   // ========== CREAR PUBLICACIÓN HTML ==========
 
+  // REFACTORIZADO CON PublicacionCard
+
   function crearPublicacion(pub, esPerfilPropio = false) {
-    console.log("Datos de la publicación:",pub);
-    const article = document.createElement("article");
-    article.className = "publicacion-item mb-4 fade-in";
-
-    if (pub.fondo_publicaciones) {
-        article.style.backgroundImage = `url(${pub.fondo_publicaciones})`;
-        article.style.backgroundSize = "cover";
-        article.style.backgroundPosition = "center";
-        article.classList.add("has-custom-bg"); // Clase para estilos CSS
+    if (!window.PublicacionCard) {
+      console.warn("PublicacionCard no cargado, usando fallback...");
+      return document.createElement("div");
     }
 
-    article.style.boxShadow = "inset 0 0 0 2000px rgba(0, 0, 0, 0.3)";
-    
-    const fecha = new Date(pub.fecha_pub);
-    const fechaFormateada = window.formatearFecha(fecha);
-    const yaLeDioLike = userLikesCache.has(pub.id_publicacion);
+    const options = {
+      esPerfilPropio: esPerfilPropio,
+      correoActual: correoActual,
+      yaLeDioLike: userLikesCache.has(pub.id_publicacion),
+      esSeguido: usuariosSeguidosCache.has(pub.id_usuario),
+      mostrarBotonesInteraccion: true,
+      mostrarBotonSeguir: !esPerfilPropio && correoActual && pub.correo !== correoActual,
+      mostrarOpcionesAdmin: esPerfilPropio
+    };
 
-    article.innerHTML = ` 
-      <div class="pub-header">
-        ${esPerfilPropio ? `
-          <small class="pub-fecha">${fechaFormateada}</small>
-          <div class="pub-actions-inline">
-            <button class="btn-icon-action" onclick="editarPublicacion(${pub.id_publicacion}, '${window.escapeHtml(pub.publicacion).replace(/'/g, "\\'")}')">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="btn-icon-action text-danger" onclick="eliminarPublicacion(${pub.id_publicacion})">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        ` : `
-          <div class="pub-user-info">
-            <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-user-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
-              ${pub.foto ? 
-                `<img src="${pub.foto}" alt="${window.escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
-                `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
-              }
-            </a>
-            <div style="flex: 1;">
-              <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-username-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
-                <strong class="pub-username">@${window.escapeHtml(pub.usuario)}</strong>
-              </a>
-              <small class="pub-fecha">${fechaFormateada}</small>
-            </div>
-            <div class="pub-header-actions">
-              ${correoActual && pub.correo !== correoActual ? `
-                <button class="btn-seguir" data-id-usuario="${pub.id_usuario}" data-correo="${pub.correo}">
-                  <i class="bi bi-person-plus"></i>
-                  <span>Seguir</span>
-                </button>
-              ` : ''}
-              ${correoActual ? `
-                <button class="btn-icon-action" onclick="mostrarFormReporte(${pub.id_publicacion})">
-                  <i class="bi bi-flag"></i>
-                </button>
-              ` : ''}
-            </div>
-          </div>
-        `}
-      </div>
-      
-      <div class="pub-content">
-        <p class="pub-text">${window.escapeHtml(pub.publicacion)}</p>
-      </div>
-      
-      ${pub.cancion ? `
-        <div class="pub-cancion">
-          ${pub.imagen_cancion ? 
-            `<img src="${pub.imagen_cancion}" alt="cover" class="pub-cancion-img">` : 
-            window.crearImagenPlaceholder()
-          }
-          <div class="pub-cancion-info">
-            <strong class="pub-cancion-nombre">${window.escapeHtml(pub.cancion)}</strong>
-            <p class="pub-cancion-artista">${window.escapeHtml(pub.artista || '')}</p>
-            ${pub.album ? `<small class="pub-cancion-album">${window.escapeHtml(pub.album)}</small>` : ''}
-          </div>
-        </div>
-      ` : ""}
-      
-      ${esPerfilPropio ? `
-        <div class="pub-stats">
-          <span><i class="bi bi-heart-fill"></i> ${pub.likes || 0}</span>
-          <span><i class="bi bi-chat-fill"></i> ${pub.comentarios || 0}</span>
-        </div>
-      ` : `
-        <div class="pub-actions">
-          <button class="pub-btn pub-btn-like ${yaLeDioLike ? 'liked' : ''}" data-id="${pub.id_publicacion}">
-            <i class="bi bi-heart${yaLeDioLike ? '-fill' : ''}"></i>
-            <span class="pub-count">${pub.likes || 0}</span>
-          </button>
-          
-          <button class="pub-btn pub-btn-comment" data-id="${pub.id_publicacion}">
-            <i class="bi bi-chat"></i>
-            <span class="pub-count">${pub.comentarios || 0}</span>
-          </button>
-        </div>
-        
-        <div class="pub-comentarios" id="comentarios-${pub.id_publicacion}" style="display:none;">
-          <div class="comentarios-lista"></div>
-          ${correoActual ? `
-            <div class="comentario-form mt-3">
-              <textarea class="form-control form-control-sm mb-2" placeholder="Escribe un comentario..." rows="2" id="txt-comentario-${pub.id_publicacion}"></textarea>
-                <div id="error-comentario-${pub.id_publicacion}" class="error-comentario" style="color:red; display:none;"></div>
-              <button class="btn btn-sm btn-gradient" onclick="enviarComentario(${pub.id_publicacion})">Comentar</button>
-            </div>
-          ` : '<p class="text-muted small">Inicia sesión para comentar</p>'}
-        </div>
-      `}
-    `;
-    
-    if (!esPerfilPropio) {
-      const btnLike = article.querySelector('.pub-btn-like');
-      const btnComment = article.querySelector('.pub-btn-comment');
-      
-      if (btnLike) {
-        btnLike.addEventListener('click', () => toggleLike(pub.id_publicacion, btnLike));
-      }
-      
-      if (btnComment) {
-        btnComment.addEventListener('click', () => toggleComentarios(pub.id_publicacion));
-      }
-    }
-
-    // Event listener para botón de seguir
-    if (!esPerfilPropio) {
-      const btnSeguir = article.querySelector('.btn-seguir');
-      if (btnSeguir) {
-        verificarSiguiendo(pub.id_usuario, btnSeguir);
-        btnSeguir.addEventListener('click', () => toggleSeguir(pub.id_usuario, btnSeguir));
-      }
-
-      // Event listeners para los links de perfil
-      const linksPerfilUsuario = article.querySelectorAll('.load-page-perfil');
-      linksPerfilUsuario.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const idUsuario = this.getAttribute('data-id-usuario');
-          loadPage(`perfil-usuario.html?id=${idUsuario}`);
-        });
-      });
-    }
-    
-    return article;
+    const card = new window.PublicacionCard(pub, options);
+    return card.element;
   }
 
-  // ========== LIKES ==========
-
-  async function toggleLike(idPublicacion, btnElement) {
-    if (!correoActual) {
-      window.mostrarToast('Debes iniciar sesión para dar like', 'error');
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/publicacion/${idPublicacion}/like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: correoActual })
-      });
-
-      const data = await res.json();
-      
-      if (res.ok) {
-        const icon = btnElement.querySelector('i');
-        const count = btnElement.querySelector('.pub-count');
-        const currentCount = parseInt(count.textContent) || 0;
-        
-        if (data.liked) {
-          userLikesCache.add(idPublicacion);
-          btnElement.classList.add('liked');
-          icon.className = 'bi bi-heart-fill';
-          count.textContent = currentCount + 1;
-        } else {
-          userLikesCache.delete(idPublicacion);
-          btnElement.classList.remove('liked');
-          icon.className = 'bi bi-heart';
-          count.textContent = Math.max(0, currentCount - 1);
-        }
-      } else {
-        window.mostrarToast(data.error || 'Error al dar like', 'error');
-      }
-    } catch (err) {
-      console.error('Error al dar like:', err);
-      window.mostrarToast('Error de conexión', 'error');
-    }
-  }
-
-  // ========== COMENTARIOS ==========
-
-  async function toggleComentarios(idPublicacion) {
-    const comentariosDiv = document.getElementById(`comentarios-${idPublicacion}`);
-    
-    if (comentariosDiv.style.display === 'none') {
-      comentariosDiv.style.display = 'block';
-      await cargarComentarios(idPublicacion);
+  // Funciones toggleLike, toggleComentarios, enviarComentario, etc. han sido movidas a PublicacionCard.js
+  // Mantenemos window.actualizarCacheSeguidos para sincronización
+  window.actualizarCacheSeguidos = function (idUsuario, siguiendo) {
+    if (siguiendo) {
+      usuariosSeguidosCache.add(idUsuario);
     } else {
-      comentariosDiv.style.display = 'none';
+      usuariosSeguidosCache.delete(idUsuario);
     }
-  }
+  };
 
-  async function cargarComentarios(idPublicacion) {
-    const lista = document.querySelector(`#comentarios-${idPublicacion} .comentarios-lista`);
-    
-    try {
-      lista.innerHTML = '<p class="text-muted small">Cargando comentarios...</p>';
-      
-      const res = await fetch(`/api/publicacion/${idPublicacion}/comentarios`);
-      const comentarios = await res.json();
-      
-      if (comentarios.length === 0) {
-        lista.innerHTML = '<p class="text-muted small">No hay comentarios aún</p>';
-        return;
-      }
-      
-      lista.innerHTML = '';
-      comentarios.forEach(com => {
-        const div = document.createElement('div');
-        div.className = 'comentario-item';
-        const fecha = new Date(com.fecha_com);
-        div.innerHTML = `
-          <div class="comentario-header">
-            <strong>@${window.escapeHtml(com.usuario)}</strong>
-            <small>${window.formatearFecha(fecha)}</small>
-          </div>
-          <p class="comentario-text">${window.escapeHtml(com.comentario)}</p>
-        `;
-        lista.appendChild(div);
-      });
-    } catch (err) {
-      console.error('Error cargando comentarios:', err);
-      lista.innerHTML = '<p class="text-danger small">Error al cargar comentarios</p>';
-    }
-  }
-
-  window.enviarComentario = async function(idPublicacion) {
-    if (!correoActual) {
-      window.mostrarToast('Debes iniciar sesión para comentar', 'error');
-      return;
-    }
-
-    const textarea = document.getElementById(`txt-comentario-${idPublicacion}`);
-    const comentario = textarea.value.trim();
-    const errorDiv = document.getElementById(`error-comentario-${idPublicacion}`);
-    
-    if (!comentario) {
-      window.mostrarToast('Escribe algo para comentar', 'error');
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/publicacion/${idPublicacion}/comentario`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: correoActual, comentario })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        errorDiv.textContent = data.error;
-        errorDiv.style.display = "block";
-        return;
-      }
-      
-      if (res.ok) {
-        textarea.value = '';
-        window.mostrarToast('Comentario agregado', 'success');
-        await cargarComentarios(idPublicacion);
-        
-        const btnComment = document.querySelector(`button[data-id="${idPublicacion}"].pub-btn-comment .pub-count`);
-        if (btnComment) {
-          const count = parseInt(btnComment.textContent) || 0;
-          btnComment.textContent = count + 1;
-        }
-      } else {
-        window.mostrarToast(data.error || 'Error al comentar', 'error');
-      }
-    } catch (err) {
-      console.error('Error al comentar:', err);
-      window.mostrarToast('Error de conexión', 'error');
-    }
-  }
+  window.crearPublicacionHTML = crearPublicacion;
 
   // ========== REPORTES ==========
 
-  window.mostrarFormReporte = function(idPublicacion) {
+  window.mostrarFormReporte = function (idPublicacion) {
     if (!correoActual) {
       window.mostrarToast('Debes iniciar sesión para reportar', 'error');
       return;
@@ -634,7 +385,7 @@
     setTimeout(() => modal.classList.add('show'), 10);
   }
 
-  window.cerrarModalReporte = function() {
+  window.cerrarModalReporte = function () {
     const modal = document.getElementById('modalReporte');
     if (modal) {
       modal.classList.remove('show');
@@ -642,7 +393,7 @@
     }
   }
 
-  window.enviarReporte = async function(idPublicacion) {
+  window.enviarReporte = async function (idPublicacion) {
     const motivo = document.getElementById('motivoReporte').value.trim();
 
     if (!motivo || motivo.length < 10) {
@@ -742,7 +493,7 @@
     }
   }
 
-  window.actualizarCacheSeguidos = function(idUsuario, siguiendo) {
+  window.actualizarCacheSeguidos = function (idUsuario, siguiendo) {
     if (siguiendo) {
       usuariosSeguidosCache.add(idUsuario);
     } else {
