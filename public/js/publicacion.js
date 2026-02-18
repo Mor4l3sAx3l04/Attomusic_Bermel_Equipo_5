@@ -9,7 +9,7 @@ function inicializarPublicaciones() {
   const mensaje = document.getElementById("mensajePub");
   const feed = document.getElementById("feedPublicaciones");
   const mensajeError = document.getElementById("mensajeError");
-// sanity checks con retry
+  // sanity checks con retry
   if (!inputBuscar || !botonBuscar || !resultados || !form) {
     console.warn("Elementos no encontrados, reintentando en 200ms...");
     setTimeout(inicializarPublicaciones, 200);
@@ -18,7 +18,7 @@ function inicializarPublicaciones() {
 
   //console.log("Elementos del buscador listos.");
 
-//Debounce para búsquedas mientras escribe
+  //Debounce para búsquedas mientras escribe
   let timeout = null;
   inputBuscar.addEventListener("input", () => {
     const q = inputBuscar.value.trim();
@@ -30,7 +30,7 @@ function inicializarPublicaciones() {
     timeout = setTimeout(() => buscarCanciones(q), 500);
   });
 
-//Buscar al hacer clic
+  //Buscar al hacer clic
   botonBuscar.addEventListener("click", () => {
     const q = inputBuscar.value.trim();
     if (!q) {
@@ -40,7 +40,7 @@ function inicializarPublicaciones() {
     buscarCanciones(q);
   });
 
-//Función para buscar canciones
+  //Función para buscar canciones
   async function buscarCanciones(query) {
     try {
       resultados.innerHTML = `<p style="color:#c9b6ff">Buscando "${escapeHtml(query)}" ...</p>`;
@@ -93,13 +93,13 @@ function inicializarPublicaciones() {
     }
   }
 
-//Enviar publicación al backend
-let enviando = false; // - evita clics múltiples
+  //Enviar publicación al backend
+  let enviando = false; // - evita clics múltiples
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (enviando) return; // prevenir múltiples envíos
-    
+
     const btnSubmit = form.querySelector("button[type='submit']");
     enviando = true;
     btnSubmit.disabled = true;
@@ -126,7 +126,7 @@ let enviando = false; // - evita clics múltiples
       return;
     }
 
-  // Limpiar mensaje de error
+    // Limpiar mensaje de error
     mensajeError.classList.add("d-none");
     mensajeError.innerHTML = "";
 
@@ -140,7 +140,7 @@ let enviando = false; // - evita clics múltiples
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) {
         // Aquí se MUESTRA el error que viene de Gemini
         mensajeError.classList.remove("d-none");
@@ -170,7 +170,7 @@ let enviando = false; // - evita clics múltiples
     }
   });
 
-//Cargar publicaciones
+  //Cargar publicaciones
   async function cargasPublicaciones() {
     if (!feed) return;
     try {
@@ -188,22 +188,22 @@ let enviando = false; // - evita clics múltiples
         return;
       }
 
+      let usuarioLS = null;
+      try { usuarioLS = JSON.parse(localStorage.getItem("usuario")); } catch (err) { }
+      const correoActual = usuarioLS?.correo;
+
       data.forEach(pub => {
-        const d = document.createElement("article");
-        d.className = "bg-dark p-3 mb-3 border rounded";
-        const fecha = new Date(pub.fecha_pub).toLocaleString();
-        d.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong style="color:#e6e0ff">@${escapeHtml(pub.usuario)}</strong>
-            <small style="color:#bdb6d8">${escapeHtml(fecha)}</small>
-          </div>
-          <p style="margin:10px 0;color:#ddd">${escapeHtml(pub.publicacion)}</p>
-          ${pub.cancion ? `
-            <div style="padding:8px;border-radius:10px;background:linear-gradient(160deg,#2b0d4a,#05243a);color:#c9f7d3">
-              <strong>${escapeHtml(pub.cancion)}</strong> — ${escapeHtml(pub.artista || '')}
-            </div>` : ""}
-        `;
-        feed.appendChild(d);
+        if (window.PublicacionCard) {
+          const card = new window.PublicacionCard(pub, {
+            mostrarBotonesInteraccion: false,
+            mostrarBotonSeguir: false,
+            correoActual: correoActual
+          });
+          // Ajuste leve de estilo para que se vea bien en la lista lateral/inferior si es compacta, 
+          // pero PublicacionCard es full width.
+          // Podemos dejarlo así para unificar.
+          feed.appendChild(card.element);
+        }
       });
 
     } catch (err) {
@@ -212,7 +212,7 @@ let enviando = false; // - evita clics múltiples
     }
   }
 
-// Utilidad para escapar HTML
+  // Utilidad para escapar HTML
   function escapeHtml(str) {
     if (!str && str !== 0) return "";
     return String(str)
@@ -223,7 +223,7 @@ let enviando = false; // - evita clics múltiples
       .replace(/'/g, "&#039;");
   }
 
-// iniciar feed
+  // iniciar feed
   cargasPublicaciones();
 }
 
@@ -231,7 +231,7 @@ let enviando = false; // - evita clics múltiples
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", inicializarPublicaciones);
 } else {
-// Ya está cargado, ejecutar con delay
+  // Ya está cargado, ejecutar con delay
   setTimeout(inicializarPublicaciones, 100);
 }
 

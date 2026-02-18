@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
+
 <body>
   <div class="container my-5">
     <div class="perfil-container">
@@ -19,7 +21,7 @@
           </button>
           <input type="file" id="inputFoto" accept="image/*" style="display:none">
         </div>
-        
+
         <div class="perfil-info">
           <h1 class="perfil-nombre" id="perfilNombre">Cargando...</h1>
           <p class="perfil-correo" id="perfilCorreo">correo@ejemplo.com</p>
@@ -34,11 +36,13 @@
               <span class="stat-label">Siguiendo</span>
             </button>
           </div>
-          <button class="btn btn-gradient mt-3" data-bs-toggle="modal" data-bs-target="#editarPerfilModal" style="border: 2px solid #ba01ff; color: #ba01ff;">
+          <button class="btn btn-gradient mt-3" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"
+            style="border: 2px solid #ba01ff; color: #ba01ff;">
             <i class="bi bi-pencil"></i> Editar Perfil
           </button>
-          <button class="btn btn-gradient mt-3" data-bs-toggle="modal" data-bs-target="#modalEstilos" style="border: 2px solid #ba01ff; color: #ba01ff;">
-              <i class="bi bi-palette"></i> Estilos
+          <button class="btn btn-gradient mt-3" data-bs-toggle="modal" data-bs-target="#modalEstilos"
+            style="border: 2px solid #ba01ff; color: #ba01ff;">
+            <i class="bi bi-palette"></i> Estilos
           </button>
         </div>
       </div>
@@ -60,51 +64,69 @@
   </div>
 
   <!-- Modal Editar Perfil -->
-<div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width: 450px;"> 
-    <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
-      <div class="modal-body p-0">
-        <div style="padding: 48px 40px;">
-          <div style="text-align: center; margin-bottom: 32px;">
-            <h2 style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Editar Perfil</h2>
+  <div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width: 450px;">
+      <div class="modal-content border-0"
+        style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+        <div class="modal-body p-0">
+          <div style="padding: 48px 40px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <h2
+                style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                Editar Perfil</h2>
+            </div>
+
+            <form id="formEditarPerfil">
+              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
+                <input type="text" required class="input-animated" id="editNombre"
+                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333; outline: none;">
+                <label class="label-animated" for="editNombre"
+                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;">Nombre
+                  de usuario</label>
+                <i class="bi bi-person-fill"
+                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              </div>
+
+              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
+                <input type="email" required class="input-animated" id="editCorreo"
+                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333; outline: none;">
+                <label class="label-animated" for="editCorreo"
+                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;">Correo
+                  electrónico</label>
+                <i class="bi bi-envelope-fill"
+                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              </div>
+
+              <button type="submit"
+                style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
+                Guardar Cambios
+              </button>
+            </form>
           </div>
-
-          <form id="formEditarPerfil">
-            <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
-                <input type="text" required class="input-animated" id="editNombre" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333; outline: none;">
-                <label class="label-animated" for="editNombre" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;">Nombre de usuario</label>
-                <i class="bi bi-person-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-            </div>
-
-            <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-                <input type="email" required class="input-animated" id="editCorreo" style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333; outline: none;">
-                <label class="label-animated" for="editCorreo" style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;">Correo electrónico</label>
-                <i class="bi bi-envelope-fill" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-            </div>
-
-            <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
-              Guardar Cambios
-            </button>
-          </form>
         </div>
       </div>
     </div>
   </div>
-</div>
 
   <!-- Modal Editar Publicación -->
   <div class="modal fade" id="editarPublicacionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+      <div class="modal-content border-0"
+        style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
         <div class="modal-body p-0">
           <div style="padding: 48px 40px;">
-            <h2 style="text-align: center; font-size: 1.8rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 32px;">Editar Publicación</h2>
+            <h2
+              style="text-align: center; font-size: 1.8rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 32px;">
+              Editar Publicación</h2>
 
             <form id="formEditarPublicacion">
               <input type="hidden" id="editPubId">
-              <textarea class="form-control mb-3" id="editPubTexto" rows="4" style="border: 2px solid #ba01ff; border-radius: 12px; background: white; color: #333;" placeholder="¿Qué estás pensando?"></textarea>
-              
-              <button type="submit" style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
+              <textarea class="form-control mb-3" id="editPubTexto" rows="4"
+                style="border: 2px solid #ba01ff; border-radius: 12px; background: white; color: #333;"
+                placeholder="¿Qué estás pensando?"></textarea>
+
+              <button type="submit"
+                style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
                 Guardar Cambios
               </button>
             </form>
@@ -118,7 +140,8 @@
   <div class="modal fade" id="seguidoresModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content" style="border-radius: 20px; overflow: hidden;">
-        <div class="modal-header" style="background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none;">
+        <div class="modal-header"
+          style="background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none;">
           <h5 class="modal-title" id="seguidoresModalTitle">Seguidores</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
@@ -132,75 +155,93 @@
   </div>
 
   <div class="modal fade" id="modalEstilos" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width: 450px;">
-    <div class="modal-content border-0" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); color: white;">
-      <div class="modal-body p-0">
-        <div style="padding: 30px;">
-          <div class="text-center mb-4">
-            <h3 style="background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">Personalizar Diseño</h3>
-            <p class="text-muted small">Dale un toque único a tu perfil y posts</p>
-          </div>
+    <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width: 450px;">
+      <div class="modal-content border-0"
+        style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); color: white;">
+        <div class="modal-body p-0">
+          <div style="padding: 30px;">
+            <div class="text-center mb-4">
+              <h3
+                style="background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">
+                Personalizar Diseño</h3>
+              <p class="text-muted small">Dale un toque único a tu perfil y posts</p>
+            </div>
 
-          <form id="formEstilos">
-            <div class="mb-4">
-              <label class="form-label d-flex align-items-center gap-2">
-                <i class="bi bi-image text-primary"></i> Fondo de Perfil
-              </label>
-              <div class="upload-area p-3 text-center" style="border: 2px dashed #ba01ff; border-radius: 12px; cursor: pointer; position: relative; overflow: hidden;" onclick="document.getElementById('inputFondoPerfil').click()">
-                <div id="previewFondoPerfil" style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
+            <form id="formEstilos">
+              <div class="mb-4">
+                <label class="form-label d-flex align-items-center gap-2">
+                  <i class="bi bi-image text-primary"></i> Fondo de Perfil
+                </label>
+                <div class="upload-area p-3 text-center"
+                  style="border: 2px dashed #ba01ff; border-radius: 12px; cursor: pointer; position: relative; overflow: hidden;"
+                  onclick="document.getElementById('inputFondoPerfil').click()">
+                  <div id="previewFondoPerfil"
+                    style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
                     <span class="text-muted small">Toca para cambiar fondo</span>
+                  </div>
+                  <img id="imgPreviewPerfil" src=""
+                    style="position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; display: none;">
                 </div>
-                <img id="imgPreviewPerfil" src="" style="position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; display: none;">
+                <input type="file" id="inputFondoPerfil" accept="image/*" hidden
+                  onchange="previewImage(this, 'imgPreviewPerfil')">
               </div>
-              <input type="file" id="inputFondoPerfil" accept="image/*" hidden onchange="previewImage(this, 'imgPreviewPerfil')">
-            </div>
 
-            <div class="mb-4">
-              <label class="form-label d-flex align-items-center gap-2">
-                <i class="bi bi-postcard text-info"></i> Fondo de Publicaciones
-              </label>
-              <div class="upload-area p-3 text-center" style="border: 2px dashed #00dffc; border-radius: 12px; cursor: pointer; position: relative; overflow: hidden;" onclick="document.getElementById('inputFondoPosts').click()">
-                 <div id="previewFondoPosts" style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
+              <div class="mb-4">
+                <label class="form-label d-flex align-items-center gap-2">
+                  <i class="bi bi-postcard text-info"></i> Fondo de Publicaciones
+                </label>
+                <div class="upload-area p-3 text-center"
+                  style="border: 2px dashed #00dffc; border-radius: 12px; cursor: pointer; position: relative; overflow: hidden;"
+                  onclick="document.getElementById('inputFondoPosts').click()">
+                  <div id="previewFondoPosts"
+                    style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
                     <span class="text-muted small">Toca para cambiar fondo de posts</span>
-                 </div>
-                 <img id="imgPreviewPosts" src="" style="position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; display: none;">
+                  </div>
+                  <img id="imgPreviewPosts" src=""
+                    style="position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; display: none;">
+                </div>
+                <input type="file" id="inputFondoPosts" accept="image/*" hidden
+                  onchange="previewImage(this, 'imgPreviewPosts')">
               </div>
-              <input type="file" id="inputFondoPosts" accept="image/*" hidden onchange="previewImage(this, 'imgPreviewPosts')">
-            </div>
 
-            <button type="submit" class="btn w-100" style="background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold;">
-              Guardar Estilos
-            </button>
-          </form>
+              <button type="submit" class="btn w-100"
+                style="background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold;">
+                Guardar Estilos
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  // LA SOLUCIÓN DEFINITIVA: Mover todos los modales al body
-  document.querySelectorAll('.modal').forEach(modal => {
+  <script src="js/utils.js"></script>
+  <script src="js/components/PublicacionCard.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // LA SOLUCIÓN DEFINITIVA: Mover todos los modales al body
+    document.querySelectorAll('.modal').forEach(modal => {
       document.body.appendChild(modal);
-  });
+    });
 
-  // Función para previsualizar imágenes (la necesitas para el modal de estilos)
-  function previewImage(input, previewId) {
-    const file = input.files[0];
-    const preview = document.getElementById(previewId);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        preview.src = e.target.result;
-        preview.style.display = 'block';
+    // Función para previsualizar imágenes (la necesitas para el modal de estilos)
+    function previewImage(input, previewId) {
+      const file = input.files[0];
+      const preview = document.getElementById(previewId);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
       }
-      reader.readAsDataURL(file);
     }
-  }
 
-  // Inicializar funciones de carga
-  if(window.cargarPerfil) window.cargarPerfil();
-  if(window.inicializarPerfil) window.inicializarPerfil();
-</script>
+    // Inicializar funciones de carga
+    if (window.cargarPerfil) window.cargarPerfil();
+    if (window.inicializarPerfil) window.inicializarPerfil();
+  </script>
 </body>
+
 </html>

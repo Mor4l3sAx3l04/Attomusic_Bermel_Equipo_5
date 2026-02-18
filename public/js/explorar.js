@@ -1,5 +1,5 @@
 // public/js/explorar.js
-(function() {
+(function () {
   'use strict';
 
   const usuarioActual = window.getUsuarioActual ? window.getUsuarioActual() : null;
@@ -8,10 +8,10 @@
   //console.log('explorar.js cargado, usuario:', correoActual);
 
   // ========== PERFILES POPULARES ==========
-  window.cargarPerfilesPopulares = async function() {
+  window.cargarPerfilesPopulares = async function () {
     //console.log('Cargando perfiles populares...');
     const container = document.getElementById('listaPerfilesPopulares');
-    
+
     if (!container) {
       console.error(' No se encontró el contenedor listaPerfilesPopulares');
       return;
@@ -19,17 +19,17 @@
 
     try {
       container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Cargando perfiles...</p></div>';
-      
+
       const res = await fetch('/api/usuarios/populares?limit=20');
       //console.log(' Respuesta fetch perfiles:', res.status);
-      
+
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
       }
 
       const usuarios = await res.json();
       //console.log(' Usuarios recibidos:', usuarios.length);
-      
+
       container.innerHTML = '';
 
       if (usuarios.length === 0) {
@@ -56,17 +56,17 @@
   };
 
   function crearTarjetaUsuario(user, posicion) {
-  const div = document.createElement('div');
-  div.className = 'perfil-card mb-3 fade-in';
-  
-  const esTuPerfil = correoActual && user.correo === correoActual;
-  const medallaIcon = posicion <= 3 ? getMedallaIcon(posicion) : `<span class="posicion-numero">#${posicion}</span>`;
-  
-  // LOGICA DEL FONDO: Si no hay fondo_perfil, usamos el degradado morado por defecto
-  const fondoStyle = user.fondo_perfil 
+    const div = document.createElement('div');
+    div.className = 'perfil-card mb-3 fade-in';
+
+    const esTuPerfil = correoActual && user.correo === correoActual;
+    const medallaIcon = posicion <= 3 ? getMedallaIcon(posicion) : `<span class="posicion-numero">#${posicion}</span>`;
+
+    // LOGICA DEL FONDO: Si no hay fondo_perfil, usamos el degradado morado por defecto
+    const fondoStyle = user.fondo_perfil
       ? `background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('${user.fondo_perfil}');`
       : `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);`;
-      
+
     div.innerHTML = `
       <div class="perfil-card-banner" style="${fondoStyle}"></div>
       
@@ -74,10 +74,10 @@
         <div class="perfil-ranking">${medallaIcon}</div>
         
         <div class="perfil-avatar-container">
-          ${user.foto ? 
-            `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="perfil-avatar-img">` :
-            `<div class="perfil-avatar-placeholder">${user.usuario.charAt(0).toUpperCase()}</div>`
-          }
+          ${user.foto ?
+        `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="perfil-avatar-img">` :
+        `<div class="perfil-avatar-placeholder">${user.usuario.charAt(0).toUpperCase()}</div>`
+      }
         </div>
         
         <div class="perfil-info">
@@ -179,10 +179,10 @@
   }
 
   // ========== PUBLICACIONES DESTACADAS ==========
-  window.cargarPublicacionesDestacadas = async function() {
+  window.cargarPublicacionesDestacadas = async function () {
     //console.log('Cargando publicaciones destacadas...');
     const container = document.getElementById('listaPublicacionesDestacadas');
-    
+
     if (!container) {
       console.error(' No se encontró el contenedor listaPublicacionesDestacadas');
       return;
@@ -190,17 +190,17 @@
 
     try {
       container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Cargando publicaciones...</p></div>';
-      
+
       const res = await fetch('/api/publicaciones/destacadas?limit=20');
       //console.log('Respuesta fetch destacadas:', res.status);
-      
+
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
       }
 
       const publicaciones = await res.json();
       //console.log(' Publicaciones recibidas:', publicaciones.length);
-      
+
       container.innerHTML = '';
 
       if (publicaciones.length === 0) {
@@ -220,9 +220,9 @@
       });
 
       const formatearFecha = window.formatearFecha || ((fecha) => {
-        return fecha.toLocaleDateString('es-MX', { 
-          year: 'numeric', 
-          month: 'short', 
+        return fecha.toLocaleDateString('es-MX', {
+          year: 'numeric',
+          month: 'short',
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit'
@@ -232,18 +232,18 @@
       publicaciones.forEach(pub => {
         const article = document.createElement('article');
         article.className = 'publicacion-item mb-4 fade-in';
-        
+
         const fecha = new Date(pub.fecha_pub);
         const fechaFormateada = formatearFecha(fecha);
-        
+
         article.innerHTML = `
           <div class="pub-header">
             <div class="pub-user-info">
               <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-user-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
-                ${pub.foto ? 
-                  `<img src="${pub.foto}" alt="${escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
-                  `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
-                }
+                ${pub.foto ?
+            `<img src="${pub.foto}" alt="${escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
+            `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
+          }
               </a>
               <div style="flex: 1;">
                 <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-username-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
@@ -260,10 +260,10 @@
           
           ${pub.cancion ? `
             <div class="pub-cancion">
-              ${pub.imagen_cancion ? 
-                `<img src="${pub.imagen_cancion}" alt="cover" class="pub-cancion-img">` : 
-                ''
-              }
+              ${pub.imagen_cancion ?
+              `<img src="${pub.imagen_cancion}" alt="cover" class="pub-cancion-img">` :
+              ''
+            }
               <div class="pub-cancion-info">
                 <strong class="pub-cancion-nombre">${escapeHtml(pub.cancion)}</strong>
                 <p class="pub-cancion-artista">${escapeHtml(pub.artista || '')}</p>
@@ -276,7 +276,7 @@
             <span><i class="bi bi-chat-fill text-primary"></i> ${pub.comentarios || 0}</span>
           </div>
         `;
-        
+
         container.appendChild(article);
       });
 
@@ -294,10 +294,10 @@
   };
 
   // ========== PUBLICACIONES DE SIGUIENDO ==========
-  window.cargarPublicacionesSiguiendo = async function() {
+  window.cargarPublicacionesSiguiendo = async function () {
     //console.log(' Cargando publicaciones de seguidos...');
     const container = document.getElementById('listaPublicacionesSiguiendo');
-    
+
     if (!container) {
       console.error(' No se encontró el contenedor listaPublicacionesSiguiendo');
       return;
@@ -315,17 +315,17 @@
 
     try {
       container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Cargando publicaciones...</p></div>';
-      
+
       const res = await fetch(`/api/publicaciones/siguiendo?correo=${encodeURIComponent(correoActual)}`);
       //console.log(' Respuesta fetch siguiendo:', res.status);
-      
+
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
       }
 
       const publicaciones = await res.json();
       //console.log(' Publicaciones de seguidos recibidas:', publicaciones.length);
-      
+
       container.innerHTML = '';
 
       if (publicaciones.length === 0) {
@@ -346,9 +346,9 @@
       });
 
       const formatearFecha = window.formatearFecha || ((fecha) => {
-        return fecha.toLocaleDateString('es-MX', { 
-          year: 'numeric', 
-          month: 'short', 
+        return fecha.toLocaleDateString('es-MX', {
+          year: 'numeric',
+          month: 'short',
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit'
@@ -356,61 +356,15 @@
       });
 
       publicaciones.forEach(pub => {
-        const article = document.createElement('article');
-        article.className = 'publicacion-item mb-4 fade-in';
-
-        if (pub.fondo_publicaciones) {
-            article.style.backgroundImage = `url('${pub.fondo_publicaciones}')`;
-            article.style.backgroundSize = "cover";
-            article.style.backgroundPosition = "center";
-            article.classList.add("has-custom-bg"); // Para que el CSS quite el fondo oscuro
+        if (window.PublicacionCard) {
+          const card = new window.PublicacionCard(pub, {
+            mostrarBotonesInteraccion: false, // No tenemos cache de likes aquí
+            mostrarBotonSeguir: false, // Ya estamos en destacados o siguiendo
+            esPerfilPropio: false, // Asumimos false
+            correoActual: correoActual
+          });
+          container.appendChild(card.element);
         }
-        
-        const fecha = new Date(pub.fecha_pub);
-        const fechaFormateada = formatearFecha(fecha);
-        
-        article.innerHTML = `
-          <div class="pub-header">
-            <div class="pub-user-info">
-              <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-user-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
-                ${pub.foto ? 
-                  `<img src="${pub.foto}" alt="${escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
-                  `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
-                }
-              </a>
-              <div style="flex: 1;">
-                <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-username-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
-                  <strong class="pub-username">@${escapeHtml(pub.usuario)}</strong>
-                </a>
-                <small class="pub-fecha">${fechaFormateada}</small>
-              </div>
-            </div>
-          </div>
-          
-          <div class="pub-content">
-            <p class="pub-text">${escapeHtml(pub.publicacion)}</p>
-          </div>
-          
-          ${pub.cancion ? `
-            <div class="pub-cancion">
-              ${pub.imagen_cancion ? 
-                `<img src="${pub.imagen_cancion}" alt="cover" class="pub-cancion-img">` : 
-                ''
-              }
-              <div class="pub-cancion-info">
-                <strong class="pub-cancion-nombre">${escapeHtml(pub.cancion)}</strong>
-                <p class="pub-cancion-artista">${escapeHtml(pub.artista || '')}</p>
-              </div>
-            </div>
-          ` : ""}
-          
-          <div class="pub-stats">
-            <span><i class="bi bi-heart-fill text-danger"></i> ${pub.likes || 0}</span>
-            <span><i class="bi bi-chat-fill text-primary"></i> ${pub.comentarios || 0}</span>
-          </div>
-        `;
-        
-        container.appendChild(article);
       });
 
       //console.log(' Publicaciones de seguidos cargadas');
@@ -434,78 +388,78 @@
     if (target === "#seccion-siguiendo") cargarPublicacionesSiguiendo();
   });
 
-// Ejecutar la comprobación del tab activo (sea que DOMContentLoaded ya pasó o no)
-function cargarSeccionInicialSiCorresponde() {
-  try {
-    //console.log(' Comprobando tab activo al inicio...');
-    const activeTab = document.querySelector(".nav-link.active");
+  // Ejecutar la comprobación del tab activo (sea que DOMContentLoaded ya pasó o no)
+  function cargarSeccionInicialSiCorresponde() {
+    try {
+      //console.log(' Comprobando tab activo al inicio...');
+      const activeTab = document.querySelector(".nav-link.active");
 
-    if (!activeTab) {
-      console.warn(' No se encontró .nav-link.active');
+      if (!activeTab) {
+        console.warn(' No se encontró .nav-link.active');
+        return;
+      }
+
+      const target = activeTab.getAttribute("data-bs-target");
+      //console.log('➡ Tab activo detectado:', activeTab.id || activeTab.textContent.trim(), '->', target);
+
+      if (target === "#seccion-perfiles") {
+        cargarPerfilesPopulares();
+      } else if (target === "#seccion-destacadas") {
+        cargarPublicacionesDestacadas();
+      } else if (target === "#seccion-siguiendo") {
+        cargarPublicacionesSiguiendo();
+      } else {
+        //console.log('ℹ Ninguna sección a cargar para target:', target);
+      }
+    } catch (err) {
+      console.error(' Error en cargarSeccionInicialSiCorresponde:', err);
+    }
+  }
+
+  // Si el DOM ya se cargó, ejecutar ahora; si no, esperar DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', cargarSeccionInicialSiCorresponde);
+  } else {
+    // DOM ya listo — ejecutar inmediatamente
+    cargarSeccionInicialSiCorresponde();
+  }
+
+  // Re-ejecutar la carga inicial si se vuelve a la sección Explorar
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      //console.log(" Volviste a esta sección — revisando tab activo...");
+      cargarSeccionInicialSiCorresponde();
+    }
+  });
+
+  window.init_explorar = function () {
+    //console.log(" Reinicializando explorar.js...");
+    cargarSeccionInicialSiCorresponde();
+  };
+
+  // Listener global para cargar el perfil como SPA
+  document.addEventListener("click", function (e) {
+    const link = e.target.closest(".load-page-perfil");
+    if (!link) return;
+
+    e.preventDefault();
+
+    const idUsuario = link.getAttribute("data-id") ||
+      link.getAttribute("data-id-usuario") ||
+      new URL(link.href).searchParams.get("id");
+
+    if (!idUsuario) {
+      console.error(" No se encontró el ID de usuario en load-page-perfil");
       return;
     }
 
-    const target = activeTab.getAttribute("data-bs-target");
-    //console.log('➡ Tab activo detectado:', activeTab.id || activeTab.textContent.trim(), '->', target);
-
-    if (target === "#seccion-perfiles") {
-      cargarPerfilesPopulares();
-    } else if (target === "#seccion-destacadas") {
-      cargarPublicacionesDestacadas();
-    } else if (target === "#seccion-siguiendo") {
-      cargarPublicacionesSiguiendo();
+    if (typeof loadPage === "function") {
+      loadPage(`perfil-usuario.html?id=${idUsuario}`);
     } else {
-      //console.log('ℹ Ninguna sección a cargar para target:', target);
+      console.warn(" loadPage no está disponible, abriendo normal");
+      window.location.href = `perfil-usuario.html?id=${idUsuario}`;
     }
-  } catch (err) {
-    console.error(' Error en cargarSeccionInicialSiCorresponde:', err);
-  }
-}
-
-// Si el DOM ya se cargó, ejecutar ahora; si no, esperar DOMContentLoaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', cargarSeccionInicialSiCorresponde);
-} else {
-  // DOM ya listo — ejecutar inmediatamente
-  cargarSeccionInicialSiCorresponde();
-}
-
-// Re-ejecutar la carga inicial si se vuelve a la sección Explorar
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) {
-    //console.log(" Volviste a esta sección — revisando tab activo...");
-    cargarSeccionInicialSiCorresponde();
-  }
-});
-
-window.init_explorar = function () {
-  //console.log(" Reinicializando explorar.js...");
-  cargarSeccionInicialSiCorresponde();
-};
-
-// Listener global para cargar el perfil como SPA
-document.addEventListener("click", function (e) {
-  const link = e.target.closest(".load-page-perfil");
-  if (!link) return;
-
-  e.preventDefault();
-
-  const idUsuario = link.getAttribute("data-id") || 
-                    link.getAttribute("data-id-usuario") ||
-                    new URL(link.href).searchParams.get("id");
-
-  if (!idUsuario) {
-    console.error(" No se encontró el ID de usuario en load-page-perfil");
-    return;
-  }
-
-  if (typeof loadPage === "function") {
-    loadPage(`perfil-usuario.html?id=${idUsuario}`);
-  } else {
-    console.warn(" loadPage no está disponible, abriendo normal");
-    window.location.href = `perfil-usuario.html?id=${idUsuario}`;
-  }
-});
+  });
 
 
 })();
