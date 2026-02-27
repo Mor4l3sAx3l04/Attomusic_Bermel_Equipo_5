@@ -27,6 +27,7 @@ function init_panel_admin() {
   // Cargar datos cuando se cambia de tab
   document.getElementById('publicaciones-tab')?.addEventListener('shown.bs.tab', cargarTodasPublicaciones);
   document.getElementById('usuarios-tab')?.addEventListener('shown.bs.tab', cargarUsuarios);
+  document.getElementById('cuentas-eliminadas-tab')?.addEventListener('shown.bs.tab', cargarCuentasEliminadas);
 }
 
 // Verificar que el usuario sea admin
@@ -550,6 +551,77 @@ function filtrarUsuarios() {
 
     card.style.display = (cumpleBusqueda && cumpleRol) ? 'flex' : 'none';
   });
+}
+
+// SECCIÓN 4: CUENTAS ELIMINADAS POR USUARIOS
+
+async function cargarCuentasEliminadas() {
+  const lista = document.getElementById('listaCuentasEliminadas');
+  if (!lista) return;
+  lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-danger"></div><p class="mt-3 text-muted">Cargando registros...</p></div>';
+
+  try {
+    const res = await fetch('/api/admin/cuentas-eliminadas');
+    const registros = await res.json();
+
+    document.getElementById('badge-cuentas-eliminadas').textContent = registros.length;
+
+    if (registros.length === 0) {
+      lista.innerHTML = `
+        <div class="text-center p-5">
+          <i class="bi bi-person-check-fill" style="font-size: 4rem; color: #4CAF50;"></i>
+          <h3 class="mt-3">Sin registros</h3>
+          <p class="text-muted">Ningún usuario ha eliminado su cuenta todavía.</p>
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = '';
+    registros.forEach(reg => {
+      const card = crearCardCuentaEliminada(reg);
+      lista.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error('Error cargando cuentas eliminadas:', err);
+    lista.innerHTML = '<div class="alert alert-danger">Error al cargar los registros.</div>';
+  }
+}
+
+function crearCardCuentaEliminada(reg) {
+  const div = document.createElement('div');
+  div.className = 'usuario-card';
+  div.style.borderLeft = '4px solid #ff4d6d';
+
+  const fecha = new Date(reg.fecha_eliminacion);
+  const fechaStr = fecha.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  const inicialLetra = reg.usuario ? reg.usuario.charAt(0).toUpperCase() : '?';
+
+  div.innerHTML = `
+    <div class="usuario-avatar-text" style="background: linear-gradient(135deg, #ff4d6d, #c9184a); flex-shrink:0;">
+      ${window.escapeHtml(inicialLetra)}
+    </div>
+
+    <div class="usuario-info" style="flex:1;">
+      <p class="usuario-nombre" style="color:#ff4d6d;">
+        <i class="bi bi-person-x-fill me-1"></i>${window.escapeHtml(reg.usuario)}
+      </p>
+      <p class="usuario-correo">${window.escapeHtml(reg.correo)}</p>
+      <div style="margin-top:8px; padding: 10px 14px; background: rgba(255,77,109,0.08); border-radius: 10px; border-left: 3px solid #ff4d6d;">
+        <small style="color: rgba(255,255,255,0.5); display:block; margin-bottom:4px;">
+          <i class="bi bi-chat-quote-fill me-1"></i>Motivo:
+        </small>
+        <span style="color: rgba(255,255,255,0.85); font-size:0.93rem;">${window.escapeHtml(reg.motivo)}</span>
+      </div>
+      <small class="text-muted d-block mt-2">
+        <i class="bi bi-calendar-x me-1"></i>Eliminada el: ${fechaStr}
+      </small>
+    </div>
+  `;
+
+  return div;
 }
 
 // Inicializar cuando se cargue el documento

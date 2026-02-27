@@ -225,4 +225,19 @@ router.delete("/usuario/:id", async (req, res) => {
   }
 });
 
+// RUTA: Obtener cuentas eliminadas por sus propios usuarios
+router.get("/cuentas-eliminadas", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id_registro, id_usuario, usuario, correo, motivo, fecha_eliminacion
+      FROM cuenta_eliminada
+      ORDER BY fecha_eliminacion DESC
+    `);
+    return res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo cuentas eliminadas:", err);
+    return responses.error(res, "Error en el servidor");
+  }
+});
+
 module.exports = router;
