@@ -1,6 +1,7 @@
 // routes/users.js
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
 const pool = require("../utils/database");
 const responses = require("../utils/responses");
 const queries = require("../utils/queries");
@@ -36,7 +37,7 @@ router.get("/perfil-publico/:id_usuario", async (req, res) => {
 
     const userResult = await pool.query(
       `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado, fondo_perfil 
-       FROM usuario WHERE id_usuario = $1`, 
+       FROM usuario WHERE id_usuario = $1`,
       [id_usuario]
     );
 
@@ -93,15 +94,15 @@ router.put("/perfil", getUserFromEmail, async (req, res) => {
     if (nuevoUsuario) { updates.push(`usuario = $${paramCounter++}`); values.push(nuevoUsuario); }
     if (nuevoCorreo) { updates.push(`correo = $${paramCounter++}`); values.push(nuevoCorreo); }
     if (foto !== undefined) { updates.push(`foto = $${paramCounter++}`); values.push(foto); }
-    
+
     // NUEVOS CAMPOS DE ESTILO
-    if (fondo_perfil !== undefined) { 
-      updates.push(`fondo_perfil = $${paramCounter++}`); 
-      values.push(fondo_perfil); 
+    if (fondo_perfil !== undefined) {
+      updates.push(`fondo_perfil = $${paramCounter++}`);
+      values.push(fondo_perfil);
     }
-    if (fondo_publicaciones !== undefined) { 
-      updates.push(`fondo_publicaciones = $${paramCounter++}`); 
-      values.push(fondo_publicaciones); 
+    if (fondo_publicaciones !== undefined) {
+      updates.push(`fondo_publicaciones = $${paramCounter++}`);
+      values.push(fondo_publicaciones);
     }
 
     if (updates.length === 0) return responses.badRequest(res, "No hay datos");
@@ -349,6 +350,69 @@ router.get("/usuarios/populares", async (req, res) => {
   } catch (err) {
     console.error("Error obteniendo usuarios populares:", err);
     return responses.error(res, "Error obteniendo usuarios populares");
+  }
+});
+
+// RUTA: Auto-eliminar cuenta (el propio usuario)
+router.delete("/eliminar-cuenta", getUserFromEmail, async (req, res) => {
+  const { contrasena, motivo } = req.body;
+  const correo = req.user.correo;
+
+  if (!contrasena || !motivo || motivo.trim() === '') {
+    return responses.badRequest(res, "La contraseña y el motivo son obligatorios");
+  }
+
+  const client = await pool.connect();
+  try {
+    // 1) Obtener datos del usuario para verificar contraseña y guardar registro
+    const userResult = await client.query(
+      "SELECT id_usuario, usuario, correo, contrasena FROM usuario WHERE correo = $1",
+      [correo]
+    );
+
+    if (userResult.rowCount === 0) {
+      client.release();
+      return responses.notFound(res, "Usuario");
+    }
+
+    const user = userResult.rows[0];
+
+    // 2) Verificar contraseña con bcrypt
+    const match = await bcrypt.compare(contrasena, user.contrasena);
+    if (!match) {
+      client.release();
+      return responses.unauthorized(res, "Contraseña incorrecta");
+    }
+
+    await client.query("BEGIN");
+
+    // 3) Guardar registro en cuenta_eliminada ANTES de borrar al usuario
+    await client.query(
+      `INSERT INTO cuenta_eliminada (id_usuario, usuario, correo, motivo)
+       VALUES ($1, $2, $3, $4)`,
+      [user.id_usuario, user.usuario, user.correo, motivo.trim()]
+    );
+
+    // 4) Eliminar todos los datos del usuario en cascada
+    await client.query("DELETE FROM comentario WHERE id_usuario = $1", [user.id_usuario]);
+    await client.query("DELETE FROM reaccion WHERE id_usuario = $1", [user.id_usuario]);
+    await client.query("DELETE FROM reporte WHERE id_usuario = $1", [user.id_usuario]);
+    await client.query(
+      "DELETE FROM seguimiento WHERE id_usuario_seguidor = $1 OR id_usuario_seguido = $1",
+      [user.id_usuario]
+    );
+    await client.query("DELETE FROM publicacion WHERE id_usuario = $1", [user.id_usuario]);
+    await client.query("DELETE FROM usuario WHERE id_usuario = $1", [user.id_usuario]);
+
+    await client.query("COMMIT");
+
+    return res.json({ message: "Cuenta eliminada correctamente" });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("Error eliminando cuenta:", err);
+    return responses.error(res, "Error al eliminar la cuenta");
+  } finally {
+    client.release();
   }
 });
 

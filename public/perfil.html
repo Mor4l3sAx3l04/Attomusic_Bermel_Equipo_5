@@ -13,7 +13,31 @@
   <div class="container my-5">
     <div class="perfil-container">
       <!-- Header del perfil -->
-      <div class="perfil-header">
+      <div class="perfil-header" style="position: relative;">
+        <!-- Botón Eliminar Cuenta -->
+        <button id="btnEliminarCuenta" style="
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: transparent;
+            border: 1.5px solid #ff4d6d;
+            color: #ff4d6d;
+            border-radius: 10px;
+            padding: 7px 16px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all 0.22s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 10;
+          " onmouseenter="this.style.background='#ff4d6d';this.style.color='white';"
+          onmouseleave="this.style.background='transparent';this.style.color='#ff4d6d';"
+          onclick="abrirModalEliminarCuenta()">
+          <i class="bi bi-trash3"></i> Eliminar Cuenta
+        </button>
         <div class="perfil-foto-container">
           <img id="perfilFoto" src="https://i.pravatar.cc/150?img=12" alt="Foto de perfil" class="perfil-foto">
           <button class="perfil-foto-edit" id="btnCambiarFoto">
@@ -215,6 +239,72 @@
     </div>
   </div>
 
+  <!-- Modal Eliminar Cuenta -->
+  <div class="modal fade" id="modalEliminarCuenta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width: 440px;">
+      <div class="modal-content border-0"
+        style="background: linear-gradient(135deg, #1a001f 0%, #1a0010 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(255,77,109,0.35); color: white;">
+        <div class="modal-body p-0">
+          <div style="padding: 40px 36px;">
+
+            <!-- Ícono + título -->
+            <div style="text-align: center; margin-bottom: 28px;">
+              <div
+                style="width: 64px; height: 64px; background: rgba(255,77,109,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
+                <i class="bi bi-trash3-fill" style="font-size: 1.9rem; color: #ff4d6d;"></i>
+              </div>
+              <h2 style="font-size: 1.5rem; font-weight: 800; color: white; margin: 0;">¿Eliminar tu cuenta?</h2>
+              <p style="color: rgba(255,255,255,0.55); font-size: 0.88rem; margin-top: 8px; margin-bottom: 0;">
+                Esta acción es <strong style="color:#ff4d6d;">irreversible</strong>. Se borrarán todos tus datos,
+                publicaciones y seguidores.
+              </p>
+            </div>
+
+            <!-- Campo: Contraseña -->
+            <div style="margin-bottom: 20px; position: relative;">
+              <input type="password" id="eliminarContrasena" placeholder="Confirma tu contraseña" style="width: 100%; padding: 13px 16px 13px 42px; border: 1.5px solid rgba(255,77,109,0.5); border-radius: 12px;
+                       font-size: 0.95rem; background: rgba(255,255,255,0.06); color: white; outline: none; box-sizing: border-box;
+                       transition: border-color 0.2s;" onfocus="this.style.borderColor='#ff4d6d'"
+                onblur="this.style.borderColor='rgba(255,77,109,0.5)'">
+              <i class="bi bi-lock-fill"
+                style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ff4d6d; font-size: 1rem;"></i>
+            </div>
+
+            <!-- Campo: Motivo -->
+            <div style="margin-bottom: 28px; position: relative;">
+              <textarea id="eliminarMotivo" rows="3" placeholder="¿Por qué quieres eliminar tu cuenta? (obligatorio)"
+                style="width: 100%; padding: 13px 16px 13px 42px; border: 1.5px solid rgba(255,77,109,0.5); border-radius: 12px;
+                       font-size: 0.92rem; background: rgba(255,255,255,0.06); color: white; outline: none; resize: none; box-sizing: border-box;
+                       transition: border-color 0.2s;" onfocus="this.style.borderColor='#ff4d6d'"
+                onblur="this.style.borderColor='rgba(255,77,109,0.5)'"></textarea>
+              <i class="bi bi-chat-text-fill"
+                style="position: absolute; left: 14px; top: 14px; color: #ff4d6d; font-size: 1rem;"></i>
+            </div>
+
+            <!-- Botones -->
+            <div style="display: flex; gap: 12px;">
+              <button type="button"
+                style="flex: 1; padding: 13px; background: transparent; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 12px;
+                       color: rgba(255,255,255,0.7); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                onmouseenter="this.style.borderColor='white';this.style.color='white';"
+                onmouseleave="this.style.borderColor='rgba(255,255,255,0.25)';this.style.color='rgba(255,255,255,0.7)';"
+                data-bs-dismiss="modal">
+                <i class="bi bi-x-lg"></i> No, cancelar
+              </button>
+              <button type="button" id="btnConfirmarEliminar" style="flex: 1; padding: 13px; background: linear-gradient(135deg, #ff4d6d, #c9184a); border: none; border-radius: 12px;
+                       color: white; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(255,77,109,0.4);
+                       transition: opacity 0.2s;" onmouseenter="this.style.opacity='0.85'"
+                onmouseleave="this.style.opacity='1'" onclick="confirmarEliminarCuenta()">
+                <i class="bi bi-trash3"></i> Sí, eliminar
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="js/utils.js"></script>
   <script src="js/components/PublicacionCard.js"></script>
   <script src="js/main.js"></script>
@@ -241,6 +331,76 @@
     // Inicializar funciones de carga
     if (window.cargarPerfil) window.cargarPerfil();
     if (window.inicializarPerfil) window.inicializarPerfil();
+
+    // ─── ELIMINAR CUENTA ───────────────────────────────────────────────
+    let _modalEliminar = null;
+
+    function abrirModalEliminarCuenta() {
+      document.getElementById('eliminarContrasena').value = '';
+      document.getElementById('eliminarMotivo').value = '';
+      if (!_modalEliminar) {
+        _modalEliminar = new bootstrap.Modal(document.getElementById('modalEliminarCuenta'));
+      }
+      _modalEliminar.show();
+    }
+
+    async function confirmarEliminarCuenta() {
+      const contrasena = document.getElementById('eliminarContrasena').value.trim();
+      const motivo = document.getElementById('eliminarMotivo').value.trim();
+      const btn = document.getElementById('btnConfirmarEliminar');
+
+      if (!contrasena) {
+        window.mostrarToast('Debes ingresar tu contraseña', 'error');
+        return;
+      }
+      if (!motivo) {
+        window.mostrarToast('El motivo es obligatorio', 'error');
+        return;
+      }
+
+      // Deshabilitar botón mientras procesa
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Eliminando...';
+
+      try {
+        const usuario = window.getUsuarioActual();
+        if (!usuario) {
+          window.mostrarToast('No hay sesión activa', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-trash3"></i> Sí, eliminar';
+          return;
+        }
+
+        const res = await fetch('/api/eliminar-cuenta', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ correo: usuario.correo, contrasena, motivo })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Limpiar sesión local
+          localStorage.removeItem('usuario');
+          sessionStorage.clear();
+          if (_modalEliminar) _modalEliminar.hide();
+          window.mostrarToast('Tu cuenta fue eliminada. ¡Hasta luego!', 'success');
+          setTimeout(() => { loadPage('bienvenido.html'); }, 2200);
+        } else {
+          window.mostrarToast(data.message || 'Error al eliminar la cuenta', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-trash3"></i> Sí, eliminar';
+        }
+      } catch (err) {
+        console.error('Error eliminando cuenta:', err);
+        window.mostrarToast('Error de conexión', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-trash3"></i> Sí, eliminar';
+      }
+    }
+    // ───────────────────────────────────────────────────────────────────
   </script>
 </body>
 
