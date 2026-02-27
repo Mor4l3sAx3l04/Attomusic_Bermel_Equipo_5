@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Admin</title>
-  <link rel="stylesheet" href="css/panel-admin.css">
 </head>
 
 <body>
@@ -44,6 +43,13 @@
           <i class="bi bi-person-x-fill"></i>
           Cuentas Eliminadas
           <span class="badge bg-danger" id="badge-cuentas-eliminadas">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="estadisticas-tab" data-bs-toggle="tab" data-bs-target="#estadisticas"
+          type="button">
+          <i class="bi bi-bar-chart-fill"></i>
+          Estadísticas
         </button>
       </li>
     </ul>
@@ -121,6 +127,76 @@
         </div>
       </div>
 
+      <!-- TAB: ESTADÍSTICAS -->
+      <div class="tab-pane fade" id="estadisticas" role="tabpanel">
+        <div class="admin-section-header">
+          <h2 id="stats-titulo">Estadísticas</h2>
+          <button class="btn btn-outline-primary btn-sm" onclick="cargarEstadisticas()">
+            <i class="bi bi-arrow-clockwise"></i> Actualizar
+          </button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div id="statsKPIs" class="stats-kpi-row"></div>
+
+        <!-- Fila 1: Publicaciones por día + Resumen de cuentas -->
+        <div class="stats-grid-2">
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-graph-up"></i> Publicaciones últimos 14 días</h5>
+            <canvas id="chartPublicacionesDia" height="220"></canvas>
+          </div>
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-people"></i> Estado de Cuentas</h5>
+            <canvas id="chartCuentas" height="220"></canvas>
+          </div>
+        </div>
+
+        <!-- Fila 2: Géneros + Artistas -->
+        <div class="stats-grid-2">
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-music-note-list"></i> Géneros Más Escuchados</h5>
+            <canvas id="chartGeneros" height="260"></canvas>
+          </div>
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-mic-fill"></i> Artistas Más Oidos</h5>
+            <canvas id="chartArtistas" height="260"></canvas>
+          </div>
+        </div>
+
+        <!-- Fila 3: Usuarios activos + Seguidores -->
+        <div class="stats-grid-2">
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-lightning-fill"></i> Usuarios Más Activos</h5>
+            <canvas id="chartUsuariosActivos" height="260"></canvas>
+          </div>
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-person-hearts"></i> Top Usuarios por Seguidores</h5>
+            <canvas id="chartSeguidores" height="260"></canvas>
+          </div>
+        </div>
+
+        <!-- Fila 4: Canciones mejor calificadas + Cuentas eliminadas por mes -->
+        <div class="stats-grid-2">
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-star-fill"></i> Canciones Más Calificadas</h5>
+            <canvas id="chartCanciones" height="260"></canvas>
+          </div>
+          <div class="stats-card">
+            <h5 class="stats-card-title"><i class="bi bi-person-x"></i> Cuentas Eliminadas por Mes</h5>
+            <canvas id="chartEliminadas" height="260"></canvas>
+          </div>
+        </div>
+
+        <!-- Fila 5: Distribución de roles (ancho completo) -->
+        <div class="stats-grid-1">
+          <div class="stats-card" style="max-width:400px; margin:0 auto;">
+            <h5 class="stats-card-title"><i class="bi bi-shield-halved"></i> Distribución de Roles</h5>
+            <canvas id="chartRoles" height="200"></canvas>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </div>
 
@@ -183,10 +259,16 @@
     animarTituloGlobal('#pub-t', 'Todas las Publicaciones');
     animarTituloGlobal('#gestion-usu', 'Gestión de Usuarios');
     animarTituloGlobal('#cuentas-el-titulo', 'Cuentas Eliminadas');
+    animarTituloGlobal('#stats-titulo', 'Estadísticas del Sistema');
 
     document.querySelectorAll('.modal').forEach(modal => {
       document.body.appendChild(modal);
     });
+
+    const estadisticasTab = document.getElementById('estadisticas-tab');
+    if (estadisticasTab && typeof cargarEstadisticas === 'function') {
+      estadisticasTab.addEventListener('shown.bs.tab', cargarEstadisticas);
+    }
   </script>
 </body>
 
