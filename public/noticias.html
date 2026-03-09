@@ -8,17 +8,35 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="shortcut icon" href="images/icono.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <style>
+    lord-icon {
+      --lord-icon-primary: #ba01ff;
+      --lord-icon-secondary: #00dffc;
+    }
+    html[data-bs-theme="dark"] lord-icon {
+      --lord-icon-primary: #d580ff;
+      --lord-icon-secondary: #00dffc;
+    }
+  </style>
 </head>
 <body>
 
   <div class="news-header mb-5 fade-up-section text-center">
+    <lord-icon
+      src="https://cdn.lordicon.com/ifyskbjd.json"
+      trigger="loop"
+      delay="600"
+      style="width:80px;height:80px;">
+    </lord-icon>
     <h1 id="titulo-noticias" style="font-size: 70px;"></h1>
     <p class="text-muted">Entérate de lo último en el mundo musical.</p>
   </div>
+
   <div class="container-noticias"></div>
 
+  <script src="https://cdn.lordicon.com/lordicon.js"></script>
   <script src="/js/noticias.js"></script>
   <script>
     if (window.mainNoticias) window.mainNoticias();
