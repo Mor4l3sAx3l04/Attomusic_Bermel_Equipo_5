@@ -170,7 +170,7 @@ function crearCardReporte(reporte) {
         <i class="bi bi-check-circle"></i>
         Marcar como Resuelto
       </button>
-      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${pub.id_publicacion}, 'publicacion')">
+      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${reporte.id_publicacion}, 'publicacion')">
         <i class="bi bi-trash"></i>
         Eliminar Publicación
       </button>
