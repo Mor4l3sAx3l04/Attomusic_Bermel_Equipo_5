@@ -25,6 +25,7 @@ const spotifyRoutes = require("./routes/spotify");
 const newsRoutes = require("./routes/news");
 const recomendacionesRoutes = require("./routes/recomendaciones");
 const cancionesRoutes = require("./routes/canciones");
+const notificacionesRouter = require("./routes/notificaciones");
 
 // USAR RUTAS
 app.use("/", authRoutes);
@@ -44,6 +45,9 @@ app.use("/api/recomendaciones", recomendacionesRoutes);
 
 // Canciones (calificaciones y comentarios)
 app.use("/api/canciones", cancionesRoutes);
+
+//Notificaciones 
+app.use("/api/notificaciones", notificacionesRouter);
 
 // Panel de Administración
 app.use("/api/admin", adminRoutes);

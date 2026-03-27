@@ -37,11 +37,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("searchInput");
 
   if (searchBtn && searchInput) {
-    // Función para realizar búsqueda
     function realizarBusqueda() {
       const query = sanitizeInput(searchInput.value.trim());
       if (isNotEmpty(query)) {
-        //console.log(' Buscando:', query);
         loadPage(`buscador.html?q=${encodeURIComponent(query)}&type=track,artist,album`);
         searchInput.classList.remove("is-invalid");
       } else {
@@ -49,19 +47,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Click en el botón de búsqueda
     searchBtn.addEventListener("click", () => {
       if (!searchInput.classList.contains("active")) {
-        // Expandir el input
         searchInput.classList.add("active");
         searchInput.focus();
       } else {
-        // Realizar búsqueda
         realizarBusqueda();
       }
     });
 
-    // Enter en el input
     searchInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -69,14 +63,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Quitar el error al escribir
     searchInput.addEventListener("input", function () {
       if (this.value.trim().length > 0) {
         this.classList.remove("is-invalid");
       }
     });
 
-    // Quitar el error al hacer blur
     searchInput.addEventListener("blur", function () {
       if (isNotEmpty(this.value)) {
         this.classList.remove("is-invalid");
@@ -84,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  //Formularios (registro/login/comentarios) 
+  //Formularios (registro/login/comentarios)
   document.querySelectorAll("form").forEach(form => {
     form.addEventListener("submit", function (e) {
       let valid = true;
@@ -109,12 +101,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Validación en tiempo real para números
     form.querySelectorAll('input[type="number"]').forEach(input => {
       input.addEventListener("keypress", allowOnlyNumbers);
     });
 
-    // Quitar el rojo al interactuar
     form.querySelectorAll("input, textarea").forEach(input => {
       input.addEventListener("input", function () {
         if (isNotEmpty(this.value)) this.classList.remove("is-invalid");
@@ -182,8 +172,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 //Carga dinámica de páginas
-
-// Mantener registro de scripts cargados
 window._loadedScripts = window._loadedScripts || new Set();
 
 function loadPage(url) {
@@ -195,8 +183,6 @@ function loadPage(url) {
   const urlObj = new URL(pagePath, window.location.origin);
   const params = urlObj.search;
 
-  //console.log(' Cargando página:', urlObj.pathname);
-
   fetch(urlObj.pathname)
     .then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -207,21 +193,16 @@ function loadPage(url) {
       mainContent.innerHTML = html;
       window.scrollTo(0, 0);
 
-      // Pasar parámetros
       const urlParams = new URLSearchParams(params);
       if (urlObj.pathname.includes('perfil-usuario.html') && urlParams.get('id')) {
         window._perfilUsuarioId = urlParams.get('id');
-        //console.log(' ID usuario:', window._perfilUsuarioId);
       }
 
       if (urlObj.pathname.includes('buscador.html')) {
         window._searchParams = params;
       }
 
-      // Procesar scripts
       const scripts = Array.from(mainContent.querySelectorAll('script'));
-
-      // Primero cargar scripts externos
       const externalScripts = scripts.filter(s => s.src);
       const inlineScripts = scripts.filter(s => !s.src);
 
@@ -230,18 +211,12 @@ function loadPage(url) {
           return new Promise((resolve, reject) => {
             const src = oldScript.src;
 
-            // Si ya está cargado, resolver inmediatamente
             if (window._loadedScripts.has(src)) {
-              //console.log(' Script desde caché, pero ejecutando init nuevamente:', src);
-
-              // Intentar ejecutar una función init si existe
               const scriptName = src.split('/').pop().replace('.js', '');
               const initFn = window[`init_${scriptName}`];
-
               if (typeof initFn === 'function') {
                 initFn();
               }
-
               resolve();
               return;
             }
@@ -252,7 +227,6 @@ function loadPage(url) {
 
             newScript.onload = () => {
               window._loadedScripts.add(src);
-              //console.log(' Script cargado:', src);
               resolve();
             };
 
@@ -266,14 +240,12 @@ function loadPage(url) {
         })
       )
         .then(() => {
-          // Luego ejecutar scripts inline
           inlineScripts.forEach(oldScript => {
             const newScript = document.createElement('script');
             newScript.textContent = oldScript.textContent;
             document.body.appendChild(newScript);
           });
 
-          // Aplicar estilos después de que todo cargó
           setTimeout(() => {
             if (typeof aplicarColoresIconos === 'function') {
               aplicarColoresIconos();
@@ -333,12 +305,10 @@ if (formRegistro) {
         this.reset();
 
         localStorage.setItem("usuario", JSON.stringify({ usuario, correo }));
-
         sessionStorage.setItem('correo', correo);
         sessionStorage.setItem('usuario', usuario);
 
         actualizarInterfaz();
-
       } else {
         showToast(data.error || "Error al registrar usuario", "error");
       }
@@ -387,10 +357,8 @@ if (formLogin) {
         sessionStorage.setItem('id_usuario', data.user.id_usuario);
         sessionStorage.setItem('rol', data.user.rol);
 
-        //console.log('Sesión guardada en sessionStorage');
-        //console.log(' Correo:', sessionStorage.getItem('correo'));
-
         actualizarInterfaz();
+        // Las notificaciones las inicia actualizarInterfaz() automáticamente
 
       } else {
         showToast(data.error || "Usuario o contraseña incorrectos", "error");
@@ -444,7 +412,6 @@ if (formReset) {
     }
   });
 
-  // Toggle para mostrar/ocultar contraseña
   const btnEyeReset = document.querySelector('.btn-eye-reset');
   const resetPasswordInput = document.getElementById('resetPassword');
   if (btnEyeReset && resetPasswordInput) {
@@ -458,27 +425,28 @@ if (formReset) {
   }
 }
 
+// ─────────────────────────────────────────────────────────
+// actualizarInterfaz: muestra/oculta campanita + perfil
+// ─────────────────────────────────────────────────────────
 async function actualizarInterfaz() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-  const btnLogin = document.getElementById("btn-login");
-  const btnRegister = document.getElementById("btn-register");
+  const btnLogin       = document.getElementById("btn-login");
+  const btnRegister    = document.getElementById("btn-register");
   const perfilContainer = document.getElementById("perfil-container");
-  const perfilNombre = document.getElementById("perfil-nombre");
+  const perfilNombre   = document.getElementById("perfil-nombre");
+  const notifWrap      = document.getElementById("notif-wrap");   // 🔔 campanita
 
   if (usuario) {
-    // Obtener foto del usuario desde el backend
+    // Obtener foto y rol desde el backend
     try {
       const res = await fetch(`/api/perfil/${usuario.correo}`);
       if (res.ok) {
         const data = await res.json();
 
-        // Actualizar foto en el dropdown
         const perfilPic = perfilContainer.querySelector('.profile-pic');
-        if (perfilPic && data.foto) {
-          perfilPic.src = data.foto;
-        }
-        // Mostrar/ocultar Panel Admin según el rol
+        if (perfilPic && data.foto) perfilPic.src = data.foto;
+
         const panelAdminLink = document.getElementById('panel-admin-link');
         if (panelAdminLink) {
           panelAdminLink.style.display = data.rol === 'admin' ? 'block' : 'none';
@@ -488,22 +456,32 @@ async function actualizarInterfaz() {
       console.warn("No se pudo cargar la foto del perfil");
     }
 
-    // Mostrar perfil y ocultar botones
-    btnLogin.style.display = "none";
+    // Mostrar navbar de usuario logueado
+    btnLogin.style.display    = "none";
     btnRegister.style.display = "none";
     perfilContainer.style.display = "inline-block";
-    perfilNombre.textContent = usuario.usuario;
+    perfilNombre.textContent  = usuario.usuario;
+
+    // 🔔 Mostrar campanita e iniciar polling de notificaciones
+    if (notifWrap) notifWrap.style.cssText = "display: flex !important; align-items: center;";
+    if (window.Notificaciones) window.Notificaciones.iniciar();
+
   } else {
-    // Mostrar botones, ocultar perfil
-    btnLogin.style.display = "inline-block";
+    // Mostrar navbar de visitante
+    btnLogin.style.display    = "inline-block";
     btnRegister.style.display = "inline-block";
     perfilContainer.style.display = "none";
+
+    // 🔔 Ocultar campanita y detener polling
+    if (notifWrap) notifWrap.style.cssText = "display: none !important;";
+    if (window.Notificaciones) window.Notificaciones.detener();
   }
 }
 
+// ─────────────────────────────────────────────────────────
 // Cerrar sesión
+// ─────────────────────────────────────────────────────────
 document.getElementById("btn-logout").addEventListener("click", () => {
-
   localStorage.removeItem("usuario");
   sessionStorage.removeItem('correo');
   sessionStorage.removeItem('usuario');
@@ -511,7 +489,7 @@ document.getElementById("btn-logout").addEventListener("click", () => {
   sessionStorage.removeItem('rol');
 
   showToast("Sesión cerrada correctamente", "success");
-  actualizarInterfaz();
+  actualizarInterfaz(); // esto ya llama a Notificaciones.detener() internamente
 });
 
 // Al cargar la página, verificar sesión
@@ -540,7 +518,6 @@ window.cargarPerfil = async function () {
         perfilContainer.style.backgroundImage = `url(${data.fondo_perfil})`;
         perfilContainer.style.backgroundSize = "cover";
         perfilContainer.style.backgroundPosition = "center";
-        // Opcional: añadir una clase para que el texto resalte sobre el fondo
         perfilContainer.classList.add("con-fondo-personalizado");
       }
 
@@ -559,7 +536,6 @@ window.cargarPerfil = async function () {
 
       setTimeout(actualizarLabelsInput, 100);
 
-      // Cargar publicaciones del usuario
       window.cargarPublicaciones(usuarioActual.correo);
     } else {
       window.mostrarToast(data.error || "Error al cargar perfil", "error");
@@ -570,18 +546,16 @@ window.cargarPerfil = async function () {
   }
 }
 
-// Función para guardar los fondos personalizados
 window.guardarEstilos = async function (e) {
   if (e) e.preventDefault();
 
   const usuarioActual = window.getUsuarioActual();
   const imgPerfil = document.getElementById('imgPreviewPerfil').src;
-  const imgPosts = document.getElementById('imgPreviewPosts').src;
+  const imgPosts  = document.getElementById('imgPreviewPosts').src;
 
-  // Solo enviamos si hay algo nuevo (si el src empieza con data:image es que es un Base64 nuevo)
   const body = { correo: usuarioActual.correo };
   if (imgPerfil.startsWith('data:image')) body.fondo_perfil = imgPerfil;
-  if (imgPosts.startsWith('data:image')) body.fondo_publicaciones = imgPosts;
+  if (imgPosts.startsWith('data:image'))  body.fondo_publicaciones = imgPosts;
 
   try {
     const res = await fetch("/api/perfil", {
@@ -593,7 +567,6 @@ window.guardarEstilos = async function (e) {
     if (res.ok) {
       window.showToast("¡Estilos actualizados! Recargando...", "success");
       bootstrap.Modal.getInstance(document.getElementById("modalEstilos")).hide();
-      // Recargamos el perfil para ver los cambios
       await window.cargarPerfil();
     } else {
       window.showToast("Error al guardar estilos", "error");
@@ -604,7 +577,6 @@ window.guardarEstilos = async function (e) {
   }
 }
 
-// Función para cargar mis publicaciones
 window.cargarPublicaciones = async function (correo) {
   const container = document.getElementById("misPublicaciones");
   if (!container) return;
@@ -612,7 +584,7 @@ window.cargarPublicaciones = async function (correo) {
   container.innerHTML = '<div class="text-center p-3"><div class="spinner-border text-primary"></div></div>';
 
   try {
-    const res = await fetch(`/api/publicaciones/usuario/${correo}`);
+    const res  = await fetch(`/api/publicaciones/usuario/${correo}`);
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.error || 'Error cargando publicaciones');
@@ -643,7 +615,7 @@ window.cargarPublicaciones = async function (correo) {
     const idUsuario = sessionStorage.getItem('id_usuario');
     if (idUsuario) {
       try {
-        const res2 = await fetch(`/api/publicaciones/usuario/${idUsuario}`);
+        const res2  = await fetch(`/api/publicaciones/usuario/${idUsuario}`);
         const data2 = await res2.json();
         if (res2.ok) {
           container.innerHTML = '';
@@ -672,29 +644,20 @@ window.cargarPublicaciones = async function (correo) {
   }
 };
 
-
-
 window.inicializarPerfil = function () {
   const usuarioActual = window.getUsuarioActual();
-
   if (!usuarioActual) return;
 
-  // Cambiar foto
   const btnCambiarFoto = document.getElementById("btnCambiarFoto");
-  const inputFoto = document.getElementById("inputFoto");
-  const formEstilos = document.getElementById("formEstilos");
-  if (formEstilos) {
-    formEstilos.onsubmit = window.guardarEstilos;
-  }
+  const inputFoto      = document.getElementById("inputFoto");
+  const formEstilos    = document.getElementById("formEstilos");
+
+  if (formEstilos) formEstilos.onsubmit = window.guardarEstilos;
 
   if (btnCambiarFoto && inputFoto) {
     btnCambiarFoto.onclick = () => {
       const opcion = confirm("¿Deseas tomar una foto con la cámara?\n\nAcepta: Cámara\nCancelar: Seleccionar archivo");
-      if (opcion) {
-        abrirCamara();
-      } else {
-        inputFoto.click();
-      }
+      if (opcion) { abrirCamara(); } else { inputFoto.click(); }
     };
 
     inputFoto.onchange = async (e) => {
@@ -703,7 +666,6 @@ window.inicializarPerfil = function () {
     };
   }
 
-  // Editar perfil
   const formEditarPerfil = document.getElementById("formEditarPerfil");
   if (formEditarPerfil) {
     formEditarPerfil.onsubmit = async (e) => {
@@ -712,7 +674,6 @@ window.inicializarPerfil = function () {
     };
   }
 
-  // Editar publicación
   const formEditarPublicacion = document.getElementById("formEditarPublicacion");
   if (formEditarPublicacion) {
     formEditarPublicacion.onsubmit = async (e) => {
@@ -731,7 +692,6 @@ async function subirFoto(file) {
     window.mostrarToast("Por favor selecciona una imagen válida", "error");
     return;
   }
-
   if (file.size > 5 * 1024 * 1024) {
     window.mostrarToast("La imagen no puede superar 5MB", "error");
     return;
@@ -740,19 +700,13 @@ async function subirFoto(file) {
   const reader = new FileReader();
   reader.onload = async (e) => {
     const fotoBase64 = e.target.result;
-
     try {
       const res = await fetch("/api/perfil", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          correo: usuarioActual.correo,
-          foto: fotoBase64
-        })
+        body: JSON.stringify({ correo: usuarioActual.correo, foto: fotoBase64 })
       });
-
       const data = await res.json();
-
       if (res.ok) {
         document.getElementById("perfilFoto").src = fotoBase64;
         window.mostrarToast("Foto actualizada correctamente", "success");
@@ -770,20 +724,16 @@ async function subirFoto(file) {
 async function abrirCamara() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-    const modal = document.createElement('div');
+    const modal  = document.createElement('div');
     modal.className = 'camera-modal';
     modal.innerHTML = `
       <div class="camera-container">
         <video id="videoCamera" autoplay playsinline style="width:100%;max-width:500px;border-radius:12px;"></video>
         <div class="camera-controls">
-          <button class="btn btn-gradient" id="btnCapturar">
-            <i class="bi bi-camera"></i> Capturar
-          </button>
+          <button class="btn btn-gradient" id="btnCapturar"><i class="bi bi-camera"></i> Capturar</button>
           <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
         </div>
-      </div>
-    `;
+      </div>`;
     document.body.appendChild(modal);
 
     const video = document.getElementById('videoCamera');
@@ -791,22 +741,20 @@ async function abrirCamara() {
 
     document.getElementById('btnCapturar').onclick = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
+      canvas.width  = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
-
       canvas.toBlob(async (blob) => {
         await subirFoto(blob);
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach(t => t.stop());
         modal.remove();
       }, 'image/jpeg', 0.8);
     };
 
     document.getElementById('btnCancelar').onclick = () => {
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach(t => t.stop());
       modal.remove();
     };
-
   } catch (err) {
     console.error("Error accediendo a la cámara:", err);
     window.mostrarToast("No se pudo acceder a la cámara", "error");
@@ -815,8 +763,8 @@ async function abrirCamara() {
 
 async function actualizarPerfil() {
   const usuarioActual = window.getUsuarioActual();
-  const nuevoUsuario = document.getElementById("editNombre").value.trim();
-  const nuevoCorreo = document.getElementById("editCorreo").value.trim();
+  const nuevoUsuario  = document.getElementById("editNombre").value.trim();
+  const nuevoCorreo   = document.getElementById("editCorreo").value.trim();
 
   if (!nuevoUsuario || !nuevoCorreo) {
     window.mostrarToast("Completa todos los campos", "error");
@@ -827,13 +775,8 @@ async function actualizarPerfil() {
     const res = await fetch("/api/perfil", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        correo: usuarioActual.correo,
-        nuevoUsuario,
-        nuevoCorreo
-      })
+      body: JSON.stringify({ correo: usuarioActual.correo, nuevoUsuario, nuevoCorreo })
     });
-
     const data = await res.json();
 
     if (res.ok) {
@@ -852,31 +795,24 @@ async function actualizarPerfil() {
 }
 
 window.editarPublicacion = function (id, texto) {
-  document.getElementById("editPubId").value = id;
+  document.getElementById("editPubId").value    = id;
   document.getElementById("editPubTexto").value = texto;
   new bootstrap.Modal(document.getElementById("editarPublicacionModal")).show();
 }
 
 async function guardarEdicionPublicacion() {
   const usuarioActual = window.getUsuarioActual();
-  const id = document.getElementById("editPubId").value;
+  const id    = document.getElementById("editPubId").value;
   const texto = document.getElementById("editPubTexto").value.trim();
 
-  if (!texto) {
-    window.mostrarToast("Escribe algo para publicar", "error");
-    return;
-  }
+  if (!texto) { window.mostrarToast("Escribe algo para publicar", "error"); return; }
 
   try {
     const res = await fetch(`/api/publicacion/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        correo: usuarioActual.correo,
-        publicacion: texto
-      })
+      body: JSON.stringify({ correo: usuarioActual.correo, publicacion: texto })
     });
-
     const data = await res.json();
 
     if (res.ok) {
@@ -894,10 +830,7 @@ async function guardarEdicionPublicacion() {
 
 window.eliminarPublicacion = async function (id) {
   const usuarioActual = window.getUsuarioActual();
-
-  if (!confirm("¿Estás seguro de eliminar esta publicación?")) {
-    return;
-  }
+  if (!confirm("¿Estás seguro de eliminar esta publicación?")) return;
 
   try {
     const res = await fetch(`/api/publicacion/${id}`, {
@@ -905,7 +838,6 @@ window.eliminarPublicacion = async function (id) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ correo: usuarioActual.correo })
     });
-
     const data = await res.json();
 
     if (res.ok) {
@@ -923,29 +855,26 @@ window.eliminarPublicacion = async function (id) {
 function setupInputAnimations() {
   document.querySelectorAll('.input-animated').forEach(input => {
     const label = input.parentElement?.querySelector('.label-animated');
-
     if (!label) return;
 
     input.addEventListener('focus', function () {
-      label.style.top = '-10px';
-      label.style.fontSize = '0.85rem';
-      label.style.color = '#ba01ff';
+      label.style.top        = '-10px';
+      label.style.fontSize   = '0.85rem';
+      label.style.color      = '#ba01ff';
       label.style.fontWeight = '600';
     });
-
     input.addEventListener('blur', function () {
       if (this.value === '') {
-        label.style.top = '50%';
-        label.style.fontSize = '1rem';
-        label.style.color = '#999';
+        label.style.top        = '50%';
+        label.style.fontSize   = '1rem';
+        label.style.color      = '#999';
         label.style.fontWeight = '400';
       }
     });
-
     if (input.value !== '') {
-      label.style.top = '-10px';
-      label.style.fontSize = '0.85rem';
-      label.style.color = '#ba01ff';
+      label.style.top        = '-10px';
+      label.style.fontSize   = '0.85rem';
+      label.style.color      = '#ba01ff';
       label.style.fontWeight = '600';
     }
   });
@@ -955,9 +884,9 @@ function actualizarLabelsInput() {
   document.querySelectorAll('.input-animated').forEach(input => {
     const label = input.parentElement?.querySelector('.label-animated');
     if (input.value && label) {
-      label.style.top = '-10px';
-      label.style.fontSize = '0.85rem';
-      label.style.color = '#ba01ff';
+      label.style.top        = '-10px';
+      label.style.fontSize   = '0.85rem';
+      label.style.color      = '#ba01ff';
       label.style.fontWeight = '600';
     }
   });
@@ -965,10 +894,9 @@ function actualizarLabelsInput() {
 
 //FORZAR COLORES AL CARGAR Y CAMBIAR DE PÁGINA
 function aplicarColoresIconos() {
-  const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+  const isDark      = document.documentElement.getAttribute('data-bs-theme') === 'dark';
   const colorIconos = isDark ? '#aaa' : '#5a189a';
 
-  // Aplicar colores a todos los iconos de acciones
   document.querySelectorAll('.btn-icon-action, .pub-btn, .pub-stats i, .perfil-fecha i, .section-title i').forEach(el => {
     if (!el.closest('.pub-btn-like.liked')) {
       el.style.color = colorIconos;
@@ -976,35 +904,20 @@ function aplicarColoresIconos() {
   });
 }
 
-// Ejecutar al cargar
 window.addEventListener('DOMContentLoaded', () => {
   aplicarColoresIconos();
-
-  // Observar cambios en el tema
-  const observer = new MutationObserver(() => {
-    aplicarColoresIconos();
-  });
-
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['data-bs-theme']
-  });
+  const observer = new MutationObserver(() => { aplicarColoresIconos(); });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
 });
 
-// Ejecutar cada vez que se carga una página nueva
 const originalLoadPage = loadPage;
 window.loadPage = function (url) {
   originalLoadPage(url);
-  setTimeout(() => {
-    aplicarColoresIconos();
-  }, 100);
+  setTimeout(() => { aplicarColoresIconos(); }, 100);
 };
 
-// Dentro de loadPage, después de mainContent.innerHTML = html;
 setTimeout(() => {
-  if (window.aplicarColoresIconos) {
-    window.aplicarColoresIconos();
-  }
+  if (window.aplicarColoresIconos) window.aplicarColoresIconos();
 }, 300);
 
 //SISTEMA DE SEGUIDORES
@@ -1020,7 +933,7 @@ window.mostrarSeguidores = async function () {
   lista.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div></div>';
 
   try {
-    const res = await fetch(`/api/usuario/${usuarioActual.correo}/seguidores`);
+    const res      = await fetch(`/api/usuario/${usuarioActual.correo}/seguidores`);
     const usuarios = await res.json();
 
     if (usuarios.length === 0) {
@@ -1030,7 +943,7 @@ window.mostrarSeguidores = async function () {
 
     lista.innerHTML = '';
     const promesas = usuarios.map(user => crearItemUsuario(user));
-    const items = await Promise.all(promesas);
+    const items    = await Promise.all(promesas);
     items.forEach(item => lista.appendChild(item));
   } catch (err) {
     console.error('Error cargando seguidores:', err);
@@ -1050,7 +963,7 @@ window.mostrarSeguidos = async function () {
   lista.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div></div>';
 
   try {
-    const res = await fetch(`/api/usuario/${usuarioActual.correo}/seguidos`);
+    const res      = await fetch(`/api/usuario/${usuarioActual.correo}/seguidos`);
     const usuarios = await res.json();
 
     if (usuarios.length === 0) {
@@ -1060,7 +973,7 @@ window.mostrarSeguidos = async function () {
 
     lista.innerHTML = '';
     const promesas = usuarios.map(user => crearItemUsuario(user));
-    const items = await Promise.all(promesas);
+    const items    = await Promise.all(promesas);
     items.forEach(item => lista.appendChild(item));
   } catch (err) {
     console.error('Error cargando seguidos:', err);
@@ -1074,11 +987,11 @@ async function crearItemUsuario(user) {
   div.className = 'user-list-item';
 
   const esTuPerfil = usuarioActual && user.correo === usuarioActual.correo;
-
   let siguiendo = false;
+
   if (!esTuPerfil && usuarioActual) {
     try {
-      const res = await fetch(`/api/siguiendo/${user.id_usuario}?correo=${encodeURIComponent(usuarioActual.correo)}`);
+      const res  = await fetch(`/api/siguiendo/${user.id_usuario}?correo=${encodeURIComponent(usuarioActual.correo)}`);
       const data = await res.json();
       siguiendo = data.siguiendo;
     } catch (err) {
@@ -1088,10 +1001,10 @@ async function crearItemUsuario(user) {
 
   div.innerHTML = `
     <div class="user-item-content">
-      ${user.foto ?
-      `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="user-item-avatar">` :
-      `<div class="user-item-avatar-text">${user.usuario.charAt(0).toUpperCase()}</div>`
-    }
+      ${user.foto
+        ? `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="user-item-avatar">`
+        : `<div class="user-item-avatar-text">${user.usuario.charAt(0).toUpperCase()}</div>`
+      }
       <div class="user-item-info">
         <strong>${window.escapeHtml(user.usuario)}</strong>
         <small>${window.escapeHtml(user.correo)}</small>
@@ -1120,26 +1033,24 @@ async function toggleSeguirModal(idUsuario, btnElement) {
   if (!usuarioActual) return;
 
   try {
-    const res = await fetch(`/api/seguir/${idUsuario}`, {
+    const res  = await fetch(`/api/seguir/${idUsuario}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ correo: usuarioActual.correo })
     });
-
     const data = await res.json();
 
     if (res.ok) {
       if (data.siguiendo) {
         btnElement.classList.add('siguiendo');
-        btnElement.querySelector('i').className = 'bi bi-person-check-fill';
+        btnElement.querySelector('i').className   = 'bi bi-person-check-fill';
         btnElement.querySelector('span').textContent = 'Siguiendo';
       } else {
         btnElement.classList.remove('siguiendo');
-        btnElement.querySelector('i').className = 'bi bi-person-plus';
+        btnElement.querySelector('i').className   = 'bi bi-person-plus';
         btnElement.querySelector('span').textContent = 'Seguir';
       }
-
-      cargarStatsSeguidores(); // SIN AWAIT
+      cargarStatsSeguidores();
     }
   } catch (err) {
     console.error('Error al seguir:', err);
@@ -1151,26 +1062,23 @@ async function cargarStatsSeguidores() {
   if (!usuarioActual) return;
 
   try {
-    const res = await fetch(`/api/usuario/${usuarioActual.correo}/stats`);
+    const res  = await fetch(`/api/usuario/${usuarioActual.correo}/stats`);
     const data = await res.json();
 
     const numSeguidores = document.getElementById('numSeguidores');
-    const numSeguidos = document.getElementById('numSeguidos');
+    const numSeguidos   = document.getElementById('numSeguidos');
 
     if (numSeguidores) numSeguidores.textContent = data.seguidores;
-    if (numSeguidos) numSeguidos.textContent = data.seguidos;
+    if (numSeguidos)   numSeguidos.textContent   = data.seguidos;
   } catch (err) {
     console.error('Error cargando stats:', err);
   }
 }
 
-// Modificar window.cargarPerfil para agregar stats
 const cargarPerfilOriginal = window.cargarPerfil;
 window.cargarPerfil = async function () {
   await cargarPerfilOriginal();
-  setTimeout(() => {
-    cargarStatsSeguidores(); // SIN AWAIT
-  }, 500);
+  setTimeout(() => { cargarStatsSeguidores(); }, 500);
 }
 
 window.animarTituloGlobal = function (selector, texto) {
@@ -1178,7 +1086,7 @@ window.animarTituloGlobal = function (selector, texto) {
   if (!el) return;
 
   el.innerHTML = '';
-  el.classList.add('titulo-wow'); // Le ponemos el brillo automáticamente
+  el.classList.add('titulo-wow');
 
   let i = 0;
   const velocidad = 40;

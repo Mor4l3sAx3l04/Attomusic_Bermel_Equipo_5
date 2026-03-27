@@ -6,6 +6,7 @@ const pool = require("../utils/database");
 const responses = require("../utils/responses");
 const queries = require("../utils/queries");
 const { getUserFromEmail } = require("../middleware/auth");
+const { crearNotificacion } = require("./notificaciones");
 
 // CREAR Y OBTENER PUBLICACIONES 
 
@@ -230,6 +231,24 @@ router.post("/publicacion/:id/like", getUserFromEmail, async (req, res) => {
     } else {
       // Dar like
       await pool.query(queries.addLike, [id, id_usuario]);
+
+      const pubResult = await pool.query(
+        "SELECT id_usuario FROM publicacion WHERE id_publicacion = $1", [id]
+      );
+      if (pubResult.rows.length > 0) {
+        const actorResult = await pool.query(
+          "SELECT usuario FROM usuario WHERE id_usuario = $1", [id_usuario]
+        );
+        const actorNombre = actorResult.rows[0]?.usuario || "Alguien";
+        await crearNotificacion(
+          pubResult.rows[0].id_usuario,   // quién recibe
+          id_usuario,                      // quién actuó
+          "like",                          // tipo
+          id,                              // id de la publicación
+          `${actorNombre} reaccionó a tu publicación ❤️`
+        );
+      }
+
       return res.json({ message: "Like agregado", liked: true });
     }
   } catch (err) {
@@ -257,6 +276,23 @@ router.post("/publicacion/:id/comentario", getUserFromEmail, async (req, res) =>
     }
 
     await pool.query(queries.addComment, [id, id_usuario, comentario]);
+
+    const pubComentario = await pool.query(
+      "SELECT id_usuario FROM publicacion WHERE id_publicacion = $1", [id]
+    );
+    if (pubComentario.rows.length > 0) {
+      const actorComentario = await pool.query(
+        "SELECT usuario FROM usuario WHERE id_usuario = $1", [id_usuario]
+      );
+      const actorNombre = actorComentario.rows[0]?.usuario || "Alguien";
+      await crearNotificacion(
+        pubComentario.rows[0].id_usuario,
+        id_usuario,
+        "comentario",
+        id,
+        `${actorNombre} comentó en tu publicación 💬`
+      );
+    }
 
     return res.json({ message: "Comentario agregado" });
   } catch (err) {

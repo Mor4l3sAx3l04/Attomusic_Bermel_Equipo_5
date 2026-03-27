@@ -6,6 +6,7 @@ const pool = require("../utils/database");
 const responses = require("../utils/responses");
 const queries = require("../utils/queries");
 const { getUserFromEmail } = require("../middleware/auth");
+const { crearNotificacion } = require("./notificaciones");
 
 // RUTA: Obtener perfil del usuario
 router.get("/perfil/:correo", async (req, res) => {
@@ -185,6 +186,19 @@ router.post("/seguir/:id_usuario", getUserFromEmail, async (req, res) => {
     } else {
       // Seguir
       await pool.query(queries.addFollow, [id_seguidor, id_usuario]);
+
+      const actorSeguir = await pool.query(
+        "SELECT usuario FROM usuario WHERE id_usuario = $1", [id_seguidor]
+      );
+      const actorNombre = actorSeguir.rows[0]?.usuario || "Alguien";
+      await crearNotificacion(
+        id_usuario,      // quién recibe la notificación
+        id_seguidor,     // quién actuó (el seguidor)
+        "seguimiento",
+        null,
+        `${actorNombre} empezó a seguirte ✨`
+      );
+
       return res.json({ message: "Ahora sigues a este usuario", siguiendo: true });
     }
   } catch (err) {
@@ -337,7 +351,7 @@ router.get("/usuarios/populares", async (req, res) => {
 
     const result = await pool.query(`
       SELECT u.id_usuario, u.usuario, u.correo, u.foto, u.fecha_reg, u.fondo_perfil,
-             COUNT(s.id_seguimiento) as num_seguidores
+            COUNT(s.id_seguimiento) as num_seguidores
       FROM usuario u
       LEFT JOIN seguimiento s ON u.id_usuario = s.id_usuario_seguido
       WHERE u.estado = 'activo'

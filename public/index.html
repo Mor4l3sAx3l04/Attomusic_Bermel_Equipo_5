@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/toast-musical.css">
   <link rel="stylesheet" href="css/cursor-toggle.css">
   <link rel="stylesheet" href="css/panel-admin.css">
+  <link rel="stylesheet" href="css/notificaciones.css">
   <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
 </head>
 
@@ -74,6 +75,15 @@
             </button>
           </li>
 
+          <li class="nav-item d-flex align-items-center" id="notif-wrap" style="display:none !important;">
+            <div class="btn-notif-wrap">
+              <button id="btn-notificaciones" title="Notificaciones" aria-label="Notificaciones">
+                <i class="bi bi-bell-fill"></i>
+                <span id="notif-badge"></span>
+              </button>
+            </div>
+          </li>
+
           <li class="nav-item dropdown ms-3" id="perfil-container" style="display: none;">
             <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-bs-toggle="dropdown">
               <img src="https://i.pravatar.cc/150?img=12" alt="Perfil" class="profile-pic">
@@ -98,6 +108,16 @@
       </div>
     </div>
   </nav>
+
+  <div id="notif-panel" role="dialog" aria-label="Notificaciones">
+    <div class="notif-header">
+      <h6><i class="bi bi-bell-fill me-2" style="color:#ba01ff"></i>Notificaciones</h6>
+      <button id="notif-marcar-todas" title="Marcar todas como leídas">Marcar todas</button>
+    </div>
+    <div id="notif-lista"></div>
+  </div>
+  <!-- Backdrop: cerrar el panel al hacer clic fuera -->
+  <div id="notif-backdrop"></div>
 
   <button class="btn-publicar nav-link load-page" href="publicacion.html" data-bs-toggle="tooltip"
     data-bs-placement="bottom" title="Crear Publicación">
@@ -383,6 +403,7 @@
   <script src="js/components/PublicacionCard.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/panel-estadisticas.js"></script>
+  <script src="js/notificaciones.js"></script>
 </body>
 
 </html>
