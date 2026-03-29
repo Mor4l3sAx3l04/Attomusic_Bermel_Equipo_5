@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,66 +14,109 @@
   <link rel="stylesheet" href="css/panel-admin.css">
   <link rel="stylesheet" href="css/notificaciones.css">
   <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <style>
+    /* ── Medidor de seguridad de contraseña ── */
+    .pass-strength-wrap {
+      margin-top: 10px;
+    }
+    .pass-strength-bar-bg {
+      height: 6px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .pass-strength-bar {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.35s ease, background 0.35s ease;
+    }
+    .pass-strength-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .pass-reqs {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px 12px;
+    }
+    .pass-req {
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #999;
+      transition: color 0.2s;
+    }
+    .pass-req.ok { color: #22c55e; }
+    .pass-req i  { font-size: 0.7rem; }
+
+    /* ── Feedback de correo ── */
+    .email-feedback {
+      font-size: 0.76rem;
+      margin-top: 5px;
+      font-weight: 500;
+      min-height: 16px;
+      padding-left: 2px;
+    }
+
+    /* ── Input de confirmar contraseña ── */
+    .confirm-match {
+      font-size: 0.76rem;
+      margin-top: 5px;
+      font-weight: 500;
+      min-height: 16px;
+      padding-left: 2px;
+    }
+  </style>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container-fluid">
-
-      <a class="navbar-brand" href="index.html"> <img alt="Icono" class="iconnavbar" src="images/iconowhite.png">
-        AttoMusic </a>
-      <!--Boton para nodo oscuro :)-->
+      <a class="navbar-brand" href="index.html">
+        <img alt="Icono" class="iconnavbar" src="images/iconowhite.png"> AttoMusic
+      </a>
       <button class="btn rounded-fill" type="button" onclick="cambiarTema()">
         <i class="bi bi-moon-stars" id="dl-icon"></i>
       </button>
-
-      <button class="btn rounded-fill" type="button" id="btn-cursor-music" onclick="toggleCursorMusic()"
-        title="Desactivar cursor musical">
+      <button class="btn rounded-fill" type="button" id="btn-cursor-music" onclick="toggleCursorMusic()" title="Desactivar cursor musical">
         <i class="bi bi-music-note-beamed" id="dl-icon"></i>
       </button>
-
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal"
-              id="btn-login"> Iniciar Sesión </a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registroModal"
-              id="btn-register"> Registrarse </a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" id="btn-login">Iniciar Sesión</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registroModal" id="btn-register">Registrarse</a></li>
           <li class="nav-item">
-            <a class="nav-link load-page" href="canciones.html" data-bs-toggle="tooltip" data-bs-placement="bottom"
-              title="Canciones">
+            <a class="nav-link load-page" href="canciones.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Canciones">
               <i class="bi bi-music-note-list"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link load-page" href="perfiles.html" data-bs-toggle="tooltip" data-bs-placement="bottom"
-              title="Perfiles">
+            <a class="nav-link load-page" href="perfiles.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Perfiles">
               <i class="bi bi-people"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link load-page" href="noticias.html" data-bs-toggle="tooltip" data-bs-placement="bottom"
-              title="Noticias">
+            <a class="nav-link load-page" href="noticias.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Noticias">
               <i class="bi bi-newspaper"></i>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link load-page" href="para-ti.html" data-bs-toggle="tooltip" data-bs-placement="bottom"
-              title="Para Ti">
+            <a class="nav-link load-page" href="para-ti.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Para Ti">
               <i class="bi bi-person"></i>
             </a>
           </li>
-
           <li class="nav-item d-flex align-items-center">
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar...">
-            <button class="search-btn" id="searchBtn">
-              🔍
-            </button>
+            <button class="search-btn" id="searchBtn">🔍</button>
           </li>
-
           <li class="nav-item d-flex align-items-center" id="notif-wrap" style="display:none !important;">
             <div class="btn-notif-wrap">
               <button id="btn-notificaciones" title="Notificaciones" aria-label="Notificaciones">
@@ -83,24 +125,17 @@
               </button>
             </div>
           </li>
-
           <li class="nav-item dropdown ms-3" id="perfil-container" style="display: none;">
             <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-bs-toggle="dropdown">
               <img src="https://i.pravatar.cc/150?img=12" alt="Perfil" class="profile-pic">
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li>
-                <span class="dropdown-item-text fw-bold" id="perfil-nombre"></span>
-              </li>
+              <li><span class="dropdown-item-text fw-bold" id="perfil-nombre"></span></li>
               <li><a class="dropdown-item load-page" href="perfil.html">Ver Perfil</a></li>
               <li id="panel-admin-link" style="display: none;">
-                <a class="dropdown-item load-page" href="panel-admin.html">
-                  Panel Admin
-                </a>
+                <a class="dropdown-item load-page" href="panel-admin.html">Panel Admin</a>
               </li>
-              <li>
-                <hr class="dropdown-divider load-page">
-              </li>
+              <li><hr class="dropdown-divider load-page"></li>
               <li><a class="dropdown-item text-danger load-page" href="#" id="btn-logout">Cerrar Sesión</a></li>
             </ul>
           </li>
@@ -116,11 +151,9 @@
     </div>
     <div id="notif-lista"></div>
   </div>
-  <!-- Backdrop: cerrar el panel al hacer clic fuera -->
   <div id="notif-backdrop"></div>
 
-  <button class="btn-publicar nav-link load-page" href="publicacion.html" data-bs-toggle="tooltip"
-    data-bs-placement="bottom" title="Crear Publicación">
+  <button class="btn-publicar nav-link load-page" href="publicacion.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear Publicación">
     <i class="bi bi-plus-lg"></i>
   </button>
 
@@ -128,81 +161,48 @@
     <div id="main-content"></div>
   </div>
 
+  <!-- ══════════════════════════════════════════════
+       MODAL: INICIAR SESIÓN (sin cambios)
+       ══════════════════════════════════════════════ -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0"
-        style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+      <div class="modal-content border-0" style="background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(90,24,154,0.3);">
         <div class="modal-body p-0">
-          <div style="padding: 48px 40px;">
-            <!-- Header con logo -->
-            <div style="text-align: center; margin-bottom: 32px;">
-              <div
-                style="width: 80px; height: 80px; margin: 0 auto 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
-                <span style="font-size: 2.5rem; color: white;"><img alt="Icono" class="iconnavbar"
-                    src="images/iconowhite.png"></span>
+          <div style="padding:48px 40px;">
+            <div style="text-align:center;margin-bottom:32px;">
+              <div style="width:80px;height:80px;margin:0 auto 16px;background:linear-gradient(160deg,#ba01ff,#00dffc);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(186,1,255,0.3);">
+                <img alt="Icono" class="iconnavbar" src="images/iconowhite.png">
               </div>
-              <h1
-                style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
-                ATTOMUSIC</h1>
-              <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">Inicia sesión para
-                continuar</p>
+              <h1 style="font-size:2rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0;">ATTOMUSIC</h1>
+              <p style="color:#5a189a;font-size:1.1rem;margin-top:8px;font-weight:600;">Inicia sesión para continuar</p>
             </div>
-
             <form method="post" action="/login" id="loginForm">
-
-              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-                <input type="text" required class="input-animated" id="loginUser" name="usuario"
-                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
-                <label class="label-animated" for="loginUser"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
-                  Usuario
-                </label>
-                <i class="bi bi-person-fill"
-                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-                <span class="input-border"
-                  style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+              <div class="input-group-animated" style="margin-bottom:30px;position:relative;">
+                <input type="text" required class="input-animated" id="loginUser" name="usuario" style="width:100%;padding:14px 16px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;transition:all 0.3s;background:white;color:#333;outline:none;">
+                <label class="label-animated" for="loginUser" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;pointer-events:none;transition:all 0.3s;padding:0 4px;">Usuario</label>
+                <i class="bi bi-person-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+                <span class="input-border" style="position:absolute;bottom:0;left:0;width:0%;height:2px;background:linear-gradient(160deg,#ba01ff,#00dffc);transition:width 0.3s;"></span>
               </div>
-
-              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-                <input type="password" required class="input-animated" id="loginPassword" name="contrasena"
-                  style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
-                <label class="label-animated" for="loginPassword"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
-                  Contraseña
-                </label>
-                <i class="bi bi-lock-fill"
-                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-                <button type="button" class="btn-eye-login"
-                  style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ba01ff; cursor: pointer; font-size: 1.2rem; z-index: 10;">
-                  <i class="bi bi-eye-slash" style="color: #111;"></i>
+              <div class="input-group-animated" style="margin-bottom:30px;position:relative;">
+                <input type="password" required class="input-animated" id="loginPassword" name="contrasena" style="width:100%;padding:14px 45px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;transition:all 0.3s;background:white;color:#333;outline:none;">
+                <label class="label-animated" for="loginPassword" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;pointer-events:none;transition:all 0.3s;padding:0 4px;">Contraseña</label>
+                <i class="bi bi-lock-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+                <button type="button" class="btn-eye-login" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#ba01ff;cursor:pointer;font-size:1.2rem;z-index:10;">
+                  <i class="bi bi-eye-slash" style="color:#111;"></i>
                 </button>
-                <span class="input-border"
-                  style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+                <span class="input-border" style="position:absolute;bottom:0;left:0;width:0%;height:2px;background:linear-gradient(160deg,#ba01ff,#00dffc);transition:width 0.3s;"></span>
               </div>
-
-              <div style="text-align: right; margin-bottom: 24px;">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#resetModal" data-bs-dismiss="modal"
-                  style="color: #5a189a; text-decoration: none; font-weight: 500;">
-                  ¿Olvidaste tu contraseña?
-                </a>
+              <div style="text-align:right;margin-bottom:24px;">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#resetModal" data-bs-dismiss="modal" style="color:#5a189a;text-decoration:none;font-weight:500;">¿Olvidaste tu contraseña?</a>
               </div>
-
-              <button type="submit"
-                style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(186,1,255,0.3);"
-                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
-                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
+              <button type="submit" style="width:100%;padding:16px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(186,1,255,0.3);"
+                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
+                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
                 Iniciar Sesión
               </button>
-
-              <div
-                style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
-                <p style="color: #5a189a; margin: 0;">
-                  ¿No tienes cuenta?
-                  <a href="#" data-bs-toggle="modal" data-bs-target="#registroModal" data-bs-dismiss="modal"
-                    style="color: #ba01ff; text-decoration: none; font-weight: 700; transition: color 0.3s;"
-                    onmouseover="this.style.color='#00dffc'" onmouseout="this.style.color='#ba01ff'">
-                    Regístrate aquí
-                  </a>
+              <div style="text-align:center;margin-top:24px;padding-top:24px;border-top:1px solid rgba(90,24,154,0.2);">
+                <p style="color:#5a189a;margin:0;">¿No tienes cuenta?
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#registroModal" data-bs-dismiss="modal" style="color:#ba01ff;text-decoration:none;font-weight:700;">Regístrate aquí</a>
                 </p>
               </div>
             </form>
@@ -212,82 +212,69 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════
+       MODAL: RESTABLECER CONTRASEÑA  ← con medidor
+       ══════════════════════════════════════════════ -->
   <div class="modal fade" id="resetModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0"
-        style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+      <div class="modal-content border-0" style="background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(90,24,154,0.3);">
         <div class="modal-body p-0">
-          <div style="padding: 48px 40px;">
-            <!-- Header -->
-            <div style="text-align: center; margin-bottom: 32px;">
-              <div style="width: 80px; height: 80px; margin: 0 auto 16px;
-                          background: linear-gradient(160deg, #ba01ff, #00dffc);
-                          border-radius: 20px; display: flex;
-                          align-items: center; justify-content: center;
-                          box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
+          <div style="padding:48px 40px;">
+            <div style="text-align:center;margin-bottom:32px;">
+              <div style="width:80px;height:80px;margin:0 auto 16px;background:linear-gradient(160deg,#ba01ff,#00dffc);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(186,1,255,0.3);">
                 <img alt="Icono" class="iconnavbar" src="images/iconowhite.png" style="width:50px;">
               </div>
-              <h1
-                style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
-                Restablecer Contraseña</h1>
-              <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">
-                Ingresa tus datos para continuar
-              </p>
+              <h1 style="font-size:2rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Restablecer Contraseña</h1>
+              <p style="color:#5a189a;font-size:1.1rem;margin-top:8px;font-weight:600;">Ingresa tus datos para continuar</p>
             </div>
-
             <form id="resetForm">
+              <!-- Usuario -->
+              <div class="input-group-animated" style="margin-bottom:26px;position:relative;">
+                <input type="text" required class="input-animated" id="resetName" style="width:100%;padding:14px 16px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;background:white;color:#333;">
+                <label class="label-animated" for="resetName" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;transition:all 0.3s;">Nombre de usuario</label>
+                <i class="bi bi-person-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+              </div>
+              <!-- Correo -->
+              <div class="input-group-animated" style="margin-bottom:8px;position:relative;">
+                <input type="email" required class="input-animated" id="resetEmail" style="width:100%;padding:14px 16px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;background:white;color:#333;">
+                <label class="label-animated" for="resetEmail" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;transition:all 0.3s;">Correo electrónico</label>
+                <i class="bi bi-envelope-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+              </div>
+              <div class="email-feedback" id="resetEmailFeedback"></div>
 
-              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
-                <input type="text" required class="input-animated" id="resetName"
-                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
-                <label class="label-animated" for="resetName"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%);color: #999; font-size: 1rem; transition: all 0.3s;">
-                  Nombre de usuario
-                </label>
-                <i class="bi bi-person-fill"
-                  style="position: absolute; left: 14px; top: 50%;transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
+              <!-- Nueva contraseña -->
+              <div style="margin-bottom:8px;margin-top:18px;">
+                <div class="input-group-animated" style="position:relative;">
+                  <input type="password" required class="input-animated" id="resetPassword" style="width:100%;padding:14px 45px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;background:white;color:#333;">
+                  <label class="label-animated" for="resetPassword" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;transition:all 0.3s;">Nueva contraseña</label>
+                  <i class="bi bi-lock-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+                  <button type="button" class="btn-eye-reset" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;z-index:10;">
+                    <i class="bi bi-eye-slash" style="color:#111;"></i>
+                  </button>
+                </div>
+                <!-- Medidor de seguridad -->
+                <div class="pass-strength-wrap" id="resetStrengthWrap" style="display:none;">
+                  <div class="pass-strength-bar-bg">
+                    <div class="pass-strength-bar" id="resetStrengthBar"></div>
+                  </div>
+                  <span class="pass-strength-label" id="resetStrengthLabel"></span>
+                  <div class="pass-reqs" id="resetPassReqs">
+                    <span class="pass-req" id="reset-req-len"><i class="bi bi-circle-fill"></i>Mínimo 8 caracteres</span>
+                    <span class="pass-req" id="reset-req-upper"><i class="bi bi-circle-fill"></i>Una mayúscula</span>
+                    <span class="pass-req" id="reset-req-lower"><i class="bi bi-circle-fill"></i>Una minúscula</span>
+                    <span class="pass-req" id="reset-req-num"><i class="bi bi-circle-fill"></i>Un número</span>
+                    <span class="pass-req" id="reset-req-special"><i class="bi bi-circle-fill"></i>Un símbolo (!@#...)</span>
+                  </div>
+                </div>
               </div>
 
-              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
-                <input type="email" required class="input-animated" id="resetEmail"
-                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
-                <label class="label-animated" for="resetEmail"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
-                  Correo electrónico
-                </label>
-                <i class="bi bi-envelope-fill"
-                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-              </div>
-
-              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-                <input type="password" required class="input-animated" id="resetPassword"
-                  style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; background: white; color: #333;">
-                <label class="label-animated" for="resetPassword"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; transition: all 0.3s;">
-                  Nueva contraseña
-                </label>
-                <i class="bi bi-lock-fill"
-                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-                <button type="button" class="btn-eye-reset"
-                  style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; z-index: 10;">
-                  <i class="bi bi-eye-slash" style="color: #111;"></i>
-                </button>
-              </div>
-
-              <button type="submit"
-                style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc);color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(186,1,255,0.3);">
+              <button type="submit" style="width:100%;padding:16px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(186,1,255,0.3);margin-top:18px;">
                 Restablecer Contraseña
               </button>
             </form>
-
-            <div
-              style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
-              <p style="color: #5a189a;">
-                ¿Recordaste tu contraseña?
-                <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal"
-                  style="color: #ba01ff; font-weight: 700; text-decoration: none;">
-                  Inicia sesión
-                </a>
+            <div style="text-align:center;margin-top:24px;padding-top:24px;border-top:1px solid rgba(90,24,154,0.2);">
+              <p style="color:#5a189a;">¿Recordaste tu contraseña?
+                <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal" style="color:#ba01ff;font-weight:700;text-decoration:none;">Inicia sesión</a>
               </p>
             </div>
           </div>
@@ -296,90 +283,91 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════
+       MODAL: REGISTRO  ← con confirmación + medidor
+       ══════════════════════════════════════════════ -->
   <div class="modal fade" id="registroModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0"
-        style="background: linear-gradient(135deg, #f3e8ff 0%, #e0f7ff 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(90,24,154,0.3);">
+      <div class="modal-content border-0" style="background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(90,24,154,0.3);">
         <div class="modal-body p-0">
-          <div style="padding: 48px 40px;">
-            <!-- Header con logo -->
-            <div style="text-align: center; margin-bottom: 32px;">
-              <div
-                style="width: 80px; height: 80px; margin: 0 auto 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(186,1,255,0.3);">
-                <span style="font-size: 2.5rem; color: white;"><img alt="Icono" class="iconnavbar"
-                    src="images/iconowhite.png"></span>
+          <div style="padding:48px 40px;">
+            <div style="text-align:center;margin-bottom:32px;">
+              <div style="width:80px;height:80px;margin:0 auto 16px;background:linear-gradient(160deg,#ba01ff,#00dffc);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(186,1,255,0.3);">
+                <img alt="Icono" class="iconnavbar" src="images/iconowhite.png">
               </div>
-              <h1
-                style="font-size: 2rem; font-weight: 900; background: linear-gradient(160deg, #ba01ff, #00dffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
-                ATTOMUSIC</h1>
-              <p style="color: #5a189a; font-size: 1.1rem; margin-top: 8px; font-weight: 600;">Crea tu cuenta</p>
+              <h1 style="font-size:2rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0;">ATTOMUSIC</h1>
+              <p style="color:#5a189a;font-size:1.1rem;margin-top:8px;font-weight:600;">Crea tu cuenta</p>
             </div>
 
-            <form method="post" action="/register" id="registroForm">
+            <form method="post" action="/register" id="registroForm" novalidate>
+
               <!-- Nombre -->
-              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
-                <input type="text" required class="input-animated" id="registerName" name="usuario"
-                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
-                <label class="label-animated" for="registerName"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
-                  Nombre completo
-                </label>
-                <i class="bi bi-person-fill"
-                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-                <span class="input-border"
-                  style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+              <div class="input-group-animated" style="margin-bottom:26px;position:relative;">
+                <input type="text" required class="input-animated" id="registerName" name="usuario" style="width:100%;padding:14px 16px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;transition:all 0.3s;background:white;color:#333;outline:none;">
+                <label class="label-animated" for="registerName" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;pointer-events:none;transition:all 0.3s;padding:0 4px;">Nombre de usuario</label>
+                <i class="bi bi-person-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+                <span class="input-border" style="position:absolute;bottom:0;left:0;width:0%;height:2px;background:linear-gradient(160deg,#ba01ff,#00dffc);transition:width 0.3s;"></span>
               </div>
 
-              <!-- Correo -->
-              <div class="input-group-animated" style="margin-bottom: 26px; position: relative;">
-                <input type="email" required class="input-animated" id="registerEmail" name="correo"
-                  style="width: 100%; padding: 14px 16px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
-                <label class="label-animated" for="registerEmail"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
-                  Correo electrónico
-                </label>
-                <i class="bi bi-envelope-fill"
-                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-                <span class="input-border"
-                  style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+              <!-- Correo + feedback -->
+              <div class="input-group-animated" style="margin-bottom:4px;position:relative;">
+                <input type="email" required class="input-animated" id="registerEmail" name="correo" style="width:100%;padding:14px 16px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;transition:all 0.3s;background:white;color:#333;outline:none;">
+                <label class="label-animated" for="registerEmail" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;pointer-events:none;transition:all 0.3s;padding:0 4px;">Correo electrónico</label>
+                <i class="bi bi-envelope-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+                <span class="input-border" style="position:absolute;bottom:0;left:0;width:0%;height:2px;background:linear-gradient(160deg,#ba01ff,#00dffc);transition:width 0.3s;"></span>
+              </div>
+              <div class="email-feedback" id="registerEmailFeedback" style="margin-bottom:18px;"></div>
+
+              <!-- Contraseña + medidor -->
+              <div style="margin-bottom:8px;">
+                <div class="input-group-animated" style="position:relative;">
+                  <input type="password" required class="input-animated" id="registerPassword" name="contrasena" style="width:100%;padding:14px 45px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;transition:all 0.3s;background:white;color:#333;outline:none;">
+                  <label class="label-animated" for="registerPassword" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;pointer-events:none;transition:all 0.3s;padding:0 4px;">Contraseña</label>
+                  <i class="bi bi-lock-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+                  <button type="button" id="togglePassword" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#ba01ff;cursor:pointer;font-size:1.2rem;z-index:10;">
+                    <i class="bi bi-eye-slash" style="color:#111;"></i>
+                  </button>
+                  <span class="input-border" style="position:absolute;bottom:0;left:0;width:0%;height:2px;background:linear-gradient(160deg,#ba01ff,#00dffc);transition:width 0.3s;"></span>
+                </div>
+                <!-- Medidor de seguridad -->
+                <div class="pass-strength-wrap" id="regStrengthWrap" style="display:none;">
+                  <div class="pass-strength-bar-bg">
+                    <div class="pass-strength-bar" id="regStrengthBar"></div>
+                  </div>
+                  <span class="pass-strength-label" id="regStrengthLabel"></span>
+                  <div class="pass-reqs" id="regPassReqs">
+                    <span class="pass-req" id="reg-req-len"><i class="bi bi-circle-fill"></i>Mínimo 8 caracteres</span>
+                    <span class="pass-req" id="reg-req-upper"><i class="bi bi-circle-fill"></i>Una mayúscula</span>
+                    <span class="pass-req" id="reg-req-lower"><i class="bi bi-circle-fill"></i>Una minúscula</span>
+                    <span class="pass-req" id="reg-req-num"><i class="bi bi-circle-fill"></i>Un número</span>
+                    <span class="pass-req" id="reg-req-special"><i class="bi bi-circle-fill"></i>Un símbolo (!@#...)</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Contraseña -->
-              <div class="input-group-animated" style="margin-bottom: 30px; position: relative;">
-                <input type="password" required class="input-animated" id="registerPassword" name="contrasena"
-                  style="width: 100%; padding: 14px 45px 14px 40px; border: 2px solid #ba01ff; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: white; color: #333; outline: none;">
-                <label class="label-animated" for="registerPassword"
-                  style="position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1rem; pointer-events: none; transition: all 0.3s; padding: 0 4px;">
-                  Contraseña
-                </label>
-                <i class="bi bi-lock-fill"
-                  style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #ba01ff; font-size: 1.1rem;"></i>
-                <button type="button" id="togglePassword"
-                  style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ba01ff; cursor: pointer; font-size: 1.2rem; z-index: 10;">
-                  <i class="bi bi-eye-slash" style="color: #111;"></i>
-                </button>
-                <span class="input-border"
-                  style="position: absolute; bottom: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(160deg, #ba01ff, #00dffc); transition: width 0.3s;"></span>
+              <!-- Confirmar contraseña -->
+              <div style="margin-bottom:4px;margin-top:20px;">
+                <div class="input-group-animated" style="position:relative;">
+                  <input type="password" required class="input-animated" id="registerPasswordConfirm" style="width:100%;padding:14px 45px 14px 40px;border:2px solid #ba01ff;border-radius:12px;font-size:1rem;transition:all 0.3s;background:white;color:#333;outline:none;">
+                  <label class="label-animated" for="registerPasswordConfirm" style="position:absolute;left:40px;top:50%;transform:translateY(-50%);color:#999;font-size:1rem;pointer-events:none;transition:all 0.3s;padding:0 4px;">Confirmar contraseña</label>
+                  <i class="bi bi-shield-lock-fill" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#ba01ff;font-size:1.1rem;"></i>
+                  <button type="button" id="togglePasswordConfirm" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#ba01ff;cursor:pointer;font-size:1.2rem;z-index:10;">
+                    <i class="bi bi-eye-slash" style="color:#111;"></i>
+                  </button>
+                  <span class="input-border" style="position:absolute;bottom:0;left:0;width:0%;height:2px;background:linear-gradient(160deg,#ba01ff,#00dffc);transition:width 0.3s;"></span>
+                </div>
               </div>
+              <div class="confirm-match" id="confirmMatchFeedback" style="margin-bottom:20px;"></div>
 
-              <!-- Botón submit -->
-              <button type="submit"
-                style="width: 100%; padding: 16px; background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(186,1,255,0.3);"
-                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
-                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
+              <button type="submit" style="width:100%;padding:16px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(186,1,255,0.3);"
+                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
+                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
                 Crear Cuenta
               </button>
 
-              <!-- Login -->
-              <div
-                style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(90,24,154,0.2);">
-                <p style="color: #5a189a; margin: 0;">
-                  ¿Ya tienes cuenta?
-                  <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal"
-                    style="color: #ba01ff; text-decoration: none; font-weight: 700; transition: color 0.3s;"
-                    onmouseover="this.style.color='#00dffc'" onmouseout="this.style.color='#ba01ff'">
-                    Inicia sesión
-                  </a>
+              <div style="text-align:center;margin-top:24px;padding-top:24px;border-top:1px solid rgba(90,24,154,0.2);">
+                <p style="color:#5a189a;margin:0;">¿Ya tienes cuenta?
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal" style="color:#ba01ff;text-decoration:none;font-weight:700;">Inicia sesión</a>
                 </p>
               </div>
             </form>
@@ -404,6 +392,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/panel-estadisticas.js"></script>
   <script src="js/notificaciones.js"></script>
+  <script src="js/auth-validacion.js"></script> 
 </body>
-
 </html>
