@@ -1,27 +1,32 @@
 // public/js/notificaciones.js
 // Sistema de notificaciones estilo Instagram para AttoMusic
+// Incluye notificaciones nativas del navegador
 
 (function () {
   'use strict';
 
   let pollingInterval = null;
+  let ultimaNotifVista = null; // ID de la última notif que ya procesamos
 
   // ── Configuración visual por tipo ──
   const TIPOS = {
     like: {
       icono: 'bi-heart-fill',
       color: '#ff4d6d',
-      texto: 'reaccionó a tu publicación ❤️'
+      texto: 'reaccionó a tu publicación ❤️',
+      emoji: '❤️'
     },
     comentario: {
       icono: 'bi-chat-fill',
       color: '#00dffc',
-      texto: 'comentó en tu publicación 💬'
+      texto: 'comentó en tu publicación 💬',
+      emoji: '💬'
     },
     seguimiento: {
       icono: 'bi-person-plus-fill',
       color: '#ba01ff',
-      texto: 'empezó a seguirte ✨'
+      texto: 'empezó a seguirte ✨',
+      emoji: '✨'
     }
   };
 
@@ -49,7 +54,62 @@
     return new Date(fecha).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
   }
 
-  // ── Badge (número rojo en la campanita) ──
+  // ════════════════════════════════════════════════════
+  // 🔔 NOTIFICACIONES NATIVAS DEL NAVEGADOR
+  // ════════════════════════════════════════════════════
+
+  // Pedir permiso al usuario
+  async function pedirPermiso() {
+    if (!('Notification' in window)) {
+      console.warn('Este navegador no soporta notificaciones.');
+      return false;
+    }
+
+    if (Notification.permission === 'granted') return true;
+
+    if (Notification.permission === 'denied') {
+      console.warn('El usuario bloqueó las notificaciones.');
+      return false;
+    }
+
+    // 'default' → mostrar el diálogo del navegador
+    const permiso = await Notification.requestPermission();
+    return permiso === 'granted';
+  }
+
+  // Mostrar una notificación nativa del sistema operativo
+  function mostrarNotifNativa(notif) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const config = TIPOS[notif.tipo] || { emoji: '🎵', texto: 'nueva notificación' };
+
+    const titulo  = `AttoMusic ${config.emoji}`;
+    const cuerpo  = `${notif.actor_nombre} ${notif.mensaje || config.texto}`;
+
+    const n = new Notification(titulo, {
+      body: cuerpo,
+      icon: '/images/iconowhite.png',   // tu ícono de la app
+      badge: '/images/iconowhite.png',
+      tag: `attomusic-notif-${notif.id_notificacion}`, // evita duplicados
+      requireInteraction: false,        // se cierra sola
+      silent: false
+    });
+
+    // Al hacer clic en la notificación del sistema, abrir/enfocar la pestaña
+    n.onclick = () => {
+      window.focus();
+      n.close();
+      cerrarPanel();
+      alClickarNotif(notif, null);
+    };
+
+    // Auto-cerrar a los 5 segundos
+    setTimeout(() => n.close(), 5000);
+  }
+
+  // ════════════════════════════════════════════════════
+  // Badge (número rojo en la campanita)
+  // ════════════════════════════════════════════════════
   function actualizarBadge(total) {
     const badge = document.getElementById('notif-badge');
     if (!badge) return;
@@ -61,22 +121,50 @@
     }
   }
 
-  // ── Polling: verificar nuevas notificaciones cada 30s ──
+  // ════════════════════════════════════════════════════
+  // Polling: verificar nuevas notificaciones
+  // ════════════════════════════════════════════════════
   async function cargarNoLeidas() {
     const usuario = getUsuarioActual();
     if (!usuario) return;
 
     try {
+      // Pedir las últimas notificaciones (no solo el conteo)
       const res = await fetch(
-        `/api/notificaciones/no-leidas?correo=${encodeURIComponent(usuario.correo)}`
+        `/api/notificaciones?correo=${encodeURIComponent(usuario.correo)}&limite=10`
       );
       if (!res.ok) return;
-      const data = await res.json();
-      actualizarBadge(data.total);
+
+      const notifs = await res.json();
+      if (!Array.isArray(notifs)) return;
+
+      // Contar las no leídas para el badge
+      const noLeidas = notifs.filter(n => !n.leido);
+      actualizarBadge(noLeidas.length);
+
+      // Detectar notificaciones NUEVAS (que llegaron desde el último polling)
+      if (notifs.length > 0) {
+        const masReciente = notifs[0]; // vienen ordenadas por fecha DESC
+
+        if (ultimaNotifVista === null) {
+          // Primera carga: guardar la más reciente pero NO notificar
+          ultimaNotifVista = masReciente.id_notificacion;
+        } else if (masReciente.id_notificacion !== ultimaNotifVista) {
+          // Hay notificaciones nuevas desde el último poll
+          const nuevas = notifs.filter(n => n.id_notificacion > ultimaNotifVista && !n.leido);
+          ultimaNotifVista = masReciente.id_notificacion;
+
+          // Mostrar notificación nativa por cada una (máx 3 para no spamear)
+          nuevas.slice(0, 3).forEach(n => mostrarNotifNativa(n));
+        }
+      }
+
     } catch { /* silencioso */ }
   }
 
-  // ── Cargar y renderizar notificaciones en el panel ──
+  // ════════════════════════════════════════════════════
+  // Cargar y renderizar notificaciones en el panel
+  // ════════════════════════════════════════════════════
   async function cargarNotificaciones() {
     const usuario = getUsuarioActual();
     if (!usuario) return;
@@ -90,7 +178,7 @@
       </div>`;
 
     try {
-      const res = await fetch(
+      const res    = await fetch(
         `/api/notificaciones?correo=${encodeURIComponent(usuario.correo)}&limite=40`
       );
       const notifs = await res.json();
@@ -107,7 +195,7 @@
       lista.innerHTML = '';
       notifs.forEach(n => lista.appendChild(crearItemNotif(n)));
 
-    } catch (err) {
+    } catch {
       lista.innerHTML = '<div class="notif-empty"><p>Error al cargar 😕</p></div>';
     }
   }
@@ -115,7 +203,7 @@
   // ── Crear elemento HTML de una notificación ──
   function crearItemNotif(n) {
     const config = TIPOS[n.tipo] || { icono: 'bi-bell-fill', color: '#aaa', texto: 'nueva notificación' };
-    const div = document.createElement('div');
+    const div    = document.createElement('div');
     div.className = `notif-item${n.leido ? '' : ' no-leida'}`;
     div.dataset.id = n.id_notificacion;
 
@@ -146,29 +234,21 @@
 
   // ── Acción al clickar una notificación ──
   async function alClickarNotif(n, elemento) {
-    // Marcar como leída visualmente
-    elemento.classList.remove('no-leida');
-    const dot = elemento.querySelector('.notif-dot');
-    if (dot) dot.remove();
+    if (elemento) {
+      elemento.classList.remove('no-leida');
+      const dot = elemento.querySelector('.notif-dot');
+      if (dot) dot.remove();
+    }
 
-    // Marcar en el servidor (sin await para no bloquear la navegación)
     marcarLeida(n.id_notificacion);
-
-    // Navegar a la publicación o perfil correspondiente
     cerrarPanel();
 
-    if (n.tipo === 'like' || n.tipo === 'comentario') {
-      if (n.id_referencia && window.loadPage) {
-        // Ir al feed y scrollear a la publicación
-        window.loadPage('perfil.html');
-        // Guardar el ID para scrollear cuando cargue
-        window._notifTargetPost = n.id_referencia;
-      }
-    } else if (n.tipo === 'seguimiento') {
-      if (n.actor_id && window.loadPage) {
-        window._perfilUsuarioId = n.actor_id;
-        window.loadPage('perfil-usuario.html?id=' + n.actor_id);
-      }
+    if ((n.tipo === 'like' || n.tipo === 'comentario') && window.loadPage) {
+      window.loadPage('noticias.html');
+      window._notifTargetPost = n.id_referencia;
+    } else if (n.tipo === 'seguimiento' && n.actor_id && window.loadPage) {
+      window._perfilUsuarioId = n.actor_id;
+      window.loadPage('perfil-usuario.html?id=' + n.actor_id);
     }
 
     cargarNoLeidas();
@@ -204,17 +284,23 @@
     }
   }
 
-  // ── Abrir/cerrar panel ──
+  // ════════════════════════════════════════════════════
+  // Abrir / cerrar panel
+  // ════════════════════════════════════════════════════
   function abrirPanel() {
     const panel = document.getElementById('notif-panel');
+    const backdrop = document.getElementById('notif-backdrop');
     if (!panel) return;
     panel.classList.add('abierto');
+    if (backdrop) backdrop.classList.add('activo');
     cargarNotificaciones();
   }
 
   function cerrarPanel() {
     const panel = document.getElementById('notif-panel');
+    const backdrop = document.getElementById('notif-backdrop');
     if (panel) panel.classList.remove('abierto');
+    if (backdrop) backdrop.classList.remove('activo');
   }
 
   function togglePanel() {
@@ -223,9 +309,16 @@
     panel.classList.contains('abierto') ? cerrarPanel() : abrirPanel();
   }
 
-  // ── Iniciar / detener polling ──
+  // ════════════════════════════════════════════════════
+  // Iniciar / detener polling
+  // ════════════════════════════════════════════════════
   function iniciarPolling() {
     if (pollingInterval) clearInterval(pollingInterval);
+    ultimaNotifVista = null; // resetear para la nueva sesión
+
+    // Pedir permiso para notificaciones nativas al iniciar
+    pedirPermiso();
+
     cargarNoLeidas(); // primera carga inmediata
     pollingInterval = setInterval(cargarNoLeidas, 30000); // cada 30 segundos
   }
@@ -235,13 +328,17 @@
       clearInterval(pollingInterval);
       pollingInterval = null;
     }
+    ultimaNotifVista = null;
+    actualizarBadge(0);
   }
 
-  // ── Inicialización ──
+  // ════════════════════════════════════════════════════
+  // Inicialización de eventos
+  // ════════════════════════════════════════════════════
   function init() {
-    const btnNotif     = document.getElementById('btn-notificaciones');
-    const btnMarcar    = document.getElementById('notif-marcar-todas');
-    const backdrop     = document.getElementById('notif-backdrop');
+    const btnNotif   = document.getElementById('btn-notificaciones');
+    const btnMarcar  = document.getElementById('notif-marcar-todas');
+    const backdrop   = document.getElementById('notif-backdrop');
 
     if (btnNotif) {
       btnNotif.addEventListener('click', (e) => {
@@ -250,33 +347,27 @@
       });
     }
 
-    if (btnMarcar) {
-      btnMarcar.addEventListener('click', marcarTodasLeidas);
-    }
+    if (btnMarcar) btnMarcar.addEventListener('click', marcarTodasLeidas);
 
-    // Cerrar al hacer clic fuera
-    if (backdrop) {
-      backdrop.addEventListener('click', cerrarPanel);
-    }
+    if (backdrop) backdrop.addEventListener('click', cerrarPanel);
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') cerrarPanel();
     });
 
-    // Iniciar polling si hay sesión activa
     if (getUsuarioActual()) iniciarPolling();
   }
 
   // ── API pública ──
   window.Notificaciones = {
-    iniciar: iniciarPolling,
-    detener: detenerPolling,
-    recargar: cargarNoLeidas,
+    iniciar:     iniciarPolling,
+    detener:     detenerPolling,
+    recargar:    cargarNoLeidas,
     abrirPanel,
-    cerrarPanel
+    cerrarPanel,
+    pedirPermiso // expuesta por si quieres llamarla manualmente
   };
 
-  // Ejecutar cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
