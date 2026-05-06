@@ -131,10 +131,24 @@
       <div class="tab-pane fade" id="estadisticas" role="tabpanel">
         <div class="admin-section-header">
           <h2 id="stats-titulo">Estadísticas</h2>
-          <button class="btn btn-outline-primary btn-sm" onclick="cargarEstadisticas()">
-            <i class="bi bi-arrow-clockwise"></i> Actualizar
-          </button>
+          <div class="stats-date-controls" aria-label="Rango de fechas de estadisticas">
+            <label>
+              <span>Desde</span>
+              <input type="date" class="form-control form-control-sm" id="statsFechaInicio">
+            </label>
+            <label>
+              <span>Hasta</span>
+              <input type="date" class="form-control form-control-sm" id="statsFechaFin">
+            </label>
+            <button class="btn btn-outline-secondary btn-sm" type="button" id="statsUltimos14">
+              14 dias
+            </button>
+            <button class="btn btn-outline-primary btn-sm" type="button" onclick="cargarEstadisticas()">
+              <i class="bi bi-arrow-clockwise"></i> Actualizar
+            </button>
+          </div>
         </div>
+        <p class="stats-range-summary" id="statsRangeSummary"></p>
 
         <!-- KPI Cards -->
         <div id="statsKPIs" class="stats-kpi-row"></div>

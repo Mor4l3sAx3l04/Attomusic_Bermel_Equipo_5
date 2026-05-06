@@ -4,6 +4,53 @@ const router = express.Router();
 const pool = require("../utils/database");
 const responses = require("../utils/responses");
 const queries = require("../utils/queries");
+const { requireAdmin } = require("../middleware/auth");
+
+function validarId(req, res, next, value) {
+  if (!/^\d+$/.test(String(value))) {
+    return responses.badRequest(res, "ID invalido");
+  }
+  next();
+}
+
+function parseDateRange(query) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const defaultStart = new Date(today);
+  defaultStart.setDate(defaultStart.getDate() - 13);
+
+  const parseDate = (value, fallback) => {
+    if (!value) return fallback;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+    const date = new Date(`${value}T00:00:00`);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const startDate = parseDate(query.startDate, defaultStart);
+  const endDate = parseDate(query.endDate, today);
+
+  if (!startDate || !endDate || startDate > endDate) {
+    return { error: "Rango de fechas invalido" };
+  }
+
+  const diffDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+  if (diffDays > 366) {
+    return { error: "El rango maximo permitido es de 366 dias" };
+  }
+
+  const endExclusive = new Date(endDate);
+  endExclusive.setDate(endExclusive.getDate() + 1);
+
+  return {
+    startDate: startDate.toISOString().slice(0, 10),
+    endDate: endDate.toISOString().slice(0, 10),
+    endExclusive: endExclusive.toISOString().slice(0, 10),
+    diffDays,
+  };
+}
+
+router.param("id", validarId);
 
 // RUTA: Verificar rol del usuario
 router.get("/usuario/:correo/rol", async (req, res) => {
@@ -22,6 +69,8 @@ router.get("/usuario/:correo/rol", async (req, res) => {
     return responses.error(res, "Error en el servidor");
   }
 });
+
+router.use(requireAdmin);
 
 // RUTA: Obtener publicaciones reportadas
 router.get("/reportes", async (req, res) => {
@@ -162,13 +211,23 @@ router.put("/usuario/:id/rol", async (req, res) => {
 router.post("/usuario/:id/banear", async (req, res) => {
   const { id } = req.params;
   const { dias, motivo } = req.body;
+  const diasBaneo = Number.parseInt(dias, 10);
+  const motivoLimpio = String(motivo || "").trim();
+
+  if (!Number.isInteger(diasBaneo) || diasBaneo < 1 || diasBaneo > 365) {
+    return responses.badRequest(res, "Los dias de baneo deben estar entre 1 y 365");
+  }
+
+  if (!motivoLimpio || motivoLimpio.length > 300) {
+    return responses.badRequest(res, "El motivo debe tener entre 1 y 300 caracteres");
+  }
 
   const fechaBaneo = new Date();
-  fechaBaneo.setDate(fechaBaneo.getDate() + parseInt(dias));
+  fechaBaneo.setDate(fechaBaneo.getDate() + diasBaneo);
 
   try {
     const query = "UPDATE usuario SET fecha_baneo = $1, motivo_baneo = $2 WHERE id_usuario = $3";
-    await pool.query(query, [fechaBaneo, motivo, id]);
+    await pool.query(query, [fechaBaneo, motivoLimpio, id]);
 
     return res.json({ message: "Usuario baneado correctamente" });
   } catch (err) {
@@ -242,6 +301,13 @@ router.get("/cuentas-eliminadas", async (req, res) => {
 
 // RUTA: Estadísticas generales para el dashboard
 router.get("/estadisticas", async (req, res) => {
+  const range = parseDateRange(req.query);
+  if (range.error) {
+    return responses.badRequest(res, range.error);
+  }
+
+  const rangeParams = [range.startDate, range.endExclusive];
+
   try {
     const [
       usuariosActivos,
@@ -262,13 +328,13 @@ router.get("/estadisticas", async (req, res) => {
                COUNT(DISTINCT r.id_reaccion)    AS likes_dados,
                COUNT(DISTINCT c.id_comentario)  AS comentarios
         FROM usuario u
-        LEFT JOIN publicacion  p ON p.id_usuario = u.id_usuario
+        LEFT JOIN publicacion  p ON p.id_usuario = u.id_usuario AND p.fecha_pub >= $1 AND p.fecha_pub < $2
         LEFT JOIN reaccion     r ON r.id_usuario = u.id_usuario
-        LEFT JOIN comentario   c ON c.id_usuario = u.id_usuario
+        LEFT JOIN comentario   c ON c.id_usuario = u.id_usuario AND c.fecha_com >= $1 AND c.fecha_com < $2
         GROUP BY u.id_usuario, u.usuario
         ORDER BY (COUNT(DISTINCT p.id_publicacion) + COUNT(DISTINCT r.id_reaccion) + COUNT(DISTINCT c.id_comentario)) DESC
         LIMIT 8
-      `),
+      `, rangeParams),
 
       // 2) Géneros más escuchados (de canciones en publicaciones)
       pool.query(`
@@ -276,20 +342,22 @@ router.get("/estadisticas", async (req, res) => {
         FROM publicacion p
         JOIN cancion c ON p.id_cancion = c.id_cancion
         WHERE c.genero IS NOT NULL
+          AND p.fecha_pub >= $1 AND p.fecha_pub < $2
         GROUP BY c.genero
         ORDER BY total DESC
         LIMIT 10
-      `),
+      `, rangeParams),
 
       // 3) Artistas más oídos (en publicaciones)
       pool.query(`
         SELECT c.artista, COUNT(*) AS menciones
         FROM publicacion p
         JOIN cancion c ON p.id_cancion = c.id_cancion
+        WHERE p.fecha_pub >= $1 AND p.fecha_pub < $2
         GROUP BY c.artista
         ORDER BY menciones DESC
         LIMIT 10
-      `),
+      `, rangeParams),
 
       // 4) Canciones más calificadas (promedio + total calificaciones)
       pool.query(`
@@ -298,27 +366,28 @@ router.get("/estadisticas", async (req, res) => {
                COUNT(*) AS total_calificaciones
         FROM calificaciones cal
         JOIN cancion c ON cal.id_cancion = c.id_cancion
+        WHERE cal.fecha_creacion >= $1 AND cal.fecha_creacion < $2
         GROUP BY c.id_cancion, c.nombre, c.artista
         ORDER BY total_calificaciones DESC
         LIMIT 8
-      `),
+      `, rangeParams),
 
       // 5) Resumen de cuentas (activas vs eliminadas)
       pool.query(`
         SELECT
           (SELECT COUNT(*) FROM usuario WHERE estado = 'activo') AS activas,
-          (SELECT COUNT(*) FROM cuenta_eliminada)                AS eliminadas,
+          (SELECT COUNT(*) FROM cuenta_eliminada WHERE fecha_eliminacion >= $1 AND fecha_eliminacion < $2) AS eliminadas,
           (SELECT COUNT(*) FROM usuario WHERE fecha_baneo IS NOT NULL AND fecha_baneo > NOW()) AS baneadas
-      `),
+      `, rangeParams),
 
       // 6) Publicaciones por día (últimos 14 días)
       pool.query(`
         SELECT DATE(fecha_pub) AS dia, COUNT(*) AS total
         FROM publicacion
-        WHERE fecha_pub >= NOW() - INTERVAL '14 days'
+        WHERE fecha_pub >= $1 AND fecha_pub < $2
         GROUP BY dia
         ORDER BY dia ASC
-      `),
+      `, rangeParams),
 
       // 7) Top usuarios por seguidores
       pool.query(`
@@ -340,13 +409,18 @@ router.get("/estadisticas", async (req, res) => {
         SELECT TO_CHAR(DATE_TRUNC('month', fecha_eliminacion), 'Mon YYYY') AS mes,
                COUNT(*) AS total
         FROM cuenta_eliminada
-        WHERE fecha_eliminacion >= NOW() - INTERVAL '6 months'
+        WHERE fecha_eliminacion >= $1 AND fecha_eliminacion < $2
         GROUP BY DATE_TRUNC('month', fecha_eliminacion)
         ORDER BY DATE_TRUNC('month', fecha_eliminacion) ASC
-      `),
+      `, rangeParams),
     ]);
 
     return res.json({
+      rango: {
+        startDate: range.startDate,
+        endDate: range.endDate,
+        diffDays: range.diffDays,
+      },
       usuariosActivos: usuariosActivos.rows,
       generosTop: generosTop.rows,
       artistasTop: artistasTop.rows,

@@ -2,13 +2,39 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
+const passport = require("passport");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // MIDDLEWARE GLOBAL
-app.use(cors());
+app.disable("x-powered-by");
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  next();
+});
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "X-User-Email"],
+}));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || "attomusic-dev-session-secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 15 * 60 * 1000,
+  },
+}));
+app.use(passport.initialize());
 app.use(express.static("public"));
 app.set("trust proxy", 1);
 
@@ -73,6 +99,15 @@ app.get("/api/usuario/:correo/rol", async (req, res) => {
 });
 
 //SERVIDOR
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`El puerto ${PORT} ya esta en uso. Cierra el otro servidor o ejecuta: $env:PORT=3001; node app.js`);
+    process.exit(1);
+  }
+
+  throw err;
 });

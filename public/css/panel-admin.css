@@ -468,11 +468,137 @@
   color: #ba01ff;
 }
 
+.stats-date-controls {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stats-date-controls label {
+  display: grid;
+  gap: 4px;
+  color: #666;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.stats-date-controls input {
+  min-width: 145px;
+}
+
+.stats-range-summary {
+  margin: -12px 0 20px;
+  color: #777;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 768px) {
   .stats-grid-2 {
     grid-template-columns: 1fr;
   }
   .stats-kpi-row {
     grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-panel-container {
+    padding: 12px;
+  }
+
+  .news-header h1,
+  #titulo-siguiendo {
+    font-size: 2.4rem !important;
+    line-height: 1.05;
+  }
+
+  .admin-content {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .admin-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+
+  .admin-tabs .nav-item {
+    flex: 0 0 auto;
+  }
+
+  .admin-tabs .nav-link {
+    min-height: 44px;
+    padding: 10px 12px;
+    white-space: nowrap;
+    font-size: 0.88rem;
+  }
+
+  .admin-section-header {
+    align-items: stretch;
+  }
+
+  .admin-section-header h2 {
+    font-size: 1.15rem;
+    width: 100%;
+  }
+
+  .admin-filters input,
+  .admin-filters select,
+  .admin-filters button,
+  .stats-date-controls,
+  .stats-date-controls label,
+  .stats-date-controls input,
+  .stats-date-controls button {
+    width: 100%;
+    max-width: none;
+  }
+
+  .stats-date-controls {
+    justify-content: stretch;
+  }
+
+  .reporte-header,
+  .reporte-acciones,
+  .usuario-acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-contador,
+  .btn-action {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .usuario-info {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .usuario-correo,
+  .reporte-contenido {
+    overflow-wrap: anywhere;
+  }
+
+  .stats-kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .stats-card {
+    padding: 16px 12px;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .stats-kpi-row {
+    grid-template-columns: 1fr;
   }
 }

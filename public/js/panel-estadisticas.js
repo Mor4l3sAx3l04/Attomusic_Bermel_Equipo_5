@@ -43,11 +43,12 @@ function registerChart(id, instance) {
 // ─── KPI Cards ────────────────────────────────────────────────────────────
 function renderKPIs(datos) {
     const rc = datos.resumenCuentas || {};
+    const dias = datos.rango?.diffDays || 14;
     const kpis = [
         { icon: 'bi-people-fill', label: 'Usuarios Activos', value: rc.activas || 0, color: '#00dffc' },
         { icon: 'bi-person-x-fill', label: 'Cuentas Eliminadas', value: rc.eliminadas || 0, color: '#ff4d6d' },
         { icon: 'bi-ban', label: 'Usuarios Baneados', value: rc.baneadas || 0, color: '#ffd166' },
-        { icon: 'bi-postcard-fill', label: 'Publicaciones (14d)', value: (datos.publicacionesPorDia || []).reduce((a, b) => a + parseInt(b.total), 0), color: '#ba01ff' },
+        { icon: 'bi-postcard-fill', label: `Publicaciones (${dias}d)`, value: (datos.publicacionesPorDia || []).reduce((a, b) => a + parseInt(b.total), 0), color: '#ba01ff' },
         { icon: 'bi-music-note-beamed', label: 'Artistas Únicos', value: (datos.artistasTop || []).length, color: '#06d6a0' },
         { icon: 'bi-star-fill', label: 'Canciones Calificadas', value: (datos.cancionesTop || []).length, color: '#f77f00' },
     ];
@@ -372,6 +373,7 @@ function renderRoles(rows) {
 
 // ─── Loader principal ──────────────────────────────────────────────────────
 async function cargarEstadisticas() {
+    const rango = window.obtenerRangoEstadisticas ? window.obtenerRangoEstadisticas() : {};
     const secciones = [
         'chartPublicacionesDia', 'chartCuentas', 'chartGeneros', 'chartArtistas',
         'chartUsuariosActivos', 'chartSeguidores', 'chartCanciones', 'chartEliminadas', 'chartRoles',
@@ -392,7 +394,11 @@ async function cargarEstadisticas() {
     });
 
     try {
-        const res = await fetch('/api/admin/estadisticas');
+        const params = new URLSearchParams(rango);
+        const res = await fetch(`/api/admin/estadisticas?${params.toString()}`, {
+            headers: window.obtenerHeadersAdmin ? window.obtenerHeadersAdmin() : undefined,
+        });
+        if (!res.ok) throw new Error('Error al cargar estadisticas');
         const datos = await res.json();
 
         // Limpiar spinners
@@ -403,8 +409,12 @@ async function cargarEstadisticas() {
 
         // KPIs
         renderKPIs(datos);
+        if (window.actualizarResumenRangoEstadisticas) {
+            window.actualizarResumenRangoEstadisticas(datos.rango);
+        }
 
         // Gráficas
+        Object.keys(_charts).forEach(destroyChart);
         if (datos.publicacionesPorDia?.length) renderPublicacionesDia(datos.publicacionesPorDia);
         if (datos.resumenCuentas) renderCuentas(datos.resumenCuentas);
         if (datos.generosTop?.length) renderGeneros(datos.generosTop);

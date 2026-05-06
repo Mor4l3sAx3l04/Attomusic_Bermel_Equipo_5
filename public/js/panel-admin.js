@@ -1,6 +1,54 @@
 // Variables globales
 let usuarioActualBaneo = null;
 
+function adminFetch(url, options = {}) {
+  const usuario = window.getUsuarioActual ? window.getUsuarioActual() : null;
+  const headers = new Headers(options.headers || {});
+
+  if (usuario?.correo) {
+    headers.set('X-User-Email', usuario.correo);
+  }
+
+  return fetch(url, { ...options, headers });
+}
+
+function jsStringAttr(value) {
+  return JSON.stringify(String(value || "")).replace(/"/g, '&quot;');
+}
+
+window.obtenerRangoEstadisticas = function () {
+  const inicio = document.getElementById('statsFechaInicio');
+  const fin = document.getElementById('statsFechaFin');
+  if (!inicio || !fin) return {};
+
+  if (!inicio.value || !fin.value) {
+    const hoy = new Date();
+    const hace14 = new Date();
+    hace14.setDate(hoy.getDate() - 13);
+    inicio.value = hace14.toISOString().slice(0, 10);
+    fin.value = hoy.toISOString().slice(0, 10);
+  }
+
+  return { startDate: inicio.value, endDate: fin.value };
+};
+
+window.obtenerHeadersAdmin = function () {
+  const usuario = window.getUsuarioActual ? window.getUsuarioActual() : null;
+  const headers = new Headers();
+  if (usuario?.correo) headers.set('X-User-Email', usuario.correo);
+  return headers;
+};
+
+window.actualizarResumenRangoEstadisticas = function (rango) {
+  const resumen = document.getElementById('statsRangeSummary');
+  if (!resumen || !rango?.startDate || !rango?.endDate) return;
+
+  const inicio = new Date(`${rango.startDate}T00:00:00`);
+  const fin = new Date(`${rango.endDate}T00:00:00`);
+  const formato = { day: 'numeric', month: 'short', year: 'numeric' };
+  resumen.textContent = `Mostrando datos del ${inicio.toLocaleDateString('es-MX', formato)} al ${fin.toLocaleDateString('es-MX', formato)} (${rango.diffDays} dias).`;
+};
+
 // Inicializar el panel admin
 function init_panel_admin() {
   //console.log(' Inicializando panel admin...');
@@ -28,6 +76,15 @@ function init_panel_admin() {
   document.getElementById('publicaciones-tab')?.addEventListener('shown.bs.tab', cargarTodasPublicaciones);
   document.getElementById('usuarios-tab')?.addEventListener('shown.bs.tab', cargarUsuarios);
   document.getElementById('cuentas-eliminadas-tab')?.addEventListener('shown.bs.tab', cargarCuentasEliminadas);
+
+  document.getElementById('statsUltimos14')?.addEventListener('click', () => {
+    const hoy = new Date();
+    const hace14 = new Date();
+    hace14.setDate(hoy.getDate() - 13);
+    document.getElementById('statsFechaInicio').value = hace14.toISOString().slice(0, 10);
+    document.getElementById('statsFechaFin').value = hoy.toISOString().slice(0, 10);
+    cargarEstadisticas();
+  });
 }
 
 // Verificar que el usuario sea admin
@@ -85,7 +142,7 @@ document.getElementById('btnConfirmarAccion').addEventListener('click', async ()
     : `/api/admin/publicacion/${idAEliminar}`;
 
   try {
-    const res = await fetch(url, { method: 'DELETE' });
+    const res = await adminFetch(url, { method: 'DELETE' });
     if (res.ok) {
       window.mostrarToast(`${tipoAEliminar.charAt(0).toUpperCase() + tipoAEliminar.slice(1)} eliminado`, "success");
       // Recargar las listas
@@ -108,7 +165,7 @@ async function cargarPublicacionesReportadas() {
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
 
   try {
-    const res = await fetch('/api/admin/reportes');
+    const res = await adminFetch('/api/admin/reportes');
     const reportes = await res.json();
 
     document.getElementById('badge-reportes').textContent = reportes.length;
@@ -184,7 +241,7 @@ async function resolverReporte(idPublicacion) {
   if (!confirm('¿Marcar este reporte como resuelto?')) return;
 
   try {
-    const res = await fetch(`/api/admin/reporte/${idPublicacion}/resolver`, {
+    const res = await adminFetch(`/api/admin/reporte/${idPublicacion}/resolver`, {
       method: 'POST'
     });
 
@@ -204,7 +261,7 @@ async function limpiarReportesResueltos() {
   if (!confirm('¿Eliminar todos los reportes marcados como resueltos?')) return;
 
   try {
-    const res = await fetch('/api/admin/reportes/limpiar', {
+    const res = await adminFetch('/api/admin/reportes/limpiar', {
       method: 'DELETE'
     });
 
@@ -224,7 +281,7 @@ async function cargarTodasPublicaciones() {
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
 
   try {
-    const res = await fetch('/api/admin/publicaciones');
+    const res = await adminFetch('/api/admin/publicaciones');
     const publicaciones = await res.json();
 
     document.getElementById('badge-publicaciones').textContent = publicaciones.length;
@@ -287,7 +344,7 @@ async function eliminarPublicacionAdmin(idPublicacion) {
     "¿Estás seguro de que quieres borrar esta publicación de forma permanente?",
     async () => {
       try {
-        const res = await fetch(`/api/admin/publicacion/${idPublicacion}`, { method: 'DELETE' });
+        const res = await adminFetch(`/api/admin/publicacion/${idPublicacion}`, { method: 'DELETE' });
         if (res.ok) {
           window.mostrarToast("Publicación eliminada", "success");
           cargarPublicacionesReportadas();
@@ -300,7 +357,7 @@ async function eliminarPublicacionAdmin(idPublicacion) {
   );
 
   try {
-    const res = await fetch(`/api/admin/publicacion/${idPublicacion}`, {
+    const res = await adminFetch(`/api/admin/publicacion/${idPublicacion}`, {
       method: 'DELETE'
     });
 
@@ -335,7 +392,7 @@ async function cargarUsuarios() {
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
 
   try {
-    const res = await fetch('/api/admin/usuarios');
+    const res = await adminFetch('/api/admin/usuarios');
     const usuarios = await res.json();
 
     document.getElementById('badge-usuarios').textContent = usuarios.length;
@@ -373,7 +430,7 @@ function crearCardUsuario(user) {
 
   div.innerHTML = `
     ${user.foto ?
-      `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="usuario-avatar">` :
+      `<img src="${window.escapeHtml(user.foto)}" alt="${window.escapeHtml(user.usuario)}" class="usuario-avatar">` :
       `<div class="usuario-avatar-text">${user.usuario.charAt(0).toUpperCase()}</div>`
     }
     
@@ -404,7 +461,7 @@ function crearCardUsuario(user) {
         ${user.rol === 'admin' ? 'Hacer Usuario' : 'Hacer Admin'}
       </button>
       
-      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${user.id_usuario}, 'usuario', '${window.escapeHtml(user.usuario)}')">
+      <button class="btn-action btn-eliminar" onclick="prepararEliminacion(${user.id_usuario}, 'usuario', ${jsStringAttr(user.usuario)})">
         <i class="bi bi-trash"></i>
         Eliminar
       </button>
@@ -421,7 +478,7 @@ async function cambiarRolUsuario(idUsuario, rolActual) {
   if (!confirm(`¿Cambiar este usuario a ${textoRol}?`)) return;
 
   try {
-    const res = await fetch(`/api/admin/usuario/${idUsuario}/rol`, {
+    const res = await adminFetch(`/api/admin/usuario/${idUsuario}/rol`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nuevoRol })
@@ -464,7 +521,7 @@ async function confirmarBaneo() {
   }
 
   try {
-    const res = await fetch(`/api/admin/usuario/${usuarioActualBaneo}/banear`, {
+    const res = await adminFetch(`/api/admin/usuario/${usuarioActualBaneo}/banear`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dias, motivo })
@@ -487,7 +544,7 @@ async function desbanearUsuario(idUsuario) {
   if (!confirm('¿Desbanear a este usuario?')) return;
 
   try {
-    const res = await fetch(`/api/admin/usuario/${idUsuario}/desbanear`, {
+    const res = await adminFetch(`/api/admin/usuario/${idUsuario}/desbanear`, {
       method: 'POST'
     });
 
@@ -509,7 +566,7 @@ async function eliminarUsuario(idUsuario, nombreUsuario) {
     `¿Realmente deseas eliminar a "${nombreUsuario}"? Se borrarán todos sus datos y publicaciones.`,
     async () => {
       try {
-        const res = await fetch(`/api/admin/usuario/${idUsuario}`, { method: 'DELETE' });
+        const res = await adminFetch(`/api/admin/usuario/${idUsuario}`, { method: 'DELETE' });
         if (res.ok) {
           window.mostrarToast("Usuario eliminado del sistema", "success");
           cargarUsuarios();
@@ -521,7 +578,7 @@ async function eliminarUsuario(idUsuario, nombreUsuario) {
   );
 
   try {
-    const res = await fetch(`/api/admin/usuario/${idUsuario}`, {
+    const res = await adminFetch(`/api/admin/usuario/${idUsuario}`, {
       method: 'DELETE'
     });
 
@@ -561,7 +618,7 @@ async function cargarCuentasEliminadas() {
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-danger"></div><p class="mt-3 text-muted">Cargando registros...</p></div>';
 
   try {
-    const res = await fetch('/api/admin/cuentas-eliminadas');
+    const res = await adminFetch('/api/admin/cuentas-eliminadas');
     const registros = await res.json();
 
     document.getElementById('badge-cuentas-eliminadas').textContent = registros.length;

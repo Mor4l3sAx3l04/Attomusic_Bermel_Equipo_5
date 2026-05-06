@@ -5,7 +5,7 @@ const queries = require("../utils/queries");
 
 async function getUserFromEmail(req, res, next) {
   try {
-    const correo = req.body.correo || req.query.correo;
+    const correo = req.body.correo || req.query.correo || req.get("x-user-email");
     
     if (!correo) {
       return responses.unauthorized(res, "Usuario no autenticado");
@@ -31,7 +31,7 @@ async function getUserFromEmail(req, res, next) {
 
 async function requireAdmin(req, res, next) {
   try {
-    const correo = req.body.correo || req.query.correo;
+    const correo = req.body.correo || req.query.correo || req.get("x-user-email");
     
     if (!correo) {
       return responses.unauthorized(res, "Usuario no autenticado");

@@ -7,10 +7,12 @@
   let modal3dContainer = null;
   let loginCard3d = null;
   let currentModalType = 'login';
+  let resetPendingEmail = null;
 
   document.addEventListener('DOMContentLoaded', function() {
     crearModal3D();
     setupEventListeners();
+    procesarGoogleLoginPendiente();
   });
 
   function crearModal3D() {
@@ -34,6 +36,17 @@
                 <div id="formContainer3d"></div>
               </div>
               <div class="welcome-section-3d">
+                <div class="music-mascots-3d" aria-hidden="true">
+                  <div class="music-mascot mascot-one">
+                    <span class="mascot-head"></span><span class="mascot-body"></span><span class="mascot-arm left"></span><span class="mascot-arm right"></span><span class="mascot-leg left"></span><span class="mascot-leg right"></span>
+                  </div>
+                  <div class="music-mascot mascot-two">
+                    <span class="mascot-head"></span><span class="mascot-body"></span><span class="mascot-arm left"></span><span class="mascot-arm right"></span><span class="mascot-leg left"></span><span class="mascot-leg right"></span>
+                  </div>
+                  <div class="music-note note-one">♪</div>
+                  <div class="music-note note-two">♫</div>
+                  <div class="music-note note-three">♬</div>
+                </div>
                 <h1 class="welcome-text-3d" id="welcomeText3d">WELCOME<br>BACK!</h1>
               </div>
             </div>
@@ -176,6 +189,7 @@
       document.getElementById('formTitle3d').textContent = 'Registro';
       document.getElementById('welcomeText3d').innerHTML = 'JOIN<br>US!';
     } else if (tipo === 'reset') {
+      resetPendingEmail = null;
       cargarFormularioReset();
       document.getElementById('formTitle3d').textContent = 'Restablecer';
       document.getElementById('welcomeText3d').innerHTML = 'RESET<br>PASSWORD!';
@@ -259,6 +273,40 @@
       </div>`;
   }
 
+  function htmlGoogleButton() {
+    return `
+      <button type="button" class="btn-google-3d" id="btnGoogle3d">
+        <span class="google-mark-3d">G</span>
+        Continuar con Google
+      </button>
+      <div class="auth-divider-3d"><span>o</span></div>`;
+  }
+
+  async function procesarGoogleLoginPendiente() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('google_login');
+    if (!code) return;
+
+    try {
+      const response = await fetch(`/auth/google/session/${encodeURIComponent(code)}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Google login failed');
+
+      localStorage.setItem("usuario", JSON.stringify({ usuario: data.user.usuario, correo: data.user.correo }));
+      sessionStorage.setItem('correo', data.user.correo);
+      sessionStorage.setItem('usuario', data.user.usuario);
+      sessionStorage.setItem('id_usuario', data.user.id_usuario);
+      sessionStorage.setItem('rol', data.user.rol);
+      showToast(data.message || 'Inicio de sesion con Google exitoso', 'success');
+      if (typeof actualizarInterfaz === 'function') actualizarInterfaz();
+    } catch (err) {
+      console.error(err);
+      showToast('No se pudo completar el inicio con Google', 'error');
+    } finally {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
   // ────────────────────────────────────────────────────────────
   // FORMULARIO LOGIN (sin cambios funcionales)
   // ────────────────────────────────────────────────────────────
@@ -279,6 +327,7 @@
         </div>
         <button type="submit" class="btn-login-3d" id="btnLogin3d">Iniciar Sesión</button>
       </form>
+      ${htmlGoogleButton()}
       <div class="form-links-3d">
         <a class="form-link-3d" id="linkForgot3d">¿Olvidaste tu contraseña?</a>
         <a class="form-link-3d primary" id="linkRegister3d">¿No tienes cuenta? <strong>Regístrate aquí</strong></a>
@@ -329,6 +378,7 @@
 
         <button type="submit" class="btn-login-3d" id="btnRegister3d">Crear Cuenta</button>
       </form>
+      ${htmlGoogleButton()}
       <div class="form-links-3d">
         <a class="form-link-3d primary" id="linkLogin3d">¿Ya tienes cuenta? <strong>Inicia sesión</strong></a>
       </div>`;
@@ -371,7 +421,7 @@
 
   function cargarFormularioReset() {
     document.getElementById('formContainer3d').innerHTML = `
-      <p class="info-text-3d">Ingresa tus datos para restablecer tu contraseña</p>
+      <p class="info-text-3d" id="resetInfo3d">Ingresa tus datos para recibir un codigo de confirmacion</p>
       <form id="resetForm3d" novalidate>
 
         <!-- Nombre -->
@@ -398,7 +448,13 @@
         </div>
         ${htmlMedidor('reset')}
 
-        <button type="submit" class="btn-login-3d" id="btnReset3d">Restablecer Contraseña</button>
+        <div class="input-group-3d" id="resetCodeGroup3d" style="display:none;">
+          <i class="bi bi-key-fill input-icon-3d"></i>
+          <input type="text" inputmode="numeric" maxlength="6" class="form-input-3d" id="resetCode3d" placeholder="Codigo de 6 digitos">
+          <div class="error-message-3d">Ingresa el codigo de 6 digitos</div>
+        </div>
+
+        <button type="submit" class="btn-login-3d" id="btnReset3d">Enviar Codigo</button>
       </form>
       <div class="form-links-3d">
         <a class="form-link-3d primary" id="linkBackToLogin3d">¿Recordaste tu contraseña? <strong>Inicia sesión</strong></a>
@@ -461,6 +517,13 @@
     if (linkLogin)       linkLogin.addEventListener('click',       e => { e.preventDefault(); mostrarModal3D('login'); });
     if (linkForgot)      linkForgot.addEventListener('click',      e => { e.preventDefault(); mostrarModal3D('reset'); });
     if (linkBackToLogin) linkBackToLogin.addEventListener('click', e => { e.preventDefault(); mostrarModal3D('login'); });
+
+    const googleBtn = document.getElementById('btnGoogle3d');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', () => {
+        window.location.href = '/auth/google';
+      });
+    }
   }
 
   // ────────────────────────────────────────────────────────────
@@ -593,31 +656,38 @@
     const nameGroup     = document.getElementById('resetNameGroup3d');
     const emailGroup    = document.getElementById('resetEmailGroup3d');
     const passwordGroup = document.getElementById('resetPasswordGroup3d');
+    const codeGroup     = document.getElementById('resetCodeGroup3d');
     const nameInput     = document.getElementById('resetName3d');
     const emailInput    = document.getElementById('resetEmail3d');
     const passwordInput = document.getElementById('resetPassword3d');
+    const codeInput     = document.getElementById('resetCode3d');
     const btnReset      = document.getElementById('btnReset3d');
 
     nameGroup.classList.remove('error');
     emailGroup.classList.remove('error');
     passwordGroup.classList.remove('error');
+    codeGroup.classList.remove('error');
 
     const nombre          = nameInput.value.trim();
     const correo          = emailInput.value.trim();
     const nuevaContrasena = passwordInput.value;
+    const codigo          = codeInput.value.trim();
     const { score }       = analizarPassword(nuevaContrasena);
 
     let error = null;
 
-    if (!nombre) {
+    if (!resetPendingEmail && !nombre) {
       nameGroup.classList.add('error');
       error = 'El nombre de usuario es obligatorio.';
-    } else if (!validarCorreo(correo)) {
+    } else if (!resetPendingEmail && !validarCorreo(correo)) {
       emailGroup.classList.add('error');
-      error = 'El correo electrónico no es válido.';
-    } else if (score < 3) {
+      error = 'El correo electronico no es valido.';
+    } else if (!resetPendingEmail && score < 3) {
       passwordGroup.classList.add('error');
-      error = 'La contraseña es muy débil. Agrega mayúsculas, números o símbolos.';
+      error = 'La contrasena es muy debil. Agrega mayusculas, numeros o simbolos.';
+    } else if (resetPendingEmail && !/^\d{6}$/.test(codigo)) {
+      codeGroup.classList.add('error');
+      error = 'Ingresa el codigo de confirmacion de 6 digitos.';
     }
 
     if (error) { showToast(error, 'error'); return; }
@@ -626,27 +696,45 @@
     btnReset.textContent = '';
 
     try {
-      const response = await fetch("/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, correo, nuevaContrasena }),
+      const endpoint = resetPendingEmail ? '/reset-password/confirm' : '/reset-password/request';
+      const payload = resetPendingEmail ? { correo: resetPendingEmail, codigo } : { nombre, correo, nuevaContrasena };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
 
       if (response.ok) {
-        showToast(data.message || "Contraseña actualizada correctamente", "success");
-        cerrarModal3D();
-        setTimeout(() => mostrarModal3D('login'), 1000);
+        if (!resetPendingEmail) {
+          resetPendingEmail = correo;
+          document.getElementById('resetInfo3d').textContent = data.devCode
+            ? `Codigo de prueba: ${data.devCode}. En produccion llegara por correo.`
+            : 'Revisa tu correo e ingresa el codigo de 6 digitos.';
+          codeGroup.style.display = 'block';
+          nameInput.disabled = true;
+          emailInput.disabled = true;
+          passwordInput.disabled = true;
+          btnReset.classList.remove('loading');
+          btnReset.textContent = 'Confirmar Codigo';
+          showToast(data.message || 'Codigo enviado', 'success');
+        } else {
+          showToast(data.message || 'Contrasena actualizada correctamente', 'success');
+          resetPendingEmail = null;
+          cerrarModal3D();
+          setTimeout(() => mostrarModal3D('login'), 1000);
+        }
       } else {
         btnReset.classList.remove('loading');
-        btnReset.textContent = 'Restablecer Contraseña';
-        showToast(data.error || "No se pudo actualizar la contraseña", "error");
+        btnReset.textContent = resetPendingEmail ? 'Confirmar Codigo' : 'Enviar Codigo';
+        showToast(data.error || 'No se pudo actualizar la contrasena', 'error');
       }
     } catch (err) {
       console.error(err);
       btnReset.classList.remove('loading');
-      btnReset.textContent = 'Restablecer Contraseña';
-      showToast("Error de conexión con el servidor", "error");
+      btnReset.textContent = resetPendingEmail ? 'Confirmar Codigo' : 'Enviar Codigo';
+      showToast('Error de conexion con el servidor', 'error');
     }
   }
 

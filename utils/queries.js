@@ -9,9 +9,9 @@ const queries = {
   // PUBLICACIONES
   getAllPosts: `
     SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
-           c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
-           (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
-           (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+          c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+          (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+          (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
     FROM publicacion p
     JOIN usuario u ON p.id_usuario = u.id_usuario
     LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
@@ -20,9 +20,9 @@ const queries = {
   
   getPostsByUserId: `
     SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
-           c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
-           (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
-           (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+          c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
+          (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+          (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
     FROM publicacion p
     JOIN usuario u ON p.id_usuario = u.id_usuario
     LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
