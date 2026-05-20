@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
@@ -58,7 +58,6 @@ Comentario a analizar:
 
     } catch (err) {
         console.error("Error al validar publicación con Gemini:", err);
-
         // Retornar error seguro
         return {
             apto: false,
@@ -68,4 +67,4 @@ Comentario a analizar:
     }
 }
 
-export { validarPublicacion };
+module.exports = { validarPublicacion };

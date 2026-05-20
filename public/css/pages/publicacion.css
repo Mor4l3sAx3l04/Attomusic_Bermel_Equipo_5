@@ -1,0 +1,19 @@
+/* Ícono dentro del botón "Publicar": color blanco */
+#btnPublicar lord-icon {
+  --lord-icon-primary: #ffffff;
+  --lord-icon-secondary: #e0b3ff;
+}
+
+/* Botón de búsqueda con lord-icon: alinear ícono y texto */
+#buscarCancionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Input-group search: input-group-text como contenedor del ícono */
+.search-icon-wrap {
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+}

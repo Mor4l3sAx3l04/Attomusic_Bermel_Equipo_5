@@ -6,38 +6,8 @@
   <title>Publicar - AttoMusic</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    /* ── Lordicon: colores base (modo claro) ── */
-    lord-icon {
-      --lord-icon-primary: #ba01ff;
-      --lord-icon-secondary: #00dffc;
-    }
-    /* ── Lordicon: colores modo oscuro ── */
-    html[data-bs-theme="dark"] lord-icon {
-      --lord-icon-primary: #d580ff;
-      --lord-icon-secondary: #00dffc;
-    }
-
-    /* Ícono dentro del botón "Publicar": color blanco */
-    #btnPublicar lord-icon {
-      --lord-icon-primary: #ffffff;
-      --lord-icon-secondary: #e0b3ff;
-    }
-
-    /* Botón de búsqueda con lord-icon: alinear ícono y texto */
-    #buscarCancionBtn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Input-group search: input-group-text como contenedor del ícono */
-    .search-icon-wrap {
-      display: flex;
-      align-items: center;
-      padding: 0 2px;
-    }
-  </style>
+  <link rel="stylesheet" href="css/lordicon-vars.css">
+  <link rel="stylesheet" href="css/pages/publicacion.css">
 </head>
 <body class="transition-bg">
   <main class="container content fade-in">
@@ -108,6 +78,6 @@
   <!-- Lordicon player -->
   <script src="https://cdn.lordicon.com/lordicon.js"></script>
   <script src="./js/publicacion.js"></script>
-  <script>animarTituloGlobal('#titulo-siguiendo', 'Crear Nueva Publicación');</script>
+  <script src="js/pages/publicacion-init.js"></script>
 </body>
 </html>

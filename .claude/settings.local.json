@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName.Substring\\(\"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\".Length + 1\\) } | Sort-Object)",
+      "PowerShell(tree *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Depth 1 -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'node_modules' -and $_.Name -ne '.git' } | ForEach-Object { Write-Output $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\\\\public\" -Recurse -Force | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\\\\\", \"\"\\) } | Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\\\\routes\" -Force | ForEach-Object { $_.Name } | Sort-Object)",
+      "Bash(node app.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000__TRACKED_VAR__)",
+      "Bash(start http://localhost:3000)",
+      "Bash(grep -c \"^  <script>$\" \"C:/Users/axelm/OneDrive/Escritorio/Attomusic_Bermel_Equipo_5/public/index.html\")",
+      "Bash(grep -c \"^<script>$\" \"C:/Users/axelm/OneDrive/Escritorio/Attomusic_Bermel_Equipo_5/public/bienvenido.html\")",
+      "Bash(grep -n \"^  <script>$\\\\|^<script>$\" \"C:/Users/axelm/OneDrive/Escritorio/Attomusic_Bermel_Equipo_5/public/perfil.html\")",
+      "Bash(npx playwright *)",
+      "Bash(node -e ' *)",
+      "Bash(pkill -f \"node app.js\")"
+    ]
+  }
+}

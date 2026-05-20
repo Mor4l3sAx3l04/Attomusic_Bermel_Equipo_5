@@ -1,0 +1,61 @@
+/* Medidor de seguridad de contraseña */
+.pass-strength-wrap {
+  margin-top: 10px;
+}
+.pass-strength-bar-bg {
+  height: 6px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.pass-strength-bar {
+  height: 100%;
+  border-radius: 99px;
+  width: 0%;
+  transition: width 0.35s ease, background 0.35s ease;
+}
+.pass-strength-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.pass-reqs {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 12px;
+}
+.pass-req {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #999;
+  transition: color 0.2s;
+}
+.pass-req.ok { color: #22c55e; }
+.pass-req i  { font-size: 0.7rem; }
+
+/* Feedback de correo */
+.email-feedback {
+  font-size: 0.76rem;
+  margin-top: 5px;
+  font-weight: 500;
+  min-height: 16px;
+  padding-left: 2px;
+}
+
+/* Input de confirmar contraseña */
+.confirm-match {
+  font-size: 0.76rem;
+  margin-top: 5px;
+  font-weight: 500;
+  min-height: 16px;
+  padding-left: 2px;
+}
+
+.btn-gradient-submit:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 24px rgba(186,1,255,0.4) !important;
+}

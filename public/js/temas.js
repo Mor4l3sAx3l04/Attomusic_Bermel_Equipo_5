@@ -58,3 +58,8 @@ observer.observe(document.body, {
 
 // Al final de temas.js
 window.aplicarColoresIconos = aplicarColoresIconos;
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btn-tema')?.addEventListener('click', () => cambiarTema());
+  document.getElementById('btn-cursor-music')?.addEventListener('click', () => toggleCursorMusic());
+});

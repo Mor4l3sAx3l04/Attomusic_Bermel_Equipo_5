@@ -1,0 +1,112 @@
+.perfil-header {
+  background-color: #222;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 3rem 0;
+  color: white;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.5s ease-in-out;
+  box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.3);
+}
+
+.publicacion-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+  border: 1px solid #eee;
+}
+
+.publicacion-item.has-custom-bg {
+  background-size: cover;
+  background-position: center;
+  border: none;
+  color: white;
+  overflow: hidden;
+  min-height: 200px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.publicacion-item.has-custom-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.publicacion-item.has-custom-bg > * {
+  position: relative;
+  z-index: 2;
+}
+
+.perfil-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.perfil-avatar-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: bold;
+  border: 4px solid white;
+}
+
+.perfil-info h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.perfil-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.stat-item .number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: block;
+}
+
+.btn-seguir-perfil {
+  background: white;
+  color: #667eea;
+  border: 2px solid white;
+  padding: 0.5rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.btn-seguir-perfil.siguiendo {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.back-button {
+  color: white;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}

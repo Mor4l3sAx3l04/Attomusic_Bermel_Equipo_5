@@ -1,0 +1,19 @@
+.titulo-icon-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.buscador-lord-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.buscador-lord-icon .input-group {
+  max-width: 520px;
+  flex: 1;
+}

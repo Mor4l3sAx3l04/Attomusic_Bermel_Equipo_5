@@ -13,65 +13,8 @@
   <link rel="stylesheet" href="css/cursor-toggle.css">
   <link rel="stylesheet" href="css/panel-admin.css">
   <link rel="stylesheet" href="css/notificaciones.css">
+  <link rel="stylesheet" href="css/auth-validacion.css">
   <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
-  <style>
-    /* ── Medidor de seguridad de contraseña ── */
-    .pass-strength-wrap {
-      margin-top: 10px;
-    }
-    .pass-strength-bar-bg {
-      height: 6px;
-      background: rgba(0,0,0,0.1);
-      border-radius: 99px;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-    .pass-strength-bar {
-      height: 100%;
-      border-radius: 99px;
-      width: 0%;
-      transition: width 0.35s ease, background 0.35s ease;
-    }
-    .pass-strength-label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-    }
-    .pass-reqs {
-      margin-top: 8px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3px 12px;
-    }
-    .pass-req {
-      font-size: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: #999;
-      transition: color 0.2s;
-    }
-    .pass-req.ok { color: #22c55e; }
-    .pass-req i  { font-size: 0.7rem; }
-
-    /* ── Feedback de correo ── */
-    .email-feedback {
-      font-size: 0.76rem;
-      margin-top: 5px;
-      font-weight: 500;
-      min-height: 16px;
-      padding-left: 2px;
-    }
-
-    /* ── Input de confirmar contraseña ── */
-    .confirm-match {
-      font-size: 0.76rem;
-      margin-top: 5px;
-      font-weight: 500;
-      min-height: 16px;
-      padding-left: 2px;
-    }
-  </style>
 </head>
 
 <body>
@@ -80,10 +23,10 @@
       <a class="navbar-brand" href="index.html">
         <img alt="Icono" class="iconnavbar" src="images/iconowhite.png"> AttoMusic
       </a>
-      <button class="btn rounded-fill" type="button" onclick="cambiarTema()">
+      <button class="btn rounded-fill" type="button" id="btn-tema">
         <i class="bi bi-moon-stars" id="dl-icon"></i>
       </button>
-      <button class="btn rounded-fill" type="button" id="btn-cursor-music" onclick="toggleCursorMusic()" title="Desactivar cursor musical">
+      <button class="btn rounded-fill" type="button" id="btn-cursor-music" title="Desactivar cursor musical">
         <i class="bi bi-music-note-beamed" id="dl-icon"></i>
       </button>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -161,9 +104,6 @@
     <div id="main-content"></div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       MODAL: INICIAR SESIÓN (sin cambios)
-       ══════════════════════════════════════════════ -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content border-0" style="background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(90,24,154,0.3);">
@@ -195,9 +135,7 @@
               <div style="text-align:right;margin-bottom:24px;">
                 <a href="#" data-bs-toggle="modal" data-bs-target="#resetModal" data-bs-dismiss="modal" style="color:#5a189a;text-decoration:none;font-weight:500;">¿Olvidaste tu contraseña?</a>
               </div>
-              <button type="submit" style="width:100%;padding:16px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(186,1,255,0.3);"
-                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
-                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
+              <button type="submit" class="btn-gradient-submit" style="width:100%;padding:16px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(186,1,255,0.3);">
                 Iniciar Sesión
               </button>
               <div style="text-align:center;margin-top:24px;padding-top:24px;border-top:1px solid rgba(90,24,154,0.2);">
@@ -212,9 +150,6 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       MODAL: RESTABLECER CONTRASEÑA  ← con medidor
-       ══════════════════════════════════════════════ -->
   <div class="modal fade" id="resetModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content border-0" style="background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(90,24,154,0.3);">
@@ -283,9 +218,6 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       MODAL: REGISTRO  ← con confirmación + medidor
-       ══════════════════════════════════════════════ -->
   <div class="modal fade" id="registroModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content border-0" style="background:linear-gradient(135deg,#f3e8ff 0%,#e0f7ff 100%);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(90,24,154,0.3);">
@@ -359,9 +291,7 @@
               </div>
               <div class="confirm-match" id="confirmMatchFeedback" style="margin-bottom:20px;"></div>
 
-              <button type="submit" style="width:100%;padding:16px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(186,1,255,0.3);"
-                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(186,1,255,0.4)'"
-                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(186,1,255,0.3)'">
+              <button type="submit" class="btn-gradient-submit" style="width:100%;padding:16px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(186,1,255,0.3);">
                 Crear Cuenta
               </button>
 
@@ -392,6 +322,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/panel-estadisticas.js"></script>
   <script src="js/notificaciones.js"></script>
-  <script src="js/auth-validacion.js"></script> 
+  <script src="js/auth-validacion.js"></script>
 </body>
 </html>

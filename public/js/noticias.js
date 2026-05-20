@@ -91,7 +91,12 @@ window.mainNoticias = function() {
     pageInicial = 0;
     temaActual = "Music";
     noticias.fetchNoticias();
+    if (window.animarTituloGlobal) {
+        animarTituloGlobal('#titulo-noticias', 'Últimas Novedades');
+    }
 };
+
+window['init_noticias'] = window.mainNoticias;
 
 if (document.querySelector('.container-noticias')) {
     window.mainNoticias();

@@ -391,7 +391,7 @@ if (formReset) {
     }
 
     try {
-      const response = await fetch("/reset-password", {
+      const response = await fetch("/reset-password/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, correo, nuevaContrasena }),
@@ -584,7 +584,7 @@ window.cargarPublicaciones = async function (correo) {
   container.innerHTML = '<div class="text-center p-3"><div class="spinner-border text-primary"></div></div>';
 
   try {
-    const res  = await fetch(`/api/publicaciones/usuario/${correo}`);
+    const res  = await fetch(`/api/perfil/${correo}/publicaciones`);
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.error || 'Error cargando publicaciones');
@@ -615,7 +615,7 @@ window.cargarPublicaciones = async function (correo) {
     const idUsuario = sessionStorage.getItem('id_usuario');
     if (idUsuario) {
       try {
-        const res2  = await fetch(`/api/publicaciones/usuario/${idUsuario}`);
+        const res2  = await fetch(`/api/usuario/${idUsuario}/publicaciones`);
         const data2 = await res2.json();
         if (res2.ok) {
           container.innerHTML = '';

@@ -1,0 +1,11 @@
+/* Variables de color compartidas para todos los Lordicons del proyecto */
+lord-icon {
+  --lord-icon-primary: #ba01ff;
+  --lord-icon-secondary: #00dffc;
+}
+
+html[data-bs-theme="dark"] lord-icon,
+body[data-bs-theme="dark"] lord-icon {
+  --lord-icon-primary: #d580ff;
+  --lord-icon-secondary: #00dffc;
+}
