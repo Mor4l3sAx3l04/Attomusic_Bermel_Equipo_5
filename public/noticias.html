@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link rel="stylesheet" href="css/lordicon-vars.css">
 </head>
 <body>
@@ -22,9 +23,45 @@
       style="width:80px;height:80px;">
     </lord-icon>
     <h1 id="titulo-noticias" style="font-size: 70px;"></h1>
-    <p class="text-muted">Entérate de lo último en el mundo musical.</p>
+    <p class="text-muted">Enterate de lo ultimo en musica, cine y temas del momento.</p>
   </div>
 
+  <section class="news-filter-panel fade-up-section" aria-label="Filtros de noticias">
+    <div class="news-filter-copy">
+      <span class="news-filter-kicker">Explorar noticias</span>
+      <h2>Elige que quieres leer</h2>
+    </div>
+
+    <div class="news-select-wrap">
+      <i class="bi bi-filter-circle"></i>
+      <select id="selectTipoNoticias" class="news-topic-select" aria-label="Tipo de noticias">
+        <optgroup label="Musica">
+          <option value="musica-general">Musica general</option>
+          <option value="musica-pop">Pop</option>
+          <option value="musica-rock">Rock</option>
+          <option value="musica-reggaeton">Reggaeton y urbano</option>
+          <option value="musica-regional">Regional mexicano</option>
+          <option value="musica-electronica">Electronica y festivales</option>
+          <option value="musica-cantantes">Cantantes y artistas</option>
+          <option value="musica-conciertos">Proximos conciertos</option>
+        </optgroup>
+        <optgroup label="Cultura y actualidad">
+          <option value="cine">Cine</option>
+          <option value="entretenimiento">Entretenimiento</option>
+          <option value="general">Noticias en general</option>
+        </optgroup>
+        <optgroup label="Mas secciones">
+          <option value="tecnologia">Tecnologia</option>
+          <option value="ciencia">Ciencia</option>
+          <option value="salud">Salud</option>
+          <option value="deportes">Deportes</option>
+          <option value="negocios">Negocios</option>
+        </optgroup>
+      </select>
+    </div>
+  </section>
+
+  <div id="noticiasEstado" class="news-state" aria-live="polite"></div>
   <div class="container-noticias"></div>
 
   <script src="https://cdn.lordicon.com/lordicon.js"></script>
