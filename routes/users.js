@@ -15,7 +15,7 @@ router.get("/perfil/:correo", async (req, res) => {
 
     const userResult = await pool.query(
       `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado,
-      fondo_perfil, fondo_publicaciones
+      fondo_perfil, fondo_publicaciones, es_vip, insignia_artista
       FROM usuario WHERE correo = $1`,
       [correo]
     );
@@ -37,7 +37,8 @@ router.get("/perfil-publico/:id_usuario", async (req, res) => {
     const { id_usuario } = req.params;
 
     const userResult = await pool.query(
-      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado, fondo_perfil 
+      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado, fondo_perfil,
+       es_vip, insignia_artista
        FROM usuario WHERE id_usuario = $1`,
       [id_usuario]
     );

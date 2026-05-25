@@ -1,0 +1,642 @@
+/* canciones-artistas.css */
+
+.ca-feed-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.ca-feed-header h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ca-card {
+  background: var(--card-bg, rgba(255,255,255,0.04));
+  border: 1px solid rgba(186,1,255,0.15);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: box-shadow 0.25s, transform 0.2s;
+  backdrop-filter: blur(8px);
+}
+
+.ca-card:hover {
+  box-shadow: 0 8px 32px rgba(186,1,255,0.18);
+  transform: translateY(-2px);
+}
+
+/* Header con info del usuario */
+.ca-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 0.5rem;
+}
+
+.ca-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(186,1,255,0.4);
+}
+
+.ca-avatar-text {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.ca-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ca-username {
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.ca-username a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ca-username a:hover {
+  color: #ba01ff;
+}
+
+.ca-fecha {
+  font-size: 0.78rem;
+  color: var(--text-muted, #999);
+}
+
+.badge-vip-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: linear-gradient(135deg, #ba01ff, #00dffc);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badge-artista-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a1a;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.ca-follow-btn {
+  background: none;
+  border: 1.5px solid #ba01ff;
+  color: #ba01ff;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.ca-follow-btn:hover,
+.ca-follow-btn.siguiendo {
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border-color: transparent;
+  color: white;
+}
+
+/* Portada + reproductor */
+.ca-player-area {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  align-items: center;
+}
+
+.ca-cover {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.ca-cover-placeholder {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(186,1,255,0.2), rgba(0,223,252,0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.ca-song-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.ca-song-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ca-song-genre {
+  font-size: 0.8rem;
+  color: #ba01ff;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.ca-play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(186,1,255,0.4);
+  flex-shrink: 0;
+}
+
+.ca-play-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(186,1,255,0.5);
+}
+
+/* Audio oculto */
+.ca-audio {
+  display: none;
+}
+
+/* Barra de progreso de audio */
+.ca-progress-wrap {
+  padding: 0 1.25rem 0.25rem;
+}
+
+.ca-progress {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(186,1,255,0.2);
+  outline: none;
+  cursor: pointer;
+}
+
+.ca-progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  cursor: pointer;
+}
+
+.ca-time-display {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted, #999);
+  padding: 0 1.25rem 0.25rem;
+}
+
+/* Acciones (like, comentar, descripción) */
+.ca-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-top: 1px solid rgba(186,1,255,0.1);
+}
+
+.ca-btn-action {
+  background: none;
+  border: none;
+  color: var(--text-muted, #999);
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+  font-weight: 600;
+}
+
+.ca-btn-action:hover {
+  background: rgba(186,1,255,0.08);
+  color: #ba01ff;
+}
+
+.ca-btn-action.liked {
+  color: #e63b6f;
+}
+
+.ca-btn-action.liked i {
+  color: #e63b6f;
+}
+
+/* Descripción expandible */
+.ca-descripcion {
+  display: none;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-color, #555);
+  border-top: 1px solid rgba(186,1,255,0.08);
+  white-space: pre-wrap;
+}
+
+.ca-descripcion.visible {
+  display: block;
+}
+
+/* Sección de comentarios */
+.ca-comentarios {
+  display: none;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid rgba(186,1,255,0.08);
+}
+
+.ca-comentarios.visible {
+  display: block;
+}
+
+.ca-comentario-item {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.ca-com-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ca-com-avatar-text {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ca-com-body {
+  flex: 1;
+}
+
+.ca-com-body strong {
+  font-size: 0.83rem;
+}
+
+.ca-com-body p {
+  font-size: 0.85rem;
+  margin: 0;
+  color: var(--text-color, #555);
+}
+
+.ca-com-body small {
+  color: var(--text-muted, #999);
+  font-size: 0.73rem;
+}
+
+.ca-comentario-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.ca-comentario-input {
+  flex: 1;
+  border: 1.5px solid rgba(186,1,255,0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  background: var(--input-bg, rgba(255,255,255,0.05));
+  color: inherit;
+  outline: none;
+  resize: none;
+}
+
+.ca-comentario-input:focus {
+  border-color: #ba01ff;
+}
+
+.ca-comentario-submit {
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border: none;
+  color: white;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.ca-comentario-submit:hover {
+  opacity: 0.88;
+}
+
+/* Estado vacío */
+.ca-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--text-muted, #999);
+}
+
+.ca-empty i {
+  font-size: 3rem;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Spinner */
+.ca-spinner {
+  text-align: center;
+  padding: 3rem;
+}
+
+/* Fin del feed */
+.ca-fin-feed {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-muted, #999);
+  font-size: 0.88rem;
+}
+
+/* --- Modal subir canción (en perfil) --- */
+.modal-upload-cancion .modal-content {
+  background: linear-gradient(135deg, #0f0f1f, #1a0a2e);
+  color: white;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.upload-audio-area {
+  border: 2px dashed rgba(186,1,255,0.5);
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.upload-audio-area:hover {
+  border-color: #ba01ff;
+  background: rgba(186,1,255,0.06);
+}
+
+.upload-audio-area i {
+  font-size: 2.2rem;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Insignias en perfil */
+.insignia-vip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #ba01ff, #00dffc);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.insignia-artista {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a1a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+  vertical-align: middle;
+}
+
+/* Botón VIP en navbar */
+.btn-upgrade-vip {
+  background: linear-gradient(135deg, #ba01ff, #00dffc);
+  border: none;
+  color: white;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  box-shadow: 0 2px 12px rgba(186,1,255,0.35);
+}
+
+.btn-upgrade-vip:hover {
+  opacity: 0.9;
+  transform: scale(1.04);
+}
+
+/* Tabs de perfil (Publicaciones / Canciones) */
+.perfil-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid rgba(186,1,255,0.2);
+  margin-bottom: 1.5rem;
+}
+
+.perfil-tab {
+  background: none;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.perfil-tab.active {
+  color: #ba01ff;
+  border-bottom-color: #ba01ff;
+}
+
+.perfil-tab:hover:not(.active) {
+  color: #ba01ff;
+  opacity: 0.75;
+}
+
+/* Loading overlay para canciones de perfil */
+.canciones-perfil-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Canción mini-card en perfil */
+.ca-mini-card {
+  background: var(--card-bg, rgba(255,255,255,0.04));
+  border: 1px solid rgba(186,1,255,0.12);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  transition: box-shadow 0.2s;
+}
+
+.ca-mini-card:hover {
+  box-shadow: 0 4px 16px rgba(186,1,255,0.14);
+}
+
+.ca-mini-cover {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ca-mini-cover-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(186,1,255,0.2), rgba(0,223,252,0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.ca-mini-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ca-mini-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ca-mini-genre {
+  font-size: 0.75rem;
+  color: #ba01ff;
+}
+
+.ca-mini-play {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.ca-mini-play:hover {
+  transform: scale(1.1);
+}
+
+/* Navbar brand VIP */
+.brand-vip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ba01ff, #00dffc);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  margin-left: 4px;
+}

@@ -1,4 +1,4 @@
-/* Tarjetas verticales para detalle, artistas y álbumes en buscador.html */
+﻿/* Tarjetas verticales para detalle, artistas y álbumes en buscador.html */
 .vertical-card {
   flex-direction: column !important;
   align-items: center !important;
@@ -2282,7 +2282,7 @@ textarea,
 /* 4️⃣ ARREGLAR MODAL QUE SE SALE */
 .modal-dialog {
   max-width: calc(100vw - 2rem);
-  margin: 1rem;
+  margin: 1rem auto;
 }
 
 /* 5️⃣ ARREGLAR TABLAS */
@@ -2428,7 +2428,7 @@ textarea,
 /* 4️⃣ ARREGLAR MODAL QUE SE SALE */
 .modal-dialog {
   max-width: calc(100vw - 2rem);
-  margin: 1rem;
+  margin: 1rem auto;
 }
 
 /* 5️⃣ ARREGLAR TABLAS */
@@ -3125,3 +3125,4 @@ body {
 .analisis-item .analisis-accent {
   color: #ba01ff !important;
 }
+

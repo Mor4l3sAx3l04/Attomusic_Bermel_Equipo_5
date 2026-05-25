@@ -26,8 +26,26 @@
           ? `<img src="${perfilData.foto}" class="perfil-avatar">`
           : `<div class="perfil-avatar-placeholder">${perfilData.usuario.charAt(0).toUpperCase()}</div>`;
 
-        document.getElementById('perfilUsuario').textContent = '@' + perfilData.usuario;
+        // Actualizar nombre sin borrar las insignias
+        const h2Usuario = document.getElementById('perfilUsuario');
+        h2Usuario.childNodes[0].textContent = '@' + perfilData.usuario + ' ';
         document.getElementById('perfilCorreo').textContent = perfilData.correo;
+
+        // Mostrar insignias VIP/Artista
+        const esVip = perfilData.es_vip || perfilData.rol === 'admin';
+        if (esVip) {
+          const badgeVip = document.getElementById('badge-vip-pub');
+          if (badgeVip) badgeVip.style.display = 'inline-flex';
+        }
+        if (perfilData.insignia_artista) {
+          const badgeArt = document.getElementById('badge-artista-pub');
+          if (badgeArt) badgeArt.style.display = 'inline-flex';
+        }
+
+        // Mostrar tab de canciones si el usuario tiene canciones publicadas
+        if (esVip || perfilData.insignia_artista) {
+          cargarCancionesPublicas(idUsuario);
+        }
 
         const fecha = new Date(perfilData.fecha_reg);
         document.getElementById('perfilFecha').textContent =
@@ -107,6 +125,86 @@
         cargarEstadisticas();
       }
     }
+
+    async function cargarCancionesPublicas(idUsr) {
+      try {
+        const res = await fetch(`/api/canciones-artista/usuario/${idUsr}`);
+        const canciones = await res.json();
+        if (!Array.isArray(canciones) || canciones.length === 0) return;
+
+        // Mostrar tabs
+        const tabsEl = document.getElementById('tabs-pub-canciones');
+        const tituloPub = document.getElementById('titulo-pub-pub');
+        if (tabsEl) tabsEl.style.display = 'block';
+        if (tituloPub) tituloPub.style.display = 'none';
+
+        const container = document.getElementById('cancionesUsuarioPub');
+        if (!container) return;
+        container.innerHTML = '';
+
+        canciones.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'ca-mini-card';
+          const cover = c.imagen_url
+            ? `<img src="${window.escapeHtml ? window.escapeHtml(c.imagen_url) : c.imagen_url}" class="ca-mini-cover" alt="portada">`
+            : `<div class="ca-mini-cover-placeholder">🎵</div>`;
+
+          div.innerHTML = `
+            ${cover}
+            <div class="ca-mini-info">
+              <div class="ca-mini-name">${window.escapeHtml ? window.escapeHtml(c.nombre) : c.nombre}</div>
+              ${c.genero ? `<div class="ca-mini-genre"><i class="bi bi-tag-fill"></i> ${window.escapeHtml ? window.escapeHtml(c.genero) : c.genero}</div>` : ''}
+              <div style="font-size:0.75rem;color:#999;margin-top:2px;"><i class="bi bi-heart-fill" style="color:#e63b6f;"></i> ${c.likes || 0} &nbsp;<i class="bi bi-chat-fill"></i> ${c.comentarios || 0}</div>
+            </div>
+            <button class="ca-mini-play" data-id="${c.id_cancion}" title="Reproducir"><i class="bi bi-play-fill"></i></button>
+            <audio id="pub-audio-${c.id_cancion}" preload="none" style="display:none;"></audio>
+          `;
+
+          const btn = div.querySelector('.ca-mini-play');
+          const audioEl = div.querySelector(`#pub-audio-${c.id_cancion}`);
+          btn.addEventListener('click', async () => {
+            if (!audioEl.src || audioEl.src === window.location.href) {
+              btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+              try {
+                const r = await fetch(`/api/canciones-artista/${c.id_cancion}/audio`);
+                const d = await r.json();
+                audioEl.src = d.audio_data;
+              } catch { btn.innerHTML = '<i class="bi bi-play-fill"></i>'; return; }
+            }
+            if (audioEl.paused) {
+              audioEl.play().catch(() => {});
+              btn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            } else {
+              audioEl.pause();
+              btn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            }
+            audioEl.onended = () => { btn.innerHTML = '<i class="bi bi-play-fill"></i>'; };
+          });
+
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Error cargando canciones públicas:', err);
+      }
+    }
+
+    window.tabPerfilPublico = function (tab) {
+      const pubDiv = document.getElementById('publicacionesUsuario');
+      const canDiv = document.getElementById('cancionesUsuarioPub');
+      const tabPub = document.getElementById('tab-pub-pub');
+      const tabCan = document.getElementById('tab-pub-can');
+      if (tab === 'publicaciones') {
+        if (pubDiv) pubDiv.style.display = 'block';
+        if (canDiv) canDiv.style.display = 'none';
+        if (tabPub) tabPub.classList.add('active');
+        if (tabCan) tabCan.classList.remove('active');
+      } else {
+        if (pubDiv) pubDiv.style.display = 'none';
+        if (canDiv) { canDiv.style.display = 'flex'; canDiv.style.flexDirection = 'column'; }
+        if (tabPub) tabPub.classList.remove('active');
+        if (tabCan) tabCan.classList.add('active');
+      }
+    };
 
     await cargarPerfil();
     await cargarEstadisticas();

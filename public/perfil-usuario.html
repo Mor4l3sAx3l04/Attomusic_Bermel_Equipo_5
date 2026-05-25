@@ -8,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/canciones-artistas.css">
   <link rel="stylesheet" href="css/pages/perfil-usuario.css">
 </head>
 
@@ -18,7 +19,10 @@
       <div class="d-flex align-items-center gap-4">
         <div id="perfilAvatar"></div>
         <div class="perfil-info flex-grow-1">
-          <h2 id="perfilUsuario">Cargando...</h2>
+          <h2 id="perfilUsuario">Cargando...
+            <span id="badge-vip-pub" class="badge-vip-small ms-2" style="display:none;"><i class="bi bi-crown-fill"></i> VIP</span>
+            <span id="badge-artista-pub" class="badge-artista-small ms-1" style="display:none;"><i class="bi bi-music-note"></i> Artista</span>
+          </h2>
           <p class="mb-0" id="perfilCorreo"></p>
           <small id="perfilFecha"></small>
           <div class="perfil-stats mt-3">
@@ -33,8 +37,20 @@
   </div>
 
   <div class="container">
-    <h4 class="mb-4">Publicaciones</h4>
+    <!-- Tabs para perfiles con canciones -->
+    <div id="tabs-pub-canciones" style="display:none;">
+      <div class="perfil-tabs">
+        <button class="perfil-tab active" id="tab-pub-pub" onclick="tabPerfilPublico('publicaciones')">
+          <i class="bi bi-postcard"></i> Publicaciones
+        </button>
+        <button class="perfil-tab" id="tab-pub-can" onclick="tabPerfilPublico('canciones')">
+          <i class="bi bi-vinyl"></i> Canciones
+        </button>
+      </div>
+    </div>
+    <h4 class="mb-4" id="titulo-pub-pub">Publicaciones</h4>
     <div id="publicacionesUsuario" class="publicaciones-usuario"></div>
+    <div id="cancionesUsuarioPub" class="canciones-perfil-grid" style="display:none;"></div>
   </div>
 
   <script src="js/utils.js"></script>

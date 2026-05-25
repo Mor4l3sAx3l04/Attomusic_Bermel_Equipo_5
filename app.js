@@ -21,8 +21,8 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "X-User-Email"],
 }));
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET || "attomusic-dev-session-secret",
   resave: false,
@@ -52,6 +52,8 @@ const newsRoutes = require("./routes/news");
 const recomendacionesRoutes = require("./routes/recomendaciones");
 const cancionesRoutes = require("./routes/canciones");
 const notificacionesRouter = require("./routes/notificaciones");
+const vipRoutes = require("./routes/vip");
+const cancionArtistaRoutes = require("./routes/cancion_artista");
 
 // USAR RUTAS
 app.use("/", authRoutes);
@@ -72,8 +74,14 @@ app.use("/api/recomendaciones", recomendacionesRoutes);
 // Canciones (calificaciones y comentarios)
 app.use("/api/canciones", cancionesRoutes);
 
-//Notificaciones 
+//Notificaciones
 app.use("/api/notificaciones", notificacionesRouter);
+
+// VIP
+app.use("/api/vip", vipRoutes);
+
+// Canciones de artistas (VIP)
+app.use("/api/canciones-artista", cancionArtistaRoutes);
 
 // Panel de Administración
 app.use("/api/admin", adminRoutes);

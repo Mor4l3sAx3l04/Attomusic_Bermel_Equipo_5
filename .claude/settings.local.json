@@ -15,7 +15,10 @@
       "Bash(grep -n \"^  <script>$\\\\|^<script>$\" \"C:/Users/axelm/OneDrive/Escritorio/Attomusic_Bermel_Equipo_5/public/perfil.html\")",
       "Bash(npx playwright *)",
       "Bash(node -e ' *)",
-      "Bash(pkill -f \"node app.js\")"
+      "Bash(pkill -f \"node app.js\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(python3 *)"
     ]
   }
 }

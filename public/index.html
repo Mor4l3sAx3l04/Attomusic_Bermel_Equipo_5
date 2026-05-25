@@ -14,14 +14,17 @@
   <link rel="stylesheet" href="css/panel-admin.css">
   <link rel="stylesheet" href="css/notificaciones.css">
   <link rel="stylesheet" href="css/auth-validacion.css">
+  <link rel="stylesheet" href="css/canciones-artistas.css">
   <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
 </head>
 
 <body>
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="index.html">
-        <img alt="Icono" class="iconnavbar" src="images/iconowhite.png"> AttoMusic
+      <a class="navbar-brand" href="index.html" id="navbar-brand-link">
+        <img alt="Icono" class="iconnavbar" src="images/iconowhite.png">
+        <span id="navbar-brand-text">AttoMusic</span>
+        <span id="navbar-vip-badge" class="brand-vip-badge" style="display:none;"><i class="bi bi-crown-fill"></i> VIP</span>
       </a>
       <button class="btn rounded-fill" type="button" id="btn-tema">
         <i class="bi bi-moon-stars" id="dl-icon"></i>
@@ -55,6 +58,17 @@
             <a class="nav-link load-page" href="para-ti.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Para Ti">
               <i class="bi bi-person"></i>
             </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link load-page" href="canciones-artistas.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Artistas AttoPlus">
+              <i class="bi bi-vinyl"></i>
+            </a>
+          </li>
+          <!-- Botón Mejorar Experiencia (solo para usuarios logueados no-VIP) -->
+          <li class="nav-item d-flex align-items-center" id="btn-upgrade-wrap" style="display:none !important;">
+            <button class="btn-upgrade-vip" id="btn-upgrade-vip" data-bs-toggle="modal" data-bs-target="#modalAttoPlus">
+              <i class="bi bi-crown-fill"></i> Mejorar Experiencia
+            </button>
           </li>
           <li class="nav-item d-flex align-items-center">
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar...">
@@ -306,6 +320,105 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== MODAL ATTOPLUS ===== -->
+  <div class="modal fade" id="modalAttoPlus" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:520px;">
+      <div class="modal-content border-0" style="background:linear-gradient(135deg,#0f0f1f 0%,#1a0a2e 100%);border-radius:28px;overflow:hidden;box-shadow:0 24px 70px rgba(186,1,255,0.35);color:white;">
+        <div class="modal-body p-0">
+
+          <!-- Paso 1: Presentación del plan -->
+          <div id="attoplus-paso1" style="padding:40px 36px;">
+            <div style="text-align:center;margin-bottom:28px;">
+              <div style="width:72px;height:72px;margin:0 auto 14px;background:linear-gradient(160deg,#ba01ff,#00dffc);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(186,1,255,0.4);">
+                <i class="bi bi-crown-fill" style="font-size:2rem;color:white;"></i>
+              </div>
+              <h2 style="font-size:1.8rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0;">AttoPlus</h2>
+              <p style="color:rgba(255,255,255,0.65);margin:8px 0 0;font-size:0.95rem;">Lleva tu experiencia musical al siguiente nivel</p>
+            </div>
+
+            <!-- Beneficios -->
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(186,1,255,0.2);border-radius:18px;padding:22px 20px;margin-bottom:24px;">
+              <p style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:#ba01ff;font-weight:700;margin-bottom:14px;">Al mejorar a AttoPlus obtendrás:</p>
+              <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">
+                <li style="display:flex;align-items:flex-start;gap:10px;">
+                  <i class="bi bi-crown-fill" style="color:#ffd700;margin-top:2px;flex-shrink:0;"></i>
+                  <span style="font-size:0.9rem;">Una <strong>insignia VIP</strong> visible en tu perfil y publicaciones</span>
+                </li>
+                <li style="display:flex;align-items:flex-start;gap:10px;">
+                  <i class="bi bi-music-note-beamed" style="color:#00dffc;margin-top:2px;flex-shrink:0;"></i>
+                  <span style="font-size:0.9rem;">Crea <strong>contenido musical propio</strong> como artista en crecimiento y compártelo con la comunidad</span>
+                </li>
+                <li style="display:flex;align-items:flex-start;gap:10px;">
+                  <i class="bi bi-broadcast" style="color:#ba01ff;margin-top:2px;flex-shrink:0;"></i>
+                  <span style="font-size:0.9rem;">Tus canciones se <strong>recomiendan automáticamente</strong> a todos los usuarios para que las escuchen y valoren</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Precio -->
+            <div style="text-align:center;margin-bottom:24px;">
+              <span style="font-size:2.8rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">$4.99</span>
+              <span style="color:rgba(255,255,255,0.5);font-size:1rem;"> / mes</span>
+            </div>
+
+            <button onclick="mostrarPasoPago()" style="width:100%;padding:15px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(186,1,255,0.4);transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+              <i class="bi bi-credit-card-fill me-2"></i>Continuar al pago
+            </button>
+            <button type="button" class="btn" style="width:100%;margin-top:10px;color:rgba(255,255,255,0.5);font-size:0.85rem;" data-bs-dismiss="modal">No, gracias</button>
+          </div>
+
+          <!-- Paso 2: Simulación de pago -->
+          <div id="attoplus-paso2" style="padding:40px 36px;display:none;">
+            <button onclick="mostrarPasoPlan()" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;margin-bottom:16px;font-size:0.85rem;">
+              <i class="bi bi-arrow-left me-1"></i>Volver
+            </button>
+            <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:6px;">Datos de pago</h3>
+            <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;margin-bottom:24px;"><i class="bi bi-shield-lock me-1" style="color:#00dffc;"></i>Simulación segura — no se realizará ningún cargo real</p>
+
+            <div style="margin-bottom:16px;">
+              <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;">Nombre en la tarjeta</label>
+              <input type="text" id="pago-nombre" placeholder="Ej. Juan García" style="width:100%;padding:12px 14px;border:1.5px solid rgba(186,1,255,0.35);border-radius:10px;background:rgba(255,255,255,0.05);color:white;font-size:0.9rem;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#ba01ff'" onblur="this.style.borderColor='rgba(186,1,255,0.35)'">
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;">Número de tarjeta</label>
+              <input type="text" id="pago-tarjeta" placeholder="•••• •••• •••• ••••" maxlength="19" style="width:100%;padding:12px 14px;border:1.5px solid rgba(186,1,255,0.35);border-radius:10px;background:rgba(255,255,255,0.05);color:white;font-size:0.9rem;outline:none;box-sizing:border-box;letter-spacing:2px;" onfocus="this.style.borderColor='#ba01ff'" onblur="this.style.borderColor='rgba(186,1,255,0.35)'" oninput="formatarTarjeta(this)">
+            </div>
+
+            <div style="display:flex;gap:12px;margin-bottom:24px;">
+              <div style="flex:1;">
+                <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;">Vencimiento</label>
+                <input type="text" id="pago-vence" placeholder="MM/AA" maxlength="5" style="width:100%;padding:12px 14px;border:1.5px solid rgba(186,1,255,0.35);border-radius:10px;background:rgba(255,255,255,0.05);color:white;font-size:0.9rem;outline:none;" onfocus="this.style.borderColor='#ba01ff'" onblur="this.style.borderColor='rgba(186,1,255,0.35)'">
+              </div>
+              <div style="flex:1;">
+                <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;">CVV</label>
+                <input type="text" id="pago-cvv" placeholder="•••" maxlength="3" style="width:100%;padding:12px 14px;border:1.5px solid rgba(186,1,255,0.35);border-radius:10px;background:rgba(255,255,255,0.05);color:white;font-size:0.9rem;outline:none;" onfocus="this.style.borderColor='#ba01ff'" onblur="this.style.borderColor='rgba(186,1,255,0.35)'">
+              </div>
+            </div>
+
+            <button id="btn-confirmar-pago" onclick="confirmarPagoAttoPlus()" style="width:100%;padding:15px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(186,1,255,0.4);">
+              <i class="bi bi-lock-fill me-2"></i>Pagar $4.99
+            </button>
+          </div>
+
+          <!-- Paso 3: Éxito -->
+          <div id="attoplus-paso3" style="padding:48px 36px;text-align:center;display:none;">
+            <div style="width:80px;height:80px;margin:0 auto 18px;background:linear-gradient(160deg,#ba01ff,#00dffc);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(186,1,255,0.45);">
+              <i class="bi bi-crown-fill" style="font-size:2.2rem;color:white;"></i>
+            </div>
+            <h2 style="font-size:1.9rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;">¡Bienvenido a AttoPlus!</h2>
+            <p style="color:rgba(255,255,255,0.65);margin-bottom:28px;">Ya eres un usuario VIP. Disfruta todos los beneficios exclusivos.</p>
+            <button onclick="cerrarModalVipYActualizar()" style="width:100%;padding:14px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer;">
+              <i class="bi bi-check-lg me-2"></i>¡Vamos!
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ===== FIN MODAL ATTOPLUS ===== -->
 
   <div id="toast" class="toast"></div>
 

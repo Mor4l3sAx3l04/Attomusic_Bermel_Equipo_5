@@ -426,19 +426,20 @@ if (formReset) {
 }
 
 // ─────────────────────────────────────────────────────────
-// actualizarInterfaz: muestra/oculta campanita + perfil
+// actualizarInterfaz: muestra/oculta campanita + perfil + VIP
 // ─────────────────────────────────────────────────────────
 async function actualizarInterfaz() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-  const btnLogin       = document.getElementById("btn-login");
-  const btnRegister    = document.getElementById("btn-register");
+  const btnLogin        = document.getElementById("btn-login");
+  const btnRegister     = document.getElementById("btn-register");
   const perfilContainer = document.getElementById("perfil-container");
-  const perfilNombre   = document.getElementById("perfil-nombre");
-  const notifWrap      = document.getElementById("notif-wrap");   // 🔔 campanita
+  const perfilNombre    = document.getElementById("perfil-nombre");
+  const notifWrap       = document.getElementById("notif-wrap");
+  const upgradeWrap     = document.getElementById("btn-upgrade-wrap");
+  const vipBadge        = document.getElementById("navbar-vip-badge");
 
   if (usuario) {
-    // Obtener foto y rol desde el backend
     try {
       const res = await fetch(`/api/perfil/${usuario.correo}`);
       if (res.ok) {
@@ -451,30 +452,75 @@ async function actualizarInterfaz() {
         if (panelAdminLink) {
           panelAdminLink.style.display = data.rol === 'admin' ? 'block' : 'none';
         }
+
+        // Estado VIP
+        const esVip = data.es_vip || data.rol === 'admin';
+        sessionStorage.setItem('es_vip', esVip ? 'true' : 'false');
+
+        // Mostrar/ocultar badge VIP en el brand
+        if (vipBadge) vipBadge.style.display = esVip ? 'inline-flex' : 'none';
+
+        // Botón "Mejorar Experiencia" solo si NO es VIP y está logueado
+        if (upgradeWrap) {
+          upgradeWrap.style.cssText = esVip
+            ? "display: none !important;"
+            : "display: flex !important; align-items: center;";
+        }
+
+        // Mostrar opción de cancelar VIP en el dropdown si es VIP y no es admin
+        actualizarDropdownVip(esVip, data.rol);
       }
     } catch (err) {
       console.warn("No se pudo cargar la foto del perfil");
     }
 
-    // Mostrar navbar de usuario logueado
     btnLogin.style.display    = "none";
     btnRegister.style.display = "none";
     perfilContainer.style.display = "inline-block";
     perfilNombre.textContent  = usuario.usuario;
 
-    // 🔔 Mostrar campanita e iniciar polling de notificaciones
     if (notifWrap) notifWrap.style.cssText = "display: flex !important; align-items: center;";
     if (window.Notificaciones) window.Notificaciones.iniciar();
 
   } else {
-    // Mostrar navbar de visitante
     btnLogin.style.display    = "inline-block";
     btnRegister.style.display = "inline-block";
     perfilContainer.style.display = "none";
 
-    // 🔔 Ocultar campanita y detener polling
     if (notifWrap) notifWrap.style.cssText = "display: none !important;";
+    if (upgradeWrap) upgradeWrap.style.cssText = "display: none !important;";
+    if (vipBadge) vipBadge.style.display = 'none';
     if (window.Notificaciones) window.Notificaciones.detener();
+
+    sessionStorage.removeItem('es_vip');
+  }
+}
+
+function actualizarDropdownVip(esVip, rol) {
+  // Eliminar el item previo si existe para evitar duplicados
+  const viejo = document.getElementById('dropdown-vip-item');
+  if (viejo) viejo.remove();
+
+  const dropdown = document.querySelector('#perfil-container .dropdown-menu');
+  if (!dropdown) return;
+
+  if (esVip && rol !== 'admin') {
+    // Agregar opción cancelar VIP
+    const li = document.createElement('li');
+    li.id = 'dropdown-vip-item';
+    li.innerHTML = `<a class="dropdown-item" href="#" id="btn-cancelar-vip" style="color:#ba01ff;font-weight:600;">
+      <i class="bi bi-crown me-1"></i>Cancelar AttoPlus
+    </a>`;
+    // Insertar antes del divisor
+    const divider = dropdown.querySelector('.dropdown-divider');
+    if (divider) dropdown.insertBefore(li, divider.parentElement);
+    else dropdown.appendChild(li);
+
+    document.getElementById('btn-cancelar-vip').addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!confirm('¿Cancelar AttoPlus? Tu insignia de artista y canciones publicadas se mantienen.')) return;
+      await cancelarVip();
+    });
   }
 }
 
@@ -1308,6 +1354,125 @@ window.cargarPerfil = async function () {
   await cargarPerfilOriginal();
   setTimeout(() => { cargarStatsSeguidores(); }, 500);
 }
+
+// ─────────────────────────────────────────────────────────
+// Funciones Modal AttoPlus / VIP
+// ─────────────────────────────────────────────────────────
+window.mostrarPasoPago = function () {
+  document.getElementById('attoplus-paso1').style.display = 'none';
+  document.getElementById('attoplus-paso2').style.display = 'block';
+  document.getElementById('attoplus-paso3').style.display = 'none';
+};
+
+window.mostrarPasoPlan = function () {
+  document.getElementById('attoplus-paso1').style.display = 'block';
+  document.getElementById('attoplus-paso2').style.display = 'none';
+  document.getElementById('attoplus-paso3').style.display = 'none';
+};
+
+window.formatarTarjeta = function (input) {
+  let val = input.value.replace(/\D/g, '').slice(0, 16);
+  input.value = val.replace(/(.{4})/g, '$1 ').trim();
+};
+
+window.confirmarPagoAttoPlus = async function () {
+  const btn = document.getElementById('btn-confirmar-pago');
+  const nombre = document.getElementById('pago-nombre').value.trim();
+  const tarjeta = document.getElementById('pago-tarjeta').value.replace(/\s/g, '');
+  const vence = document.getElementById('pago-vence').value.trim();
+  const cvv = document.getElementById('pago-cvv').value.trim();
+
+  if (!nombre || tarjeta.length < 16 || !vence || cvv.length < 3) {
+    showToast('Completa todos los datos de pago', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+
+  try {
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const res = await fetch('/api/vip/activar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ correo: usuario.correo })
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      document.getElementById('attoplus-paso2').style.display = 'none';
+      document.getElementById('attoplus-paso3').style.display = 'block';
+    } else {
+      showToast(data.error || 'Error al activar AttoPlus', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar $4.99';
+    }
+  } catch (err) {
+    showToast('Error de conexión', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar $4.99';
+  }
+};
+
+window.cerrarModalVipYActualizar = function () {
+  const modal = bootstrap.Modal.getInstance(document.getElementById('modalAttoPlus'));
+  if (modal) modal.hide();
+
+  // Resetear el modal a paso 1 para próxima apertura
+  setTimeout(() => {
+    document.getElementById('attoplus-paso1').style.display = 'block';
+    document.getElementById('attoplus-paso2').style.display = 'none';
+    document.getElementById('attoplus-paso3').style.display = 'none';
+    const btn = document.getElementById('btn-confirmar-pago');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar $4.99'; }
+  }, 400);
+
+  actualizarInterfaz();
+  showToast('¡Bienvenido a AttoPlus! Ya eres VIP 👑', 'success');
+};
+
+async function cancelarVip() {
+  const usuario = JSON.parse(localStorage.getItem('usuario'));
+  if (!usuario) return;
+  try {
+    const res = await fetch('/api/vip/cancelar', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ correo: usuario.correo })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(data.message || 'AttoPlus cancelado', 'success');
+      actualizarInterfaz();
+    } else {
+      showToast(data.error || 'Error al cancelar', 'error');
+    }
+  } catch (err) {
+    showToast('Error de conexión', 'error');
+  }
+}
+
+// Exponer getEstadoVip para otras páginas
+window.getEstadoVip = function () {
+  return sessionStorage.getItem('es_vip') === 'true';
+};
+
+// Reset del modal AttoPlus al cerrarse
+document.addEventListener('DOMContentLoaded', () => {
+  const modalEl = document.getElementById('modalAttoPlus');
+  if (modalEl) {
+    modalEl.addEventListener('hidden.bs.modal', () => {
+      const paso1 = document.getElementById('attoplus-paso1');
+      const paso2 = document.getElementById('attoplus-paso2');
+      const paso3 = document.getElementById('attoplus-paso3');
+      if (paso1) paso1.style.display = 'block';
+      if (paso2) paso2.style.display = 'none';
+      if (paso3) paso3.style.display = 'none';
+      const btn = document.getElementById('btn-confirmar-pago');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar $4.99'; }
+    });
+  }
+});
 
 window.animarTituloGlobal = function (selector, texto) {
   const el = document.querySelector(selector);

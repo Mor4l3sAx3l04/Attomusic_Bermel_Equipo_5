@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Perfil - AttoMusic</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/canciones-artistas.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
@@ -48,6 +49,11 @@
 
         <div class="perfil-info">
           <h1 class="perfil-nombre" id="perfilNombre">Cargando...</h1>
+          <!-- Insignias VIP y Artista -->
+          <div id="perfil-insignias" class="d-flex flex-wrap gap-2 mb-2" style="display:none !important;">
+            <span id="insignia-vip" class="insignia-vip" style="display:none;"><i class="bi bi-crown-fill"></i> AttoPlus VIP</span>
+            <span id="insignia-artista" class="insignia-artista" style="display:none;"><i class="bi bi-music-note"></i> Artista en Crecimiento</span>
+          </div>
           <p class="perfil-correo" id="perfilCorreo">correo@ejemplo.com</p>
           <p class="perfil-fecha"><i class="bi bi-calendar"></i> Miembro desde <span id="perfilFecha">2024</span></p>
           <div class="perfil-stats mt-3">
@@ -68,14 +74,33 @@
             style="border: 2px solid #ba01ff; color: #ba01ff;">
             <i class="bi bi-palette"></i> Estilos
           </button>
+          <!-- Botón Subir Contenido (solo VIP) -->
+          <button id="btn-subir-cancion" class="btn mt-3" data-bs-toggle="modal" data-bs-target="#modalSubirCancion"
+            style="display:none;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:20px;padding:8px 18px;font-weight:700;">
+            <i class="bi bi-cloud-upload-fill"></i> Subir Contenido
+          </button>
         </div>
       </div>
 
       <!-- Publicaciones del usuario -->
       <div class="perfil-publicaciones">
-        <h2 class="section-title">
+        <!-- Tabs (solo visible para VIP) -->
+        <div id="perfil-tabs-wrap" style="display:none;">
+          <div class="perfil-tabs">
+            <button class="perfil-tab active" id="tab-publicaciones" onclick="mostrarTabPerfil('publicaciones')">
+              <i class="bi bi-postcard"></i> Publicaciones
+            </button>
+            <button class="perfil-tab" id="tab-canciones" onclick="mostrarTabPerfil('canciones')">
+              <i class="bi bi-vinyl"></i> Mis Canciones
+            </button>
+          </div>
+        </div>
+
+        <!-- Título sin tabs (para no-VIP) -->
+        <h2 class="section-title" id="titulo-publicaciones-nontab">
           <i class="bi bi-postcard"></i> Mis Publicaciones
         </h2>
+
         <div id="misPublicaciones" class="publicaciones-grid">
           <div class="text-center">
             <div class="spinner-border text-primary" role="status">
@@ -83,6 +108,9 @@
             </div>
           </div>
         </div>
+
+        <!-- Sección canciones (solo visible para VIP al cambiar tab) -->
+        <div id="misCanciones" class="canciones-perfil-grid" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -375,6 +403,117 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Subir Canción (VIP) -->
+  <div class="modal fade modal-upload-cancion" id="modalSubirCancion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:500px;">
+      <div class="modal-content border-0" style="background:linear-gradient(135deg,#0f0f1f,#1a0a2e);border-radius:24px;overflow:hidden;box-shadow:0 24px 70px rgba(186,1,255,0.35);color:white;">
+        <div class="modal-body" style="padding:32px 28px;">
+
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="width:58px;height:58px;margin:0 auto 12px;background:linear-gradient(160deg,#ba01ff,#00dffc);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+              <i class="bi bi-cloud-upload-fill" style="font-size:1.6rem;color:white;"></i>
+            </div>
+            <h3 style="font-weight:800;margin:0;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Subir Canción</h3>
+            <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;margin-top:6px;">Comparte tu música con la comunidad AttoMusic</p>
+          </div>
+
+          <form id="formSubirCancion">
+
+            <!-- Nombre de la canción -->
+            <div style="margin-bottom:16px;">
+              <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;"><i class="bi bi-music-note-beamed me-1" style="color:#ba01ff;"></i>Nombre de la canción *</label>
+              <input type="text" id="cancion-nombre" placeholder="Ej. Mi primera canción" maxlength="200" required
+                style="width:100%;padding:11px 14px;border:1.5px solid rgba(186,1,255,0.35);border-radius:10px;background:rgba(255,255,255,0.05);color:white;font-size:0.9rem;outline:none;box-sizing:border-box;"
+                onfocus="this.style.borderColor='#ba01ff'" onblur="this.style.borderColor='rgba(186,1,255,0.35)'">
+            </div>
+
+            <!-- Imagen (portada) -->
+            <div style="margin-bottom:16px;">
+              <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;"><i class="bi bi-image me-1" style="color:#00dffc;"></i>Imagen / Portada</label>
+              <div class="upload-audio-area" id="area-imagen-cancion" onclick="document.getElementById('input-imagen-cancion').click()">
+                <i class="bi bi-image" style="font-size:1.8rem;display:block;margin-bottom:6px;"></i>
+                <p style="margin:0;font-size:0.82rem;color:rgba(255,255,255,0.5);">Toca para elegir portada</p>
+                <img id="preview-imagen-cancion" src="" alt="preview" style="max-height:100px;border-radius:8px;margin-top:8px;display:none;">
+              </div>
+              <input type="file" id="input-imagen-cancion" accept="image/*" style="display:none;" onchange="previewPortadaCancion(this)">
+            </div>
+
+            <!-- Descripción -->
+            <div style="margin-bottom:16px;">
+              <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;"><i class="bi bi-text-left me-1" style="color:#ba01ff;"></i>Descripción breve</label>
+              <textarea id="cancion-descripcion" rows="2" placeholder="Cuéntanos algo sobre tu canción..." maxlength="500"
+                style="width:100%;padding:11px 14px;border:1.5px solid rgba(186,1,255,0.35);border-radius:10px;background:rgba(255,255,255,0.05);color:white;font-size:0.9rem;outline:none;resize:none;box-sizing:border-box;"
+                onfocus="this.style.borderColor='#ba01ff'" onblur="this.style.borderColor='rgba(186,1,255,0.35)'"></textarea>
+            </div>
+
+            <!-- Género -->
+            <div style="margin-bottom:16px;">
+              <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;"><i class="bi bi-tag-fill me-1" style="color:#00dffc;"></i>Género</label>
+              <select id="cancion-genero"
+                style="width:100%;padding:11px 14px;border:1.5px solid rgba(186,1,255,0.35);border-radius:10px;background:#1a0a2e;color:white;font-size:0.9rem;outline:none;box-sizing:border-box;"
+                onfocus="this.style.borderColor='#ba01ff'" onblur="this.style.borderColor='rgba(186,1,255,0.35)'">
+                <option value="">-- Selecciona un género --</option>
+                <option>Pop</option>
+                <option>Rock</option>
+                <option>Hip-Hop / Rap</option>
+                <option>R&amp;B / Soul</option>
+                <option>Electronic / Dance</option>
+                <option>Jazz</option>
+                <option>Blues</option>
+                <option>Country</option>
+                <option>Folk</option>
+                <option>Clásica</option>
+                <option>Reggae</option>
+                <option>Reggaeton</option>
+                <option>Latin / Salsa</option>
+                <option>Cumbia</option>
+                <option>Norteño</option>
+                <option>Banda</option>
+                <option>Corridos</option>
+                <option>Metal</option>
+                <option>Indie</option>
+                <option>Alternative</option>
+                <option>Punk</option>
+                <option>K-Pop</option>
+                <option>Gospel / Christian</option>
+                <option>Tropical</option>
+                <option>Bossa Nova</option>
+                <option>Funk</option>
+                <option>Disco</option>
+                <option>Ambient</option>
+                <option>Trap</option>
+                <option>Drill</option>
+                <option>Lo-fi</option>
+                <option>World Music</option>
+                <option>Experimental</option>
+                <option>Otro</option>
+              </select>
+            </div>
+
+            <!-- Audio -->
+            <div style="margin-bottom:24px;">
+              <label style="font-size:0.82rem;color:rgba(255,255,255,0.65);margin-bottom:6px;display:block;"><i class="bi bi-file-earmark-music me-1" style="color:#ba01ff;"></i>Archivo de audio * (MP3, WAV, MP4)</label>
+              <div class="upload-audio-area" id="area-audio-cancion" onclick="document.getElementById('input-audio-cancion').click()">
+                <i class="bi bi-file-earmark-music" style="font-size:1.8rem;display:block;margin-bottom:6px;"></i>
+                <p id="audio-nombre-seleccionado" style="margin:0;font-size:0.82rem;color:rgba(255,255,255,0.5);">Toca para seleccionar audio</p>
+              </div>
+              <input type="file" id="input-audio-cancion" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,audio/x-m4a,.mp3,.mp4,.wav,.m4a" style="display:none;" onchange="seleccionarAudioCancion(this)">
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <button type="button" class="btn" style="flex:1;border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:12px;" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" id="btn-publicar-cancion" style="flex:2;padding:12px;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:0.95rem;">
+                <i class="bi bi-send-fill me-1"></i>Publicar
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Fin Modal Subir Canción -->
 
   <script src="js/utils.js"></script>
   <script src="js/components/PublicacionCard.js"></script>
