@@ -27,6 +27,18 @@
       color: '#ba01ff',
       texto: 'empezó a seguirte ✨',
       emoji: '✨'
+    },
+    like_cancion: {
+      icono: 'bi-heart-fill',
+      color: '#ff4d6d',
+      texto: 'reaccionó a tu canción ❤️',
+      emoji: '🎵'
+    },
+    comentario_cancion: {
+      icono: 'bi-chat-fill',
+      color: '#00dffc',
+      texto: 'comentó en tu canción 💬',
+      emoji: '🎵'
     }
   };
 
@@ -243,7 +255,11 @@
     marcarLeida(n.id_notificacion);
     cerrarPanel();
 
-    if ((n.tipo === 'like' || n.tipo === 'comentario') && window.loadPage) {
+    if ((n.tipo === 'like_cancion' || n.tipo === 'comentario_cancion') && n.actor_id && window.loadPage) {
+      // Redirige al perfil de quien reaccionó/comentó la canción
+      window._perfilUsuarioId = n.actor_id;
+      window.loadPage('perfil-usuario.html?id=' + n.actor_id);
+    } else if ((n.tipo === 'like' || n.tipo === 'comentario') && window.loadPage) {
       window.loadPage('noticias.html');
       window._notifTargetPost = n.id_referencia;
     } else if (n.tipo === 'seguimiento' && n.actor_id && window.loadPage) {

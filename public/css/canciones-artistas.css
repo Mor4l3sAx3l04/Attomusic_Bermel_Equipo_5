@@ -5,6 +5,15 @@
   margin-bottom: 2rem;
 }
 
+.ca-feed-header-icon {
+  font-size: 2rem;
+  background: linear-gradient(160deg, #ba01ff, #00dffc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+
 .ca-feed-header h1 {
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 900;
@@ -423,6 +432,77 @@
   padding: 1.5rem;
   color: var(--text-muted, #999);
   font-size: 0.88rem;
+}
+
+/* ── Fondo personalizado en tarjetas de canciones ── */
+.ca-card-custom-bg {
+  background-size: cover !important;
+  background-position: center !important;
+  box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(0,0,0,0.35) !important;
+  border-color: transparent !important;
+}
+
+.ca-card-custom-bg:hover {
+  box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.45), 0 10px 36px rgba(186,1,255,0.35) !important;
+}
+
+.ca-card-custom-bg .ca-username,
+.ca-card-custom-bg .ca-song-name {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.ca-card-custom-bg .ca-fecha,
+.ca-card-custom-bg .ca-com-body p,
+.ca-card-custom-bg .ca-com-body strong {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.ca-card-custom-bg .ca-btn-action {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.ca-card-custom-bg .ca-btn-action:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ca-card-custom-bg .ca-btn-action.liked {
+  color: #ff6b8a !important;
+}
+
+.ca-card-custom-bg .ca-song-genre {
+  color: #00dffc !important;
+}
+
+.ca-card-custom-bg .ca-actions {
+  border-top-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ca-card-custom-bg .ca-progress {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ca-card-custom-bg .ca-time-display {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.ca-card-custom-bg .ca-descripcion {
+  color: rgba(255, 255, 255, 0.82) !important;
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.ca-card-custom-bg .ca-comentarios {
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.ca-card-custom-bg .ca-comentario-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: white !important;
+}
+
+.ca-card-custom-bg .ca-comentario-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* --- Modal subir canción (en perfil) --- */

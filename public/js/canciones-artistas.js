@@ -38,6 +38,12 @@
     article.className = 'ca-card fade-in';
     article.dataset.idCancion = cancion.id_cancion;
 
+    // Fondo personalizado del usuario (el que configura en "Editar estilos" de su perfil)
+    if (cancion.fondo_publicaciones) {
+      article.style.backgroundImage = `url('${escHtml(cancion.fondo_publicaciones)}')`;
+      article.classList.add('ca-card-custom-bg');
+    }
+
     const avatarHtml = cancion.foto
       ? `<img src="${escHtml(cancion.foto)}" alt="${escHtml(cancion.usuario)}" class="ca-avatar">`
       : `<div class="ca-avatar-text">${escHtml(cancion.usuario.charAt(0).toUpperCase())}</div>`;
@@ -429,6 +435,15 @@
     finFeed = false;
     const container = document.getElementById('ca-feed-container');
     if (container) container.innerHTML = '';
+
+    // Animar título igual que otras secciones
+    if (window.animarTituloGlobal) {
+      window.animarTituloGlobal('#titulo-artistas', 'Artistas en Crecimiento');
+    } else {
+      const h1 = document.getElementById('titulo-artistas');
+      if (h1) h1.textContent = 'Artistas en Crecimiento';
+    }
+
     cargarFeed();
 
     // Scroll infinito

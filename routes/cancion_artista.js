@@ -4,6 +4,7 @@ const router = express.Router();
 const pool = require('../utils/database');
 const responses = require('../utils/responses');
 const { getUserFromEmail } = require('../middleware/auth');
+const { crearNotificacion } = require('./notificaciones');
 
 async function requireVIP(req, res, next) {
   const correo = req.body.correo || req.query.correo || req.get('x-user-email');
@@ -31,7 +32,7 @@ router.get('/', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT ca.id_cancion, ca.nombre, ca.descripcion, ca.genero, ca.imagen_url, ca.fecha_subida,
-             u.id_usuario, u.usuario, u.foto, u.es_vip, u.rol, u.insignia_artista,
+             u.id_usuario, u.usuario, u.foto, u.es_vip, u.rol, u.insignia_artista, u.fondo_publicaciones,
              (SELECT COUNT(*) FROM like_cancion_artista WHERE id_cancion = ca.id_cancion) AS likes,
              (SELECT COUNT(*) FROM comentario_cancion_artista WHERE id_cancion = ca.id_cancion) AS comentarios
       FROM cancion_artista ca
@@ -52,7 +53,7 @@ router.get('/usuario/:id_usuario', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT ca.id_cancion, ca.nombre, ca.descripcion, ca.genero, ca.imagen_url, ca.fecha_subida,
-             u.id_usuario, u.usuario, u.foto,
+             u.id_usuario, u.usuario, u.foto, u.fondo_publicaciones,
              (SELECT COUNT(*) FROM like_cancion_artista WHERE id_cancion = ca.id_cancion) AS likes,
              (SELECT COUNT(*) FROM comentario_cancion_artista WHERE id_cancion = ca.id_cancion) AS comentarios
       FROM cancion_artista ca
@@ -136,6 +137,11 @@ router.post('/:id/like', getUserFromEmail, async (req, res) => {
         'INSERT INTO like_cancion_artista (id_cancion, id_usuario) VALUES ($1, $2)',
         [id, id_usuario]
       );
+      // Notificar al dueño de la canción
+      const dueno = await pool.query('SELECT id_usuario FROM cancion_artista WHERE id_cancion = $1', [id]);
+      if (dueno.rowCount > 0) {
+        await crearNotificacion(dueno.rows[0].id_usuario, id_usuario, 'like_cancion', id, 'reaccionó a tu canción ❤️');
+      }
       return res.json({ liked: true });
     }
   } catch (err) {
@@ -174,6 +180,11 @@ router.post('/:id/comentario', getUserFromEmail, async (req, res) => {
       'INSERT INTO comentario_cancion_artista (id_cancion, id_usuario, comentario) VALUES ($1, $2, $3)',
       [id, id_usuario, comentario.trim()]
     );
+    // Notificar al dueño de la canción
+    const dueno = await pool.query('SELECT id_usuario FROM cancion_artista WHERE id_cancion = $1', [id]);
+    if (dueno.rowCount > 0) {
+      await crearNotificacion(dueno.rows[0].id_usuario, id_usuario, 'comentario_cancion', id, 'comentó en tu canción 💬');
+    }
     return res.json({ message: 'Comentario agregado' });
   } catch (err) {
     return responses.error(res, 'Error al agregar comentario');

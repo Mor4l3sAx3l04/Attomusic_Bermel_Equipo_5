@@ -130,9 +130,8 @@
       try {
         const res = await fetch(`/api/canciones-artista/usuario/${idUsr}`);
         const canciones = await res.json();
-        if (!Array.isArray(canciones) || canciones.length === 0) return;
 
-        // Mostrar tabs
+        // Mostrar tabs siempre que el usuario sea VIP/artista
         const tabsEl = document.getElementById('tabs-pub-canciones');
         const tituloPub = document.getElementById('titulo-pub-pub');
         if (tabsEl) tabsEl.style.display = 'block';
@@ -141,6 +140,11 @@
         const container = document.getElementById('cancionesUsuarioPub');
         if (!container) return;
         container.innerHTML = '';
+
+        if (!Array.isArray(canciones) || canciones.length === 0) {
+          container.innerHTML = '<p class="text-center text-muted py-4">Este artista aún no ha publicado canciones.</p>';
+          return;
+        }
 
         canciones.forEach(c => {
           const div = document.createElement('div');
