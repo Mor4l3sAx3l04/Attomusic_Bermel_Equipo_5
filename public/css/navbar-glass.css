@@ -81,7 +81,7 @@
 }
 
 /* Nav links con efecto glassmorphism */
-.nav-link {
+.navbar .nav-link {
   color: rgba(255, 255, 255, 0.9) !important;
   font-weight: 500 !important;
   padding: 10px 16px !important;
@@ -93,7 +93,7 @@
 }
 
 /* Efecto de brillo al hover */
-.nav-link::before {
+.navbar .nav-link::before {
   content: '';
   position: absolute;
   top: 0;
@@ -108,11 +108,11 @@
   transition: left 0.5s ease;
 }
 
-.nav-link:hover::before {
+.navbar .nav-link:hover::before {
   left: 100%;
 }
 
-.nav-link:hover {
+.navbar .nav-link:hover {
   background: rgba(255, 255, 255, 0.15) !important;
   transform: translateY(-3px);
   box-shadow: 
@@ -121,13 +121,13 @@
 }
 
 /* Iconos dentro de nav-link */
-.nav-link i {
+.navbar .nav-link i {
   font-size: 1.3rem;
   transition: all 0.3s ease;
   filter: drop-shadow(0 0 4px rgba(0, 223, 252, 0.3));
 }
 
-.nav-link:hover i {
+.navbar .nav-link:hover i {
   transform: scale(1.15);
   filter: drop-shadow(0 0 8px rgba(0, 223, 252, 0.6));
 }
@@ -385,7 +385,7 @@ body > .btn-publicar i,
     overflow: visible !important;
   }
 
-  .nav-link {
+  .navbar .nav-link {
     width: 100%;
     text-align: left;
   }

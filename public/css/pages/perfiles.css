@@ -1,16 +1,16 @@
 /* Tabs con ícono Lordicon: alinear verticalmente */
-.nav-link {
+#explorarTabs .nav-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
 /* Íconos en tabs inactivos: un poco más tenues */
-.nav-link:not(.active) lord-icon {
+#explorarTabs .nav-link:not(.active) lord-icon {
   opacity: 0.6;
   transition: opacity 0.2s;
 }
-.nav-link:hover lord-icon,
-.nav-link.active lord-icon {
+#explorarTabs .nav-link:hover lord-icon,
+#explorarTabs .nav-link.active lord-icon {
   opacity: 1;
 }

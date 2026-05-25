@@ -218,19 +218,19 @@
         }
 
         container.innerHTML = `
-          <div style="background:#f3e8ff;padding:24px;border-radius:12px;margin-bottom:24px;">
+          <div class="analisis-panel" style="padding:24px;border-radius:12px;margin-bottom:24px;">
             <h4 style="color:#5a189a;margin-bottom:16px;">📊 Tu Actividad Musical</h4>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
               <div style="text-align:center;">
-                <div style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.posts}</div>
+                <div class="analisis-accent" style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.posts}</div>
                 <div style="color:#777;font-size:0.9rem;">Publicaciones</div>
               </div>
               <div style="text-align:center;">
-                <div style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.likes}</div>
+                <div class="analisis-accent" style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.likes}</div>
                 <div style="color:#777;font-size:0.9rem;">Likes</div>
               </div>
               <div style="text-align:center;">
-                <div style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.comments}</div>
+                <div class="analisis-accent" style="font-size:2rem;color:#ba01ff;font-weight:900;">${data.recentActivity.comments}</div>
                 <div style="color:#777;font-size:0.9rem;">Comentarios</div>
               </div>
             </div>
@@ -238,9 +238,9 @@
           <h5 style="color:#5a189a;margin-bottom:16px;">🎤 Tus Artistas Favoritos</h5>
           <div style="display:grid;gap:12px;">
             ${data.topArtists.map((item, i) => `
-              <div style="background:white;padding:16px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <div class="analisis-item" style="padding:16px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
                 <div>
-                  <span style="color:#ba01ff;font-weight:700;margin-right:8px;">#${i + 1}</span>
+                  <span class="analisis-accent" style="color:#ba01ff;font-weight:700;margin-right:8px;">#${i + 1}</span>
                   <span style="color:#333;">${item.artist}</span>
                 </div>
                 <span style="color:#777;font-size:0.9rem;">${Math.round(item.score)} puntos</span>
