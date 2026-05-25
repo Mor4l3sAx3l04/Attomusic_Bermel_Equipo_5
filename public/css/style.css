@@ -1015,6 +1015,25 @@ i{
   box-shadow: 0 4px 20px rgba(90, 24, 154, 0.1);
 }
 
+.perfil-header.con-fondo-personalizado {
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.perfil-header.con-fondo-personalizado::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(18, 24, 45, 0.72), rgba(65, 30, 91, 0.62));
+  z-index: 0;
+}
+
+.perfil-header.con-fondo-personalizado > * {
+  position: relative;
+  z-index: 1;
+}
+
 [data-bs-theme="dark"] .perfil-header {
   background: linear-gradient(135deg, rgba(186, 1, 255, 0.1), rgba(0, 223, 252, 0.1));
   border-color: rgba(185, 131, 255, 0.3);
@@ -1175,6 +1194,76 @@ i{
   justify-content: center;
 }
 
+.profile-photo-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.profile-photo-choice {
+  min-height: 112px;
+  border: 1px solid rgba(185, 131, 255, 0.38);
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 750;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.profile-photo-choice i {
+  font-size: 1.7rem;
+  color: #00dffc;
+}
+
+.profile-photo-choice:hover {
+  transform: translateY(-2px);
+  border-color: #00dffc;
+  background: rgba(0, 223, 252, 0.12);
+}
+
+.background-crop-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 4.2;
+  overflow: hidden;
+  border: 2px solid rgba(185, 131, 255, 0.55);
+  border-radius: 14px;
+  background: #050816;
+  cursor: grab;
+  touch-action: none;
+}
+
+.background-crop-frame.is-post {
+  aspect-ratio: 16 / 4.8;
+}
+
+.background-crop-frame:active {
+  cursor: grabbing;
+}
+
+.background-crop-frame img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.crop-controls {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .perfil-header {
@@ -1191,6 +1280,11 @@ i{
   .perfil-nombre {
     font-size: 1.5rem;
   }
+
+  .profile-photo-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
 }
 
 /* Avatar con imagen */

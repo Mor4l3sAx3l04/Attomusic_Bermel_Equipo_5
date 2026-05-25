@@ -514,11 +514,19 @@ window.cargarPerfil = async function () {
       document.getElementById("perfilCorreo").textContent = data.correo;
 
       const perfilContainer = document.querySelector(".perfil-container");
-      if (perfilContainer && data.fondo_perfil) {
-        perfilContainer.style.backgroundImage = `url(${data.fondo_perfil})`;
-        perfilContainer.style.backgroundSize = "cover";
-        perfilContainer.style.backgroundPosition = "center";
-        perfilContainer.classList.add("con-fondo-personalizado");
+      const perfilHeader = document.querySelector(".perfil-header");
+      if (perfilContainer) {
+        perfilContainer.style.backgroundImage = "";
+        perfilContainer.style.backgroundSize = "";
+        perfilContainer.style.backgroundPosition = "";
+        perfilContainer.classList.remove("con-fondo-personalizado");
+      }
+      if (perfilHeader && data.fondo_perfil) {
+        perfilHeader.style.backgroundImage = `url(${data.fondo_perfil})`;
+        perfilHeader.classList.add("con-fondo-personalizado");
+      } else if (perfilHeader) {
+        perfilHeader.style.backgroundImage = "";
+        perfilHeader.classList.remove("con-fondo-personalizado");
       }
 
       const fecha = new Date(data.fecha_reg);
@@ -533,6 +541,10 @@ window.cargarPerfil = async function () {
 
       document.getElementById("editNombre").value = data.usuario;
       document.getElementById("editCorreo").value = data.correo;
+      window.fondoPerfilAjustado = data.fondo_perfil || "";
+      window.fondoPostsAjustado = data.fondo_publicaciones || "";
+      prepararPreviewFondo("imgPreviewPerfil", data.fondo_perfil);
+      prepararPreviewFondo("imgPreviewPosts", data.fondo_publicaciones);
 
       setTimeout(actualizarLabelsInput, 100);
 
@@ -550,12 +562,12 @@ window.guardarEstilos = async function (e) {
   if (e) e.preventDefault();
 
   const usuarioActual = window.getUsuarioActual();
-  const imgPerfil = document.getElementById('imgPreviewPerfil').src;
-  const imgPosts  = document.getElementById('imgPreviewPosts').src;
+  const imgPerfil = window.fondoPerfilAjustado || "";
+  const imgPosts  = window.fondoPostsAjustado || "";
 
   const body = { correo: usuarioActual.correo };
-  if (imgPerfil.startsWith('data:image')) body.fondo_perfil = imgPerfil;
-  if (imgPosts.startsWith('data:image'))  body.fondo_publicaciones = imgPosts;
+  if (imgPerfil) body.fondo_perfil = imgPerfil;
+  if (imgPosts)  body.fondo_publicaciones = imgPosts;
 
   try {
     const res = await fetch("/api/perfil", {
@@ -576,6 +588,201 @@ window.guardarEstilos = async function (e) {
     window.showToast("Error de conexión", "error");
   }
 }
+
+window.fondoPerfilAjustado = window.fondoPerfilAjustado || "";
+window.fondoPostsAjustado = window.fondoPostsAjustado || "";
+
+function prepararPreviewFondo(previewId, src) {
+  const preview = document.getElementById(previewId);
+  if (!preview) return;
+
+  if (src) {
+    preview.src = src;
+    preview.style.display = "block";
+  } else {
+    preview.removeAttribute("src");
+    preview.style.display = "none";
+  }
+}
+
+const cropFondoState = {
+  tipo: "perfil",
+  src: "",
+  img: null,
+  zoom: 1,
+  baseScale: 1,
+  offsetX: 0,
+  offsetY: 0,
+  dragging: false,
+  startX: 0,
+  startY: 0,
+  startOffsetX: 0,
+  startOffsetY: 0
+};
+
+window.abrirEditorFondo = function (input, tipo) {
+  const file = input.files && input.files[0];
+  input.value = "";
+
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    window.mostrarToast("Selecciona una imagen valida", "error");
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    window.mostrarToast("La imagen no puede superar 5MB", "error");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => iniciarEditorFondo(event.target.result, tipo);
+  reader.readAsDataURL(file);
+};
+
+function iniciarEditorFondo(src, tipo) {
+  const modalEl = document.getElementById("modalAjustarFondo");
+  const frame = document.getElementById("cropFrame");
+  const img = document.getElementById("cropImage");
+  const zoom = document.getElementById("cropZoom");
+  const titulo = document.getElementById("cropTitulo");
+  const ayuda = document.getElementById("cropAyuda");
+  if (!modalEl || !frame || !img || !zoom) return;
+
+  cropFondoState.tipo = tipo;
+  cropFondoState.src = src;
+  cropFondoState.img = img;
+  cropFondoState.zoom = 1;
+  cropFondoState.offsetX = 0;
+  cropFondoState.offsetY = 0;
+  zoom.value = "1";
+
+  frame.classList.toggle("is-post", tipo === "posts");
+  if (titulo) titulo.textContent = tipo === "posts" ? "Ajustar fondo de publicaciones" : "Ajustar fondo de perfil";
+  if (ayuda) ayuda.textContent = "Arrastra la imagen para elegir que parte se vera y usa el zoom para acercar.";
+
+  img.onload = () => {
+    calcularBaseRecorte();
+    actualizarVistaRecorte();
+  };
+  img.src = src;
+
+  bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  setTimeout(() => {
+    calcularBaseRecorte();
+    actualizarVistaRecorte();
+  }, 180);
+}
+
+function calcularBaseRecorte() {
+  const frame = document.getElementById("cropFrame");
+  const img = cropFondoState.img;
+  if (!frame || !img || !img.naturalWidth || !img.naturalHeight) return;
+
+  const rect = frame.getBoundingClientRect();
+  cropFondoState.baseScale = Math.max(rect.width / img.naturalWidth, rect.height / img.naturalHeight);
+}
+
+function limitarOffsetRecorte() {
+  const frame = document.getElementById("cropFrame");
+  const img = cropFondoState.img;
+  if (!frame || !img) return;
+
+  const rect = frame.getBoundingClientRect();
+  const width = img.naturalWidth * cropFondoState.baseScale * cropFondoState.zoom;
+  const height = img.naturalHeight * cropFondoState.baseScale * cropFondoState.zoom;
+  const maxX = Math.max(0, (width - rect.width) / 2);
+  const maxY = Math.max(0, (height - rect.height) / 2);
+
+  cropFondoState.offsetX = Math.max(-maxX, Math.min(maxX, cropFondoState.offsetX));
+  cropFondoState.offsetY = Math.max(-maxY, Math.min(maxY, cropFondoState.offsetY));
+}
+
+function actualizarVistaRecorte() {
+  const img = cropFondoState.img;
+  if (!img || !img.naturalWidth) return;
+
+  limitarOffsetRecorte();
+  const width = img.naturalWidth * cropFondoState.baseScale * cropFondoState.zoom;
+  img.style.width = `${width}px`;
+  img.style.height = "auto";
+  img.style.transform = `translate(-50%, -50%) translate(${cropFondoState.offsetX}px, ${cropFondoState.offsetY}px)`;
+}
+
+function exportarFondoAjustado() {
+  const frame = document.getElementById("cropFrame");
+  const img = cropFondoState.img;
+  if (!frame || !img || !img.naturalWidth) return "";
+
+  const rect = frame.getBoundingClientRect();
+  const outputWidth = 1600;
+  const outputHeight = cropFondoState.tipo === "posts" ? 480 : 420;
+  const canvas = document.createElement("canvas");
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#050816";
+  ctx.fillRect(0, 0, outputWidth, outputHeight);
+
+  const renderScaleX = outputWidth / rect.width;
+  const renderScaleY = outputHeight / rect.height;
+  const displayWidth = img.naturalWidth * cropFondoState.baseScale * cropFondoState.zoom;
+  const displayHeight = img.naturalHeight * cropFondoState.baseScale * cropFondoState.zoom;
+  const drawWidth = displayWidth * renderScaleX;
+  const drawHeight = displayHeight * renderScaleY;
+  const drawX = (outputWidth - drawWidth) / 2 + cropFondoState.offsetX * renderScaleX;
+  const drawY = (outputHeight - drawHeight) / 2 + cropFondoState.offsetY * renderScaleY;
+
+  ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+  return canvas.toDataURL("image/jpeg", 0.86);
+}
+
+document.addEventListener("input", (e) => {
+  if (e.target && e.target.id === "cropZoom") {
+    cropFondoState.zoom = Number(e.target.value) || 1;
+    actualizarVistaRecorte();
+  }
+});
+
+document.addEventListener("pointerdown", (e) => {
+  const frame = e.target && e.target.closest ? e.target.closest("#cropFrame") : null;
+  if (!frame) return;
+  cropFondoState.dragging = true;
+  cropFondoState.startX = e.clientX;
+  cropFondoState.startY = e.clientY;
+  cropFondoState.startOffsetX = cropFondoState.offsetX;
+  cropFondoState.startOffsetY = cropFondoState.offsetY;
+  frame.setPointerCapture(e.pointerId);
+});
+
+document.addEventListener("pointermove", (e) => {
+  if (!cropFondoState.dragging) return;
+  cropFondoState.offsetX = cropFondoState.startOffsetX + e.clientX - cropFondoState.startX;
+  cropFondoState.offsetY = cropFondoState.startOffsetY + e.clientY - cropFondoState.startY;
+  actualizarVistaRecorte();
+});
+
+document.addEventListener("pointerup", () => {
+  cropFondoState.dragging = false;
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target || e.target.id !== "btnAplicarRecorte") return;
+
+  const ajustado = exportarFondoAjustado();
+  if (!ajustado) return;
+
+  if (cropFondoState.tipo === "posts") {
+    window.fondoPostsAjustado = ajustado;
+    prepararPreviewFondo("imgPreviewPosts", ajustado);
+  } else {
+    window.fondoPerfilAjustado = ajustado;
+    prepararPreviewFondo("imgPreviewPerfil", ajustado);
+  }
+
+  const modalEl = document.getElementById("modalAjustarFondo");
+  if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+});
 
 window.cargarPublicaciones = async function (correo) {
   const container = document.getElementById("misPublicaciones");
@@ -651,18 +858,39 @@ window.inicializarPerfil = function () {
   const btnCambiarFoto = document.getElementById("btnCambiarFoto");
   const inputFoto      = document.getElementById("inputFoto");
   const formEstilos    = document.getElementById("formEstilos");
+  const btnElegirArchivoFoto = document.getElementById("btnElegirArchivoFoto");
+  const btnTomarFoto = document.getElementById("btnTomarFoto");
+  const modalCambiarFotoEl = document.getElementById("modalCambiarFoto");
 
   if (formEstilos) formEstilos.onsubmit = window.guardarEstilos;
 
+  if (btnElegirArchivoFoto && inputFoto) {
+    btnElegirArchivoFoto.onclick = () => {
+      if (modalCambiarFotoEl) bootstrap.Modal.getOrCreateInstance(modalCambiarFotoEl).hide();
+      inputFoto.click();
+    };
+  }
+
+  if (btnTomarFoto) {
+    btnTomarFoto.onclick = async () => {
+      if (modalCambiarFotoEl) bootstrap.Modal.getOrCreateInstance(modalCambiarFotoEl).hide();
+      await abrirCamara();
+    };
+  }
+
   if (btnCambiarFoto && inputFoto) {
     btnCambiarFoto.onclick = () => {
-      const opcion = confirm("¿Deseas tomar una foto con la cámara?\n\nAcepta: Cámara\nCancelar: Seleccionar archivo");
-      if (opcion) { abrirCamara(); } else { inputFoto.click(); }
+      if (modalCambiarFotoEl) {
+        bootstrap.Modal.getOrCreateInstance(modalCambiarFotoEl).show();
+      } else {
+        inputFoto.click();
+      }
     };
 
     inputFoto.onchange = async (e) => {
       const file = e.target.files[0];
       if (file) await subirFoto(file);
+      inputFoto.value = "";
     };
   }
 

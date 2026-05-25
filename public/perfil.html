@@ -207,7 +207,7 @@
                     style="position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; display: none;">
                 </div>
                 <input type="file" id="inputFondoPerfil" accept="image/*" hidden
-                  onchange="previewImage(this, 'imgPreviewPerfil')">
+                  onchange="abrirEditorFondo(this, 'perfil')">
               </div>
 
               <div class="mb-4">
@@ -225,7 +225,7 @@
                     style="position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; display: none;">
                 </div>
                 <input type="file" id="inputFondoPosts" accept="image/*" hidden
-                  onchange="previewImage(this, 'imgPreviewPosts')">
+                  onchange="abrirEditorFondo(this, 'posts')">
               </div>
 
               <button type="submit" class="btn w-100"
@@ -233,6 +233,77 @@
                 Guardar Estilos
               </button>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Cambiar Foto -->
+  <div class="modal fade" id="modalCambiarFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mx-auto" style="max-width: 430px;">
+      <div class="modal-content border-0"
+        style="background: linear-gradient(135deg, #141827 0%, #1f1235 100%); border-radius: 22px; overflow: hidden; box-shadow: 0 18px 55px rgba(0,0,0,0.45); color: white;">
+        <div class="modal-body" style="padding: 30px;">
+          <div class="text-center mb-4">
+            <div
+              style="width: 58px; height: 58px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #ba01ff, #00dffc);">
+              <i class="bi bi-camera-fill" style="font-size: 1.6rem; color: white;"></i>
+            </div>
+            <h3 style="font-weight: 800; margin: 0;">Cambiar foto de perfil</h3>
+            <p style="color: rgba(255,255,255,0.62); margin: 8px 0 0;">Elige de donde quieres tomar tu nueva imagen.</p>
+          </div>
+
+          <div class="profile-photo-choice-grid">
+            <button type="button" class="profile-photo-choice" id="btnElegirArchivoFoto">
+              <i class="bi bi-image"></i>
+              <span>Seleccionar imagen</span>
+            </button>
+            <button type="button" class="profile-photo-choice" id="btnTomarFoto">
+              <i class="bi bi-camera-video"></i>
+              <span>Tomar una foto</span>
+            </button>
+          </div>
+
+          <button type="button" class="btn w-100 mt-3"
+            style="border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.78); border-radius: 12px; padding: 11px;"
+            data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ajustar Fondo -->
+  <div class="modal fade" id="modalAjustarFondo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0"
+        style="background: #111827; color: white; border-radius: 22px; overflow: hidden; box-shadow: 0 20px 65px rgba(0,0,0,0.5);">
+        <div class="modal-body" style="padding: 26px;">
+          <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+            <div>
+              <h3 id="cropTitulo" style="font-weight: 850; margin: 0;">Ajustar imagen</h3>
+              <p id="cropAyuda" style="color: rgba(255,255,255,0.62); margin: 6px 0 0;">Arrastra la imagen y ajusta el zoom.</p>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="background-crop-frame" id="cropFrame">
+            <img id="cropImage" alt="Vista previa del fondo">
+          </div>
+
+          <div class="crop-controls mt-3">
+            <label for="cropZoom" class="form-label mb-0">Zoom</label>
+            <input type="range" class="form-range" id="cropZoom" min="1" max="3" step="0.01" value="1">
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="button" class="btn flex-fill"
+              style="border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.78); border-radius: 12px; padding: 12px;"
+              data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn flex-fill" id="btnAplicarRecorte"
+              style="background: linear-gradient(160deg, #ba01ff, #00dffc); color: white; border: none; border-radius: 12px; padding: 12px; font-weight: 800;">
+              Aplicar ajuste
+            </button>
           </div>
         </div>
       </div>
