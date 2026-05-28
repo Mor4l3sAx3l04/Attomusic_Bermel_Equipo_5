@@ -50,12 +50,16 @@
           `;
         }
 
+        if (window.cargarCacheSeguidos) await window.cargarCacheSeguidos();
+
         data.recommendations.forEach(pub => {
           if (window.PublicacionCard) {
+            const esPropiaPub = pub.correo === usuarioActual.correo;
             const card = new window.PublicacionCard(pub, {
               correoActual: usuarioActual.correo,
               mostrarBotonesInteraccion: true,
-              mostrarBotonSeguir: true
+              mostrarBotonSeguir: !esPropiaPub,
+              esSeguido: window.esSiguiendoA ? window.esSiguiendoA(pub.id_usuario) : false
             });
             feed.appendChild(card.element);
           }

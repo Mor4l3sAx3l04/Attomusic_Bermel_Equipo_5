@@ -68,7 +68,21 @@
     const container = document.getElementById('misCanciones');
     if (!container) return;
 
-    const idUsuario = sessionStorage.getItem('id_usuario');
+    let idUsuario = sessionStorage.getItem('id_usuario');
+
+    if (!idUsuario) {
+      const usuario = window.getUsuarioActual ? window.getUsuarioActual() : null;
+      if (!usuario?.correo) return;
+      try {
+        const r = await fetch(`/api/perfil/${encodeURIComponent(usuario.correo)}`);
+        if (r.ok) {
+          const d = await r.json();
+          idUsuario = d.id_usuario;
+          if (idUsuario) sessionStorage.setItem('id_usuario', String(idUsuario));
+        }
+      } catch { return; }
+    }
+
     if (!idUsuario) return;
 
     container.innerHTML = '<div class="text-center p-3"><div class="spinner-border" style="color:#ba01ff;"></div></div>';

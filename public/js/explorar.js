@@ -225,6 +225,8 @@
         return;
       }
 
+      if (correoActual && window.cargarCacheSeguidos) await window.cargarCacheSeguidos();
+
       publicaciones.forEach(pub => {
         if (window.PublicacionCard) {
           const esPerfilPropio = correoActual && pub.correo === correoActual;
@@ -232,7 +234,8 @@
             mostrarBotonesInteraccion: true,
             mostrarBotonSeguir: !esPerfilPropio && !!correoActual,
             esPerfilPropio: esPerfilPropio,
-            correoActual: correoActual
+            correoActual: correoActual,
+            esSeguido: window.esSiguiendoA ? window.esSiguiendoA(pub.id_usuario) : false
           });
           container.appendChild(card.element);
         }
@@ -320,7 +323,8 @@
             mostrarBotonesInteraccion: true,
             mostrarBotonSeguir: !esPerfilPropio && !!correoActual,
             esPerfilPropio: esPerfilPropio,
-            correoActual: correoActual
+            correoActual: correoActual,
+            esSeguido: !esPerfilPropio
           });
           container.appendChild(card.element);
         }

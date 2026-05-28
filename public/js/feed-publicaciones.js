@@ -346,6 +346,12 @@
     }
   };
 
+  window.esSiguiendoA = function (idUsuario) {
+    return usuariosSeguidosCache.has(idUsuario);
+  };
+
+  window.cargarCacheSeguidos = cargarUsuariosSeguidosCache;
+
   window.crearPublicacionHTML = crearPublicacion;
 
   // ========== REPORTES ==========
