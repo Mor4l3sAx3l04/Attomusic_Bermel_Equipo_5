@@ -31,6 +31,20 @@
         h2Usuario.childNodes[0].textContent = '@' + perfilData.usuario + ' ';
         document.getElementById('perfilCorreo').textContent = perfilData.correo;
 
+        // Mostrar título de ranking (Rey / Príncipe / Caballero de la Música)
+        const badgeTitulo = document.getElementById('badge-titulo-real');
+        if (badgeTitulo) {
+          const titulos = { 1: 'Rey de la Música', 2: 'Príncipe de la Música', 3: 'Caballero de la Música' };
+          const titulo = titulos[perfilData.posicion_ranking];
+          if (titulo) {
+            badgeTitulo.innerHTML = `<span class="titulo-real titulo-real-${perfilData.posicion_ranking} titulo-real-perfil">${titulo}</span>`;
+            badgeTitulo.style.display = 'block';
+          } else {
+            badgeTitulo.style.display = 'none';
+            badgeTitulo.innerHTML = '';
+          }
+        }
+
         // Mostrar insignias VIP/Artista
         const esVip = perfilData.es_vip || perfilData.rol === 'admin';
         if (esVip) {

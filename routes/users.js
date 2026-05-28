@@ -37,9 +37,20 @@ router.get("/perfil-publico/:id_usuario", async (req, res) => {
     const { id_usuario } = req.params;
 
     const userResult = await pool.query(
-      `SELECT id_usuario, usuario, correo, fecha_reg, foto, rol, estado, fondo_perfil,
-       es_vip, insignia_artista
-       FROM usuario WHERE id_usuario = $1`,
+      `WITH ranking AS (
+         SELECT u2.id_usuario,
+                RANK() OVER (ORDER BY COUNT(s.id_seguimiento) DESC, u2.fecha_reg DESC) AS posicion
+         FROM usuario u2
+         LEFT JOIN seguimiento s ON u2.id_usuario = s.id_usuario_seguido
+         WHERE u2.estado = 'activo'
+         GROUP BY u2.id_usuario, u2.fecha_reg
+       )
+       SELECT u.id_usuario, u.usuario, u.correo, u.fecha_reg, u.foto, u.rol, u.estado,
+              u.fondo_perfil, u.es_vip, u.insignia_artista,
+              CASE WHEN r.posicion <= 3 THEN r.posicion ELSE NULL END AS posicion_ranking
+       FROM usuario u
+       LEFT JOIN ranking r ON u.id_usuario = r.id_usuario
+       WHERE u.id_usuario = $1`,
       [id_usuario]
     );
 

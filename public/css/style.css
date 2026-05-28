@@ -2201,6 +2201,12 @@ body:not([data-bs-theme="dark"]) .section-title i {
 [data-bs-theme="dark"] .titulo-real-2 { color: #f5f5f5; }
 [data-bs-theme="dark"] .titulo-real-3 { color: #fff3e0; }
 
+.titulo-real-perfil {
+  font-size: 0.85rem;
+  padding: 4px 14px;
+  letter-spacing: 0.08em;
+}
+
 .btn-ver-perfil {
   padding: 8px 16px;
   background: transparent;

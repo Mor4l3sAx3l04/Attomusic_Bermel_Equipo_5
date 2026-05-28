@@ -21,7 +21,9 @@
       "Bash(python3 *)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Recurse -ErrorAction SilentlyContinue)",
       "Bash(Select-Object FullName, PSIsContainer)",
-      "Bash(ConvertTo-Json -Depth 1000)"
+      "Bash(ConvertTo-Json -Depth 1000)",
+      "Bash(Get-ChildItem -Recurse -Filter \"*perfil*\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object FullName)"
     ]
   }
 }
