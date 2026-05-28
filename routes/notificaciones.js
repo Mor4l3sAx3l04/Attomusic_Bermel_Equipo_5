@@ -5,9 +5,6 @@ const pool = require("../utils/database");
 const responses = require("../utils/responses");
 const { getUserFromEmail } = require("../middleware/auth");
 
-// ─────────────────────────────────────────────
-// HELPER: Crear notificación (usar en otros routes)
-// ─────────────────────────────────────────────
 async function crearNotificacion(id_usuario, id_actor, tipo, id_referencia, mensaje) {
   // Nunca notificar a uno mismo
   if (parseInt(id_usuario) === parseInt(id_actor)) return;
@@ -24,10 +21,6 @@ async function crearNotificacion(id_usuario, id_actor, tipo, id_referencia, mens
   }
 }
 
-// ─────────────────────────────────────────────
-// GET /api/notificaciones
-// Obtener notificaciones del usuario autenticado
-// ─────────────────────────────────────────────
 router.get("/", getUserFromEmail, async (req, res) => {
   const id_usuario = req.user.id_usuario;
   const limite = Math.min(parseInt(req.query.limite) || 30, 100);

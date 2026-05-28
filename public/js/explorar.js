@@ -20,7 +20,7 @@
     try {
       container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Cargando perfiles...</p></div>';
 
-      const res = await fetch('/api/usuarios/populares?limit=20');
+      const res = await fetch('/api/usuarios/populares?limit=10');
       //console.log(' Respuesta fetch perfiles:', res.status);
 
       if (!res.ok) {
@@ -57,10 +57,12 @@
 
   function crearTarjetaUsuario(user, posicion) {
     const div = document.createElement('div');
-    div.className = 'perfil-card mb-3 fade-in';
+    const claseTop = posicion <= 3 ? ` perfil-card-top${posicion}` : '';
+    div.className = `perfil-card mb-3 fade-in${claseTop}`;
 
     const esTuPerfil = correoActual && user.correo === correoActual;
     const medallaIcon = posicion <= 3 ? getMedallaIcon(posicion) : `<span class="posicion-numero">#${posicion}</span>`;
+    const tituloReal = getTituloReal(posicion);
 
     // LOGICA DEL FONDO: Si no hay fondo_perfil, usamos el degradado morado por defecto
     const fondoStyle = user.fondo_perfil
@@ -69,18 +71,19 @@
 
     div.innerHTML = `
       <div class="perfil-card-banner" style="${fondoStyle}"></div>
-      
+
       <div class="perfil-card-content">
         <div class="perfil-ranking">${medallaIcon}</div>
-        
+
         <div class="perfil-avatar-container">
           ${user.foto ?
         `<img src="${user.foto}" alt="${window.escapeHtml(user.usuario)}" class="perfil-avatar-img">` :
         `<div class="perfil-avatar-placeholder">${user.usuario.charAt(0).toUpperCase()}</div>`
       }
         </div>
-        
+
         <div class="perfil-info">
+          ${tituloReal ? `<div class="titulo-real titulo-real-${posicion}">${tituloReal}</div>` : ''}
           <h5 class="perfil-username">@${window.escapeHtml(user.usuario)}</h5>
           <p class="perfil-stats">
             <i class="bi bi-people-fill"></i> ${user.num_seguidores} seguidores
@@ -118,6 +121,15 @@
       3: '<i class="bi bi-trophy-fill" style="color: #CD7F32; font-size: 1.2rem;"></i>'
     };
     return medallas[posicion] || '';
+  }
+
+  function getTituloReal(posicion) {
+    const titulos = {
+      1: 'Rey de la Música',
+      2: 'Príncipe de la Música',
+      3: 'Caballero de la Música'
+    };
+    return titulos[posicion] || null;
   }
 
   async function verificarSiguiendoPerfil(idUsuario, btnElement) {
