@@ -225,71 +225,17 @@
         return;
       }
 
-      const escapeHtml = window.escapeHtml || ((text) => {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      });
-
-      const formatearFecha = window.formatearFecha || ((fecha) => {
-        return fecha.toLocaleDateString('es-MX', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      });
-
       publicaciones.forEach(pub => {
-        const article = document.createElement('article');
-        article.className = 'publicacion-item mb-4 fade-in';
-
-        const fecha = new Date(pub.fecha_pub);
-        const fechaFormateada = formatearFecha(fecha);
-
-        article.innerHTML = `
-          <div class="pub-header">
-            <div class="pub-user-info">
-              <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-user-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
-                ${pub.foto ?
-            `<img src="${pub.foto}" alt="${escapeHtml(pub.usuario)}" class="pub-avatar-img">` :
-            `<div class="pub-avatar">${pub.usuario.charAt(0).toUpperCase()}</div>`
-          }
-              </a>
-              <div style="flex: 1;">
-                <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-username-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
-                  <strong class="pub-username">@${escapeHtml(pub.usuario)}</strong>
-                </a>
-                <small class="pub-fecha">${fechaFormateada}</small>
-              </div>
-            </div>
-          </div>
-          
-          <div class="pub-content">
-            <p class="pub-text">${escapeHtml(pub.publicacion)}</p>
-          </div>
-          
-          ${pub.cancion ? `
-            <div class="pub-cancion">
-              ${pub.imagen_cancion ?
-              `<img src="${pub.imagen_cancion}" alt="cover" class="pub-cancion-img">` :
-              ''
-            }
-              <div class="pub-cancion-info">
-                <strong class="pub-cancion-nombre">${escapeHtml(pub.cancion)}</strong>
-                <p class="pub-cancion-artista">${escapeHtml(pub.artista || '')}</p>
-              </div>
-            </div>
-          ` : ""}
-          
-          <div class="pub-stats">
-            <span><i class="bi bi-heart-fill text-danger"></i> ${pub.likes || 0}</span>
-            <span><i class="bi bi-chat-fill text-primary"></i> ${pub.comentarios || 0}</span>
-          </div>
-        `;
-
-        container.appendChild(article);
+        if (window.PublicacionCard) {
+          const esPerfilPropio = correoActual && pub.correo === correoActual;
+          const card = new window.PublicacionCard(pub, {
+            mostrarBotonesInteraccion: true,
+            mostrarBotonSeguir: !esPerfilPropio && !!correoActual,
+            esPerfilPropio: esPerfilPropio,
+            correoActual: correoActual
+          });
+          container.appendChild(card.element);
+        }
       });
 
       //console.log(' Publicaciones destacadas cargadas');
@@ -369,10 +315,11 @@
 
       publicaciones.forEach(pub => {
         if (window.PublicacionCard) {
+          const esPerfilPropio = correoActual && pub.correo === correoActual;
           const card = new window.PublicacionCard(pub, {
-            mostrarBotonesInteraccion: false, // No tenemos cache de likes aquí
-            mostrarBotonSeguir: false, // Ya estamos en destacados o siguiendo
-            esPerfilPropio: false, // Asumimos false
+            mostrarBotonesInteraccion: true,
+            mostrarBotonSeguir: !esPerfilPropio && !!correoActual,
+            esPerfilPropio: esPerfilPropio,
             correoActual: correoActual
           });
           container.appendChild(card.element);

@@ -559,6 +559,18 @@ window.cargarPerfil = async function () {
       document.getElementById("perfilNombre").textContent = data.usuario;
       document.getElementById("perfilCorreo").textContent = data.correo;
 
+      const badgeTituloPropio = document.getElementById('badge-titulo-real-propio');
+      if (badgeTituloPropio) {
+        const titulos = { 1: 'Rey de la Música', 2: 'Príncipe de la Música', 3: 'Caballero de la Música' };
+        const titulo = titulos[data.posicion_ranking];
+        if (titulo) {
+          badgeTituloPropio.innerHTML = `<span class="titulo-real titulo-real-${data.posicion_ranking} titulo-real-perfil">${titulo}</span>`;
+          badgeTituloPropio.style.display = 'block';
+        } else {
+          badgeTituloPropio.style.display = 'none';
+        }
+      }
+
       const perfilContainer = document.querySelector(".perfil-container");
       const perfilHeader = document.querySelector(".perfil-header");
       if (perfilContainer) {
