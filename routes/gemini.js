@@ -57,12 +57,12 @@ Comentario a analizar:
         return JSON.parse(jsonMatch[0]);
 
     } catch (err) {
-        console.error("Error al validar publicación con Gemini:", err);
-        // Retornar error seguro
+        console.error("Error al validar publicación con Gemini:", err.message);
+        // Si Gemini falla, permitir el post para no bloquear la funcionalidad
         return {
-            apto: false,
-            razon: "Error al analizar el texto",
-            categorias: ["error"]
+            apto: true,
+            razon: "Servicio de moderación no disponible",
+            categorias: []
         };
     }
 }

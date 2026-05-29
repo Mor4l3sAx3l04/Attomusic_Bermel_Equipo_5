@@ -268,10 +268,7 @@
 
       // Renderizar publicaciones
       const feed = document.getElementById("feedPublicaciones");
-      if (!feed) {
-        console.error('Feed no encontrado');
-        return;
-      }
+      if (!feed) return;
 
       if (data.publicaciones && data.publicaciones.length > 0) {
         //console.log(`Renderizando ${data.publicaciones.length} publicaciones...`);
