@@ -87,6 +87,7 @@
                   <strong class="pub-username">@${window.escapeHtml(pub.usuario)}</strong>
                 </a>
                 `}
+                <div class="pub-user-badges">${this._renderBadges()}</div>
                 <small class="pub-fecha">${fechaFormateada}</small>
               </div>
               <div class="pub-actions-inline">
@@ -115,6 +116,7 @@
             <a href="perfil-usuario.html?id=${pub.id_usuario}" class="pub-username-link load-page-perfil" data-id-usuario="${pub.id_usuario}">
               <strong class="pub-username">@${window.escapeHtml(pub.usuario)}</strong>
             </a>
+            <div class="pub-user-badges">${this._renderBadges()}</div>
             <small class="pub-fecha">${fechaFormateada}</small>
           </div>
           <div class="pub-header-actions">
@@ -127,6 +129,23 @@
           </div>
         </div>
       `;
+        }
+
+        _renderBadges() {
+            const { pub } = this;
+            const esVip = pub.es_vip || pub.rol === 'admin';
+            const TITULOS = { 1: 'Rey de la Música', 2: 'Príncipe de la Música', 3: 'Caballero de la Música' };
+            let html = '';
+            if (pub.posicion_ranking && TITULOS[pub.posicion_ranking]) {
+                html += `<span class="titulo-real titulo-real-${pub.posicion_ranking}">${TITULOS[pub.posicion_ranking]}</span>`;
+            }
+            if (esVip) {
+                html += `<span class="badge-vip-small"><i class="bi bi-crown-fill"></i> VIP</span>`;
+            }
+            if (pub.insignia_artista) {
+                html += `<span class="badge-artista-small"><i class="bi bi-music-note"></i> Artista</span>`;
+            }
+            return html;
         }
 
         _renderFollowButton() {

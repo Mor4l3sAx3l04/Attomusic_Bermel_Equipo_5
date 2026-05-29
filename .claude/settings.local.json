@@ -23,7 +23,10 @@
       "Bash(Select-Object FullName, PSIsContainer)",
       "Bash(ConvertTo-Json -Depth 1000)",
       "Bash(Get-ChildItem -Recurse -Filter \"*perfil*\" -ErrorAction SilentlyContinue)",
-      "Bash(Select-Object FullName)"
+      "Bash(Select-Object FullName)",
+      "Bash(grep -h -oE \">\\([^<]{2,80}\\)<\" public/index.html)",
+      "Bash(grep -v \"^[[:space:]]*$\")",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Recurse -Directory | Select-Object -First 30 | ForEach-Object { $_.FullName })"
     ]
   }
 }

@@ -168,6 +168,12 @@
 
           // Mostrar notificación nativa por cada una (máx 3 para no spamear)
           nuevas.slice(0, 3).forEach(n => mostrarNotifNativa(n));
+
+          // Si el panel está abierto, refrescarlo automáticamente
+          const panel = document.getElementById('notif-panel');
+          if (nuevas.length > 0 && panel && panel.classList.contains('abierto')) {
+            cargarNotificaciones();
+          }
         }
       }
 
@@ -238,9 +244,19 @@
         <span class="notif-tiempo">${timeAgo(n.fecha)}</span>
       </div>
       ${!n.leido ? '<span class="notif-dot"></span>' : ''}
+      <button class="notif-btn-eliminar" title="Eliminar" aria-label="Eliminar notificación">
+        <i class="bi bi-x"></i>
+      </button>
     `;
 
     div.addEventListener('click', () => alClickarNotif(n, div));
+    const btnEliminar = div.querySelector('.notif-btn-eliminar');
+    if (btnEliminar) {
+      btnEliminar.addEventListener('click', e => {
+        e.stopPropagation();
+        eliminarNotificacion(n.id_notificacion, div, !n.leido);
+      });
+    }
     return div;
   }
 
@@ -252,7 +268,7 @@
       if (dot) dot.remove();
     }
 
-    marcarLeida(n.id_notificacion);
+    await marcarLeida(n.id_notificacion);
     cerrarPanel();
 
     if ((n.tipo === 'like_cancion' || n.tipo === 'comentario_cancion') && n.actor_id && window.loadPage) {
@@ -300,6 +316,37 @@
     }
   }
 
+  async function eliminarNotificacion(id, elemento, eraNoLeida) {
+    const usuario = getUsuarioActual();
+    if (!usuario) return;
+
+    elemento.classList.add('notif-eliminando');
+
+    try {
+      const res = await fetch(
+        `/api/notificaciones/${id}?correo=${encodeURIComponent(usuario.correo)}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) { elemento.classList.remove('notif-eliminando'); return; }
+
+      setTimeout(() => {
+        elemento.remove();
+        const lista = document.getElementById('notif-lista');
+        if (lista && lista.querySelectorAll('.notif-item').length === 0) {
+          lista.innerHTML = `
+            <div class="notif-empty">
+              <i class="bi bi-bell-slash"></i>
+              <p>Sin notificaciones por ahora</p>
+            </div>`;
+        }
+      }, 280);
+
+      if (eraNoLeida) cargarNoLeidas();
+    } catch {
+      elemento.classList.remove('notif-eliminando');
+    }
+  }
+
   // ════════════════════════════════════════════════════
   // Abrir / cerrar panel
   // ════════════════════════════════════════════════════
@@ -336,7 +383,7 @@
     pedirPermiso();
 
     cargarNoLeidas(); // primera carga inmediata
-    pollingInterval = setInterval(cargarNoLeidas, 30000); // cada 30 segundos
+    pollingInterval = setInterval(cargarNoLeidas, 15000); // cada 15 segundos
   }
 
   function detenerPolling() {

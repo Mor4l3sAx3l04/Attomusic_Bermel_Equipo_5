@@ -705,6 +705,18 @@ i{
   color: #b983ff;
 }
 
+.pub-user-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 3px 0 1px;
+}
+
+.pub-user-badges:empty {
+  display: none;
+}
+
 .pub-fecha {
   color: #999;
   font-size: 0.8rem;

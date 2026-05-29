@@ -148,15 +148,25 @@ router.get("/perfil/:correo/publicaciones", async (req, res) => {
     const { correo } = req.params;
 
     const result = await pool.query(`
+      WITH rnk AS (
+        SELECT u2.id_usuario,
+               RANK() OVER (ORDER BY COUNT(s.id_seguimiento) DESC, u2.fecha_reg DESC) AS posicion
+        FROM usuario u2
+        LEFT JOIN seguimiento s ON u2.id_usuario = s.id_usuario_seguido
+        WHERE u2.estado = 'activo'
+        GROUP BY u2.id_usuario, u2.fecha_reg
+      )
       SELECT p.id_publicacion, p.publicacion, p.fecha_pub,
-             u.id_usuario, u.usuario, u.correo, u.foto, 
-             u.fondo_publicaciones, -- <--- ESTA ES LA LÍNEA CLAVE
+             u.id_usuario, u.usuario, u.correo, u.foto,
+             u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+             CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
              c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.imagen_url AS imagen_cancion,
              (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
              (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
       FROM publicacion p
       JOIN usuario u ON p.id_usuario = u.id_usuario
       LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      LEFT JOIN rnk ON u.id_usuario = rnk.id_usuario
       WHERE u.correo = $1
       ORDER BY p.fecha_pub DESC
     `, [correo]);
@@ -174,11 +184,25 @@ router.get("/usuario/:id_usuario/publicaciones", async (req, res) => {
   try {
     const { id_usuario } = req.params;
     const result = await pool.query(`
-      SELECT p.*, u.usuario, u.foto, u.fondo_publicaciones, -- <--- IMPORTANTE
-            c.nombre AS cancion, c.artista, c.imagen_url AS imagen_cancion
+      WITH rnk AS (
+        SELECT u2.id_usuario,
+               RANK() OVER (ORDER BY COUNT(s.id_seguimiento) DESC, u2.fecha_reg DESC) AS posicion
+        FROM usuario u2
+        LEFT JOIN seguimiento s ON u2.id_usuario = s.id_usuario_seguido
+        WHERE u2.estado = 'activo'
+        GROUP BY u2.id_usuario, u2.fecha_reg
+      )
+      SELECT p.id_publicacion, p.publicacion, p.fecha_pub, p.id_cancion,
+             u.id_usuario, u.usuario, u.correo, u.foto,
+             u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+             CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
+             c.nombre AS cancion, c.artista, c.imagen_url AS imagen_cancion,
+             (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+             (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
       FROM publicacion p
       JOIN usuario u ON p.id_usuario = u.id_usuario
       LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      LEFT JOIN rnk ON u.id_usuario = rnk.id_usuario
       WHERE u.id_usuario = $1
       ORDER BY p.fecha_pub DESC
     `, [id_usuario]);

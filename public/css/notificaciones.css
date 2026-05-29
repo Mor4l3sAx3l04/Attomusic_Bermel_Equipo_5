@@ -157,7 +157,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 10px 42px 10px 16px;
   cursor: pointer;
   transition: background 0.15s;
   position: relative;
@@ -246,6 +246,54 @@
   border-radius: 50%;
   background: #ba01ff;
   flex-shrink: 0;
+}
+
+/* Botón eliminar notificación */
+.notif-btn-eliminar {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  color: rgba(128, 128, 128, 0.7);
+  font-size: 1rem;
+  padding: 0;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.notif-item:hover .notif-btn-eliminar {
+  opacity: 1;
+}
+
+.notif-btn-eliminar:hover {
+  background: rgba(255, 77, 109, 0.15);
+  color: #ff4d6d;
+}
+
+/* En móvil (touch) siempre visible */
+@media (hover: none) {
+  .notif-btn-eliminar {
+    opacity: 0.6;
+  }
+}
+
+/* Animación de salida al eliminar */
+.notif-item.notif-eliminando {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
 }
 
 /* ── Estados vacío / cargando ── */
