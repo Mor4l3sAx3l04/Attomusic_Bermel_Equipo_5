@@ -26,7 +26,16 @@
       "Bash(Select-Object FullName)",
       "Bash(grep -h -oE \">\\([^<]{2,80}\\)<\" public/index.html)",
       "Bash(grep -v \"^[[:space:]]*$\")",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Recurse -Directory | Select-Object -First 30 | ForEach-Object { $_.FullName })"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Recurse -Directory | Select-Object -First 30 | ForEach-Object { $_.FullName })",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Force)",
+      "Bash(Select-Object Name, FullName)",
+      "Bash(Get-ChildItem -Path . -Recurse -Filter \"*.js\")",
+      "Bash(xargs grep -l \"CREATE TABLE\")",
+      "WebSearch",
+      "WebFetch(domain:developer.spotify.com)",
+      "WebFetch(domain:community.spotify.com)",
+      "WebFetch(domain:developers.deezer.com)",
+      "WebFetch(domain:publicapi.dev)"
     ]
   }
 }

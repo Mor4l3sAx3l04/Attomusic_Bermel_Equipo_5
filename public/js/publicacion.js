@@ -67,6 +67,8 @@ function inicializarPublicaciones() {
         div.style.cursor = "pointer";
         div.style.border = "1px solid rgba(255,255,255,0.06)";
         div.style.borderRadius = "10px";
+
+        const btnPreviewId = `prev-${track.id}`;
         div.innerHTML = `
           <img src="${track.album?.images?.[1]?.url || track.album?.images?.[0]?.url || 'images/default-song.png'}"
               alt="cover" width="56" height="56" style="object-fit:cover;border-radius:8px;margin-right:10px;">
@@ -75,10 +77,62 @@ function inicializarPublicaciones() {
             <div style="font-size:0.9rem;color:#cfcfe8">${escapeHtml(track.artists.map(a => a.name).join(", "))}</div>
             <div style="font-size:0.8rem;color:#bdb6d8;margin-top:4px">${escapeHtml(track.album?.name || '')}</div>
           </div>
-          <div style="margin-left:10px;font-size:0.9rem;color:#bdb6d8">▶︎</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:10px;">
+            <button id="${btnPreviewId}" style="background:none;border:1px solid #ba01ff;color:#ba01ff;border-radius:16px;padding:2px 10px;font-size:0.8rem;cursor:pointer;white-space:nowrap;">▶ Preview</button>
+            <audio id="audio-${track.id}" preload="none" style="display:none;width:140px;" controls></audio>
+          </div>
         `;
 
+        // Preview button
+        const btnPrev = div.querySelector(`#${btnPreviewId}`);
+        const audioPrev = div.querySelector(`#audio-${track.id}`);
+        btnPrev.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          // Detener otro preview activo
+          if (window._attoCurrentAudio && window._attoCurrentAudio !== audioPrev) {
+            window._attoCurrentAudio.pause();
+            window._attoCurrentAudio.style.display = 'none';
+            if (window._attoCurrentBtn) window._attoCurrentBtn.textContent = '▶ Preview';
+          }
+          if (audioPrev.style.display === 'none') {
+            if (!audioPrev.src || audioPrev.src === window.location.href) {
+              const spotifyPreview = track.preview_url;
+              if (spotifyPreview) {
+                audioPrev.src = spotifyPreview;
+              } else {
+                btnPrev.textContent = '⏳...';
+                btnPrev.disabled = true;
+                try {
+                  const q = encodeURIComponent(`${track.name} ${track.artists[0].name}`);
+                  const resp = await fetch(`/spotify/itunes-preview?q=${q}`);
+                  const data = await resp.json();
+                  const url = data?.previewUrl || '';
+                  if (!url) { btnPrev.textContent = '🚫 Sin preview'; btnPrev.disabled = false; return; }
+                  audioPrev.src = url;
+                } catch { btnPrev.textContent = '❌ Error'; btnPrev.disabled = false; return; }
+                btnPrev.disabled = false;
+              }
+            }
+            audioPrev.style.display = 'block';
+            audioPrev.play();
+            btnPrev.textContent = '⏸ Pausar';
+            window._attoCurrentAudio = audioPrev;
+            window._attoCurrentBtn = btnPrev;
+            audioPrev.onended = () => {
+              btnPrev.textContent = '▶ Preview';
+              audioPrev.style.display = 'none';
+              window._attoCurrentAudio = null;
+              window._attoCurrentBtn = null;
+            };
+          } else {
+            if (audioPrev.paused) { audioPrev.play(); btnPrev.textContent = '⏸ Pausar'; }
+            else { audioPrev.pause(); btnPrev.textContent = '▶ Preview'; }
+          }
+        });
+
         div.addEventListener("click", () => {
+          // Detener preview si está sonando al seleccionar
+          if (audioPrev && !audioPrev.paused) { audioPrev.pause(); }
           inputBuscar.value = `${track.name} - ${track.artists[0].name}`;
           idCancionInput.value = track.id;
           resultados.innerHTML = `<p style="color:#c9f7d3">Canción seleccionada: <strong>${escapeHtml(track.name)}</strong> — ${escapeHtml(track.artists[0].name)}</p>`;

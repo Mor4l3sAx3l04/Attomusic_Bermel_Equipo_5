@@ -8,6 +8,16 @@ const queries = require("../utils/queries");
 const { getUserFromEmail } = require("../middleware/auth");
 const { crearNotificacion } = require("./notificaciones");
 
+async function getItunesPreview(nombre, artista) {
+  try {
+    const query = encodeURIComponent(`${nombre} ${artista}`);
+    const resp = await axios.get(`https://itunes.apple.com/search?term=${query}&entity=song&limit=1`);
+    return resp.data?.results?.[0]?.previewUrl || null;
+  } catch {
+    return null;
+  }
+}
+
 // CREAR Y OBTENER PUBLICACIONES 
 
 // RUTA: Crear publicación
@@ -45,12 +55,14 @@ router.post("/publicacion", getUserFromEmail, async (req, res) => {
 
         const genero = artistResp.data.genres?.[0] || "Desconocido";
 
+        const previewUrl = track.preview_url || await getItunesPreview(track.name, track.artists[0].name);
+
         await pool.query(queries.insertSong, [
           track.id,
           track.name,
           track.artists[0].name,
           track.album.name,
-          track.preview_url,
+          previewUrl,
           imagenUrl,
           genero
         ]);

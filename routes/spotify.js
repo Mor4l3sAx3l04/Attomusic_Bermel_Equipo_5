@@ -112,4 +112,18 @@ router.get("/token", async (req, res) => {
   }
 });
 
+// Proxy para iTunes Search API (evita CORS en el navegador)
+router.get("/itunes-preview", async (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.status(400).json({ error: "Falta parámetro q" });
+  try {
+    const resp = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=1`);
+    const previewUrl = resp.data?.results?.[0]?.previewUrl || null;
+    res.json({ previewUrl });
+  } catch (err) {
+    console.error("Error iTunes proxy:", err.message);
+    res.json({ previewUrl: null });
+  }
+});
+
 module.exports = router;

@@ -78,6 +78,17 @@ const DetalleCancion = (function() {
  
   // CARGAR CALIFICACIONES
  
+  async function buscarPreviewItunes(nombre, artista) {
+    try {
+      const q = encodeURIComponent(`${nombre} ${artista}`);
+      const resp = await fetch(`/spotify/itunes-preview?q=${q}`);
+      const data = await resp.json();
+      return data?.previewUrl || null;
+    } catch {
+      return null;
+    }
+  }
+
   async function cargarCalificaciones(idCancion) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/canciones/${idCancion}/calificaciones`);
@@ -252,6 +263,7 @@ const DetalleCancion = (function() {
 
       const img = track.album?.images?.[0]?.url || "";
       const promedioEstrellas = Math.round(calificaciones.promedio);
+      const previewUrl = track.preview_url || await buscarPreviewItunes(track.name, track.artists[0]?.name || '');
 
       // Renderizar vista
       container.innerHTML = `
@@ -261,7 +273,18 @@ const DetalleCancion = (function() {
           
           <div style='display:flex;flex-direction:column;align-items:center;'>
             ${img ? `<img src='${img}' alt='cover' style='width:100%;max-width:280px;height:auto;border-radius:18px;margin-bottom:18px;box-shadow:0 8px 24px rgba(90,24,154,0.2);'>` : ""}
-            
+
+            ${previewUrl ? `
+            <div style='margin-bottom:16px;padding:16px;background:white;border-radius:12px;width:100%;box-sizing:border-box;'>
+              <p style='color:#ba01ff;font-weight:700;margin:0 0 10px 0;font-size:0.95rem;'>🎵 Preview 30s</p>
+              <audio controls src='${previewUrl}' style='width:100%;border-radius:8px;' preload='none'></audio>
+            </div>
+            ` : `
+            <div style='margin-bottom:16px;padding:12px 16px;background:white;border-radius:12px;width:100%;box-sizing:border-box;text-align:center;'>
+              <p style='color:#999;font-size:0.85rem;margin:0;'>Preview no disponible</p>
+            </div>
+            `}
+
             <!-- Promedio de calificación -->
             <div style='text-align:center;margin-top:12px;padding:16px;background:white;border-radius:12px;width:100%;'>
               <p style='color:#999;font-size:0.9rem;margin:0 0 8px 0;'>Calificación promedio</p>

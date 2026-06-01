@@ -170,6 +170,7 @@
             const artista = pub.artista;
             const album = pub.album;
             const imagenCancion = pub.imagen_cancion || pub.imagenUrl;
+            const urlPreview = pub.url_preview || '';
 
             return `
         <div class="pub-cancion">
@@ -181,9 +182,75 @@
             <strong class="pub-cancion-nombre">${window.escapeHtml(nombreCancion)}</strong>
             <p class="pub-cancion-artista">${window.escapeHtml(artista || '')}</p>
             ${album ? `<small class="pub-cancion-album">${window.escapeHtml(album)}</small>` : ''}
+            <button class="pub-btn-preview" data-preview="${window.escapeHtml(urlPreview)}" data-cancion="${window.escapeHtml(nombreCancion)}" data-artista="${window.escapeHtml(artista || '')}">
+              ▶ Preview
+            </button>
+            <audio class="pub-audio-preview" preload="none" style="display:none;width:100%;margin-top:6px;" controls></audio>
           </div>
         </div>
       `;
+        }
+
+        async _togglePreview(btn) {
+            const audio = btn.parentElement.querySelector('.pub-audio-preview');
+            if (!audio) return;
+
+            // Detener cualquier otro preview activo
+            if (window._attoCurrentAudio && window._attoCurrentAudio !== audio) {
+                window._attoCurrentAudio.pause();
+                window._attoCurrentAudio.style.display = 'none';
+                if (window._attoCurrentBtn) window._attoCurrentBtn.textContent = '▶ Preview';
+            }
+
+            if (audio.style.display === 'none') {
+                // Cargar src si no lo tiene aún
+                if (!audio.src || audio.src === window.location.href) {
+                    const previewUrl = btn.dataset.preview;
+                    if (previewUrl) {
+                        audio.src = previewUrl;
+                    } else {
+                        btn.textContent = '⏳...';
+                        btn.disabled = true;
+                        try {
+                            const q = encodeURIComponent(`${btn.dataset.cancion} ${btn.dataset.artista}`);
+                            const resp = await fetch(`/spotify/itunes-preview?q=${q}`);
+                            const data = await resp.json();
+                            const url = data?.previewUrl || '';
+                            if (!url) {
+                                btn.textContent = '🚫 Sin preview';
+                                btn.disabled = false;
+                                return;
+                            }
+                            audio.src = url;
+                        } catch {
+                            btn.textContent = '❌ Error';
+                            btn.disabled = false;
+                            return;
+                        }
+                        btn.disabled = false;
+                    }
+                }
+                audio.style.display = 'block';
+                audio.play();
+                btn.textContent = '⏸ Pausar';
+                window._attoCurrentAudio = audio;
+                window._attoCurrentBtn = btn;
+
+                audio.onended = () => {
+                    btn.textContent = '▶ Preview';
+                    audio.style.display = 'none';
+                    window._attoCurrentAudio = null;
+                    window._attoCurrentBtn = null;
+                };
+            } else {
+                if (audio.paused) {
+                    audio.play();
+                    btn.textContent = '⏸ Pausar';
+                } else {
+                    audio.pause();
+                    btn.textContent = '▶ Preview';
+                }
+            }
         }
 
         _renderFooter() {
@@ -298,6 +365,12 @@
                     else window.location.href = `perfil-usuario.html?id=${id}`;
                 });
             });
+
+            // Preview de canción
+            const btnPreview = element.querySelector('.pub-btn-preview');
+            if (btnPreview) {
+                btnPreview.addEventListener('click', () => this._togglePreview(btnPreview));
+            }
         }
 
         async _handleLike(btn) {

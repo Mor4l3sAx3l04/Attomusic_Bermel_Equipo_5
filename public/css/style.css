@@ -827,6 +827,34 @@ i{
   color: #888;
 }
 
+.pub-btn-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  background: none;
+  border: 1px solid rgba(186, 1, 255, 0.5);
+  color: #ba01ff;
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.pub-btn-preview:hover {
+  background: rgba(186, 1, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .pub-btn-preview {
+  border-color: rgba(185, 131, 255, 0.5);
+  color: #b983ff;
+}
+
+[data-bs-theme="dark"] .pub-btn-preview:hover {
+  background: rgba(185, 131, 255, 0.15);
+}
+
 /* Acciones (like, comentar) */
 .pub-actions {
   display: flex;
