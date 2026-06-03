@@ -272,6 +272,46 @@
     });
   }
 
+  // ── Toggle Notificaciones ────────────────────────────────
+  function inicializarToggleNotificaciones() {
+    const toggle = document.getElementById('toggleNotificaciones');
+    if (!toggle) return;
+
+    const tieneAPI = 'Notification' in window;
+    const permisoConcedido = tieneAPI && Notification.permission === 'granted';
+    const deshabilitado = localStorage.getItem('attomusic_notif_disabled') === 'true';
+
+    toggle.checked = permisoConcedido && !deshabilitado;
+
+    if (!tieneAPI) {
+      toggle.disabled = true;
+      const label = toggle.nextElementSibling;
+      if (label) label.title = 'Tu navegador no soporta notificaciones push';
+      return;
+    }
+
+    toggle.addEventListener('change', async () => {
+      if (toggle.checked) {
+        if (window.Notificaciones) {
+          const ok = await window.Notificaciones.habilitar();
+          if (!ok) {
+            toggle.checked = false;
+            if (Notification.permission === 'denied') {
+              window.mostrarToast('Las notificaciones están bloqueadas en tu navegador. Permítelas desde la configuración del sitio.', 'error');
+            } else {
+              window.mostrarToast('No se pudo activar las notificaciones', 'error');
+            }
+            return;
+          }
+          window.mostrarToast('Notificaciones activadas', 'success');
+        }
+      } else {
+        if (window.Notificaciones) window.Notificaciones.deshabilitar();
+        window.mostrarToast('Notificaciones desactivadas', 'info');
+      }
+    });
+  }
+
   // ── Hook principal ───────────────────────────────────────
   function initPerfil() {
     document.querySelectorAll('.modal').forEach(modal => {
@@ -288,6 +328,7 @@
     }
 
     inicializarFormSubirCancion();
+    inicializarToggleNotificaciones();
   }
 
   window.previewImage = function (input, previewId) {

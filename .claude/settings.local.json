@@ -35,7 +35,23 @@
       "WebFetch(domain:developer.spotify.com)",
       "WebFetch(domain:community.spotify.com)",
       "WebFetch(domain:developers.deezer.com)",
-      "WebFetch(domain:publicapi.dev)"
+      "WebFetch(domain:publicapi.dev)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Depth 2)",
+      "Bash(Format-Table -AutoSize)",
+      "PowerShell(python --version; python -c \"import docx; print\\('python-docx OK'\\)\" 2>&1)",
+      "Bash(python -c \"import docx; print\\('python-docx available'\\)\")",
+      "PowerShell(python --version; python -c \"import docx; print\\('python-docx disponible'\\)\")",
+      "PowerShell(Get-Command *)",
+      "PowerShell($word = New-Object -ComObject Word.Application -ErrorAction SilentlyContinue; if \\($word\\) { Write-Host \"Word COM disponible\"; $word.Quit\\(\\) } else { Write-Host \"Word COM no disponible\" })",
+      "PowerShell(& \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\\\\create_word.ps1\")",
+      "PowerShell($f = \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\\\\Documentaci\" + [char]0x00F3 + \"n\\\\Plan_Ciberseguridad_AttoMusic.docx\"; if \\(Test-Path $f\\) { $size = \\(Get-Item $f\\).Length; Write-Host \"Archivo creado correctamente. Tamano: $\\([math]::Round\\($size/1024, 1\\)\\) KB\" } else { Write-Host \"ERROR: archivo no encontrado\" })",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Recurse -File)",
+      "Bash(node --check routes/posts.js)",
+      "Bash(node --check routes/notificaciones.js)",
+      "Bash(node --check public/js/notificaciones.js)",
+      "Bash(node --check public/js/feed-publicaciones.js)",
+      "Bash(node --check public/js/canciones-artistas.js)",
+      "Bash(node --check public/js/pages/para-ti.js)"
     ]
   }
 }

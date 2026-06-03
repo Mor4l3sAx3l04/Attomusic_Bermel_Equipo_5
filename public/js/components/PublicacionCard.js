@@ -35,6 +35,7 @@
         _createElement() {
             const article = document.createElement("article");
             article.className = "publicacion-item mb-4 fade-in";
+            article.dataset.idPublicacion = this.pub.id_publicacion;
 
             // Fondo personalizado
             if (this.pub.fondo_publicaciones) {

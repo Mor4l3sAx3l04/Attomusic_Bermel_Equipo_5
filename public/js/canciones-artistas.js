@@ -420,6 +420,10 @@
           if (fin) fin.style.display = 'block';
         }
         paginaActual++;
+        // Navegar a canción de notificación si hay una pendiente (solo primera página)
+        if (paginaActual === 2 && window._notifTargetCancion) {
+          setTimeout(manejarNotifTargetCancion, 400);
+        }
       }
     } catch (err) {
       console.error('Error cargando feed:', err);
@@ -427,6 +431,35 @@
       cargando = false;
       const spinner = document.getElementById('ca-spinner');
       if (spinner) spinner.style.display = 'none';
+    }
+  }
+
+  // ── Navegación desde notificaciones ──
+  function manejarNotifTargetCancion() {
+    const targetId = String(window._notifTargetCancion);
+    if (!targetId || targetId === 'null' || targetId === 'undefined') return;
+
+    window._notifTargetCancion = null;
+    const openComents = window._notifOpenComentsCancion;
+    window._notifOpenComentsCancion = false;
+
+    const article = document.querySelector(`article[data-id-cancion="${targetId}"]`);
+    if (!article) return;
+
+    article.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    article.style.transition = 'box-shadow 0.4s ease, outline 0.4s ease';
+    article.style.outline = '2.5px solid #ba01ff';
+    article.style.boxShadow = '0 0 24px rgba(186,1,255,0.45)';
+    setTimeout(() => {
+      article.style.outline = '';
+      article.style.boxShadow = '';
+    }, 2800);
+
+    if (openComents) {
+      setTimeout(() => {
+        const btnComentar = article.querySelector('.ca-btn-comentar');
+        if (btnComentar) btnComentar.click();
+      }, 600);
     }
   }
 

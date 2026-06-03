@@ -143,6 +143,42 @@ router.get("/publicaciones", async (req, res) => {
   }
 });
 
+// RUTA: Obtener una publicación por ID
+router.get("/publicacion/:id(\\d+)", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(`
+      WITH rnk AS (
+        SELECT u2.id_usuario,
+               RANK() OVER (ORDER BY COUNT(s.id_seguimiento) DESC, u2.fecha_reg DESC) AS posicion
+        FROM usuario u2
+        LEFT JOIN seguimiento s ON u2.id_usuario = s.id_usuario_seguido
+        WHERE u2.estado = 'activo'
+        GROUP BY u2.id_usuario, u2.fecha_reg
+      )
+      SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto,
+            u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+            CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
+            p.publicacion, p.fecha_pub,
+            c.id_cancion, c.nombre AS cancion, c.artista, c.album,
+            c.url_preview, c.imagen_url AS imagen_cancion,
+            (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,
+            (SELECT COUNT(*) FROM comentario WHERE id_publicacion = p.id_publicacion) as comentarios
+      FROM publicacion p
+      JOIN usuario u ON p.id_usuario = u.id_usuario
+      LEFT JOIN cancion c ON p.id_cancion = c.id_cancion
+      LEFT JOIN rnk ON u.id_usuario = rnk.id_usuario
+      WHERE p.id_publicacion = $1
+    `, [id]);
+
+    if (result.rows.length === 0) return responses.notFound(res, "Publicación");
+    return res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error en GET /api/publicacion/:id:", err);
+    return responses.error(res, "Error obteniendo publicación");
+  }
+});
+
 // RUTA: Buscar publicaciones
 router.get("/publicaciones/buscar", async (req, res) => {
   try {

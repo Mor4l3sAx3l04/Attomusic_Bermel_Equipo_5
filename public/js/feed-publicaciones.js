@@ -4,7 +4,7 @@
   'use strict';
 
   let usuarioActual = window.getUsuarioActual();
-  const correoActual = usuarioActual?.correo || null;
+  let correoActual = usuarioActual?.correo || null;
 
   // ========== CONFIGURACIÓN DE PAGINACIÓN ==========
   const PUBLICACIONES_POR_PAGINA = 10;
@@ -223,6 +223,8 @@
         feed.innerHTML = "";
         await cargarSiguientePagina();
         setupInfiniteScroll();
+        // Navegar a post de notificación si hay uno pendiente
+        if (window._notifTargetPost) setTimeout(manejarNotifTargetPost, 300);
       }
 
     } catch (err) {
@@ -306,6 +308,66 @@
       }
     } finally {
       cargando = false;
+    }
+  }
+
+  // ========== NAVEGACIÓN DESDE NOTIFICACIONES ==========
+
+  async function manejarNotifTargetPost() {
+    const targetId = window._notifTargetPost;
+    if (!targetId) return;
+
+    window._notifTargetPost = null;
+    const openComents = window._notifOpenComents;
+    window._notifOpenComents = false;
+
+    // Intentar encontrar el post ya renderizado
+    const existente = document.querySelector(`article[data-id-publicacion="${targetId}"]`);
+    if (existente) {
+      destacarPost(existente, openComents);
+      return;
+    }
+
+    // No está en el feed cargado → buscar directamente en la API
+    try {
+      const res = await fetch(`/api/publicacion/${targetId}`);
+      if (!res.ok) return;
+      const pub = await res.json();
+
+      const feed = document.getElementById('feedPublicaciones');
+      if (!feed) return;
+
+      const article = crearPublicacion(pub, false);
+
+      // Banner indicador
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:linear-gradient(90deg,#ba01ff22,#00dffc22);border-left:3px solid #ba01ff;border-radius:8px;padding:8px 14px;margin-bottom:8px;font-size:0.85rem;color:#ba01ff;font-weight:600;';
+      banner.innerHTML = '<i class="bi bi-bell-fill me-2"></i>Publicación de la notificación';
+
+      feed.insertBefore(article, feed.firstChild);
+      feed.insertBefore(banner, article);
+
+      setTimeout(() => destacarPost(article, openComents), 350);
+    } catch { /* silencioso */ }
+  }
+
+  function destacarPost(article, openComents) {
+    article.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Animación de highlight
+    article.style.transition = 'box-shadow 0.4s ease, outline 0.4s ease';
+    article.style.outline = '2.5px solid #ba01ff';
+    article.style.boxShadow = '0 0 24px rgba(186,1,255,0.45)';
+    setTimeout(() => {
+      article.style.outline = '';
+      article.style.boxShadow = '';
+    }, 2800);
+
+    if (openComents) {
+      setTimeout(() => {
+        const btnComment = article.querySelector('.pub-btn-comment');
+        if (btnComment) btnComment.click();
+      }, 600);
     }
   }
 
@@ -508,23 +570,26 @@
 
   // ========== INICIALIZACIÓN ==========
 
-  // Auto-ejecutar si existe el feed
+  async function iniciarFeedPublicaciones() {
+    if (!document.getElementById("feedPublicaciones")) return;
+    // Actualizar referencias al usuario en cada re-init (por si se logueó después)
+    usuarioActual = window.getUsuarioActual ? window.getUsuarioActual() : null;
+    correoActual  = usuarioActual?.correo || null;
+    // Resetear rate limiter para que la carga inicial no quede bloqueada
+    ultimaPeticion = 0;
+    await cargarLikesCache();
+    await cargarUsuariosSeguidosCache();
+    window.cargarPublicaciones();
+  }
+
+  // init_ expuesto para que loadPage lo llame cuando el script ya está en caché
+  window['init_feed-publicaciones'] = iniciarFeedPublicaciones;
+
+  // Auto-ejecutar en la primera carga del script
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", async () => {
-      if (document.getElementById("feedPublicaciones")) {
-        await cargarLikesCache();
-        await cargarUsuariosSeguidosCache();
-        window.cargarPublicaciones();
-      }
-    });
+    document.addEventListener("DOMContentLoaded", iniciarFeedPublicaciones);
   } else {
-    if (document.getElementById("feedPublicaciones")) {
-      (async () => {
-        await cargarLikesCache();
-        await cargarUsuariosSeguidosCache();
-        window.cargarPublicaciones();
-      })();
-    }
+    iniciarFeedPublicaciones();
   }
 
 })();

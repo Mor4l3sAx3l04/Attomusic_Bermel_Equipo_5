@@ -70,28 +70,38 @@
   // 🔔 NOTIFICACIONES NATIVAS DEL NAVEGADOR
   // ════════════════════════════════════════════════════
 
-  // Pedir permiso al usuario
+  // Pedir permiso al usuario (solo si nunca se ha decidido)
   async function pedirPermiso() {
-    if (!('Notification' in window)) {
-      console.warn('Este navegador no soporta notificaciones.');
-      return false;
-    }
-
-    if (Notification.permission === 'granted') return true;
+    if (!('Notification' in window)) return false;
 
     if (Notification.permission === 'denied') {
-      console.warn('El usuario bloqueó las notificaciones.');
+      localStorage.setItem('attomusic_notif_asked', 'true');
       return false;
     }
 
-    // 'default' → mostrar el diálogo del navegador
+    if (Notification.permission === 'granted') {
+      return localStorage.getItem('attomusic_notif_disabled') !== 'true';
+    }
+
+    // 'default' → solo preguntar si nunca se ha preguntado antes
+    if (localStorage.getItem('attomusic_notif_asked') === 'true') return false;
+
+    localStorage.setItem('attomusic_notif_asked', 'true');
     const permiso = await Notification.requestPermission();
+    if (permiso === 'granted') localStorage.removeItem('attomusic_notif_disabled');
     return permiso === 'granted';
+  }
+
+  // Verificar si las notificaciones nativas están activas
+  function notifActivas() {
+    if (!('Notification' in window)) return false;
+    if (Notification.permission !== 'granted') return false;
+    return localStorage.getItem('attomusic_notif_disabled') !== 'true';
   }
 
   // Mostrar una notificación nativa del sistema operativo
   function mostrarNotifNativa(notif) {
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (!notifActivas()) return;
 
     const config = TIPOS[notif.tipo] || { emoji: '🎵', texto: 'nueva notificación' };
 
@@ -271,13 +281,22 @@
     await marcarLeida(n.id_notificacion);
     cerrarPanel();
 
-    if ((n.tipo === 'like_cancion' || n.tipo === 'comentario_cancion') && n.actor_id && window.loadPage) {
-      // Redirige al perfil de quien reaccionó/comentó la canción
-      window._perfilUsuarioId = n.actor_id;
-      window.loadPage('perfil-usuario.html?id=' + n.actor_id);
-    } else if ((n.tipo === 'like' || n.tipo === 'comentario') && window.loadPage) {
-      window.loadPage('noticias.html');
+    if (n.tipo === 'like' && window.loadPage) {
       window._notifTargetPost = n.id_referencia;
+      window._notifOpenComents = false;
+      window.loadPage('bienvenido.html');
+    } else if (n.tipo === 'comentario' && window.loadPage) {
+      window._notifTargetPost = n.id_referencia;
+      window._notifOpenComents = true;
+      window.loadPage('bienvenido.html');
+    } else if (n.tipo === 'like_cancion' && window.loadPage) {
+      window._notifTargetCancion = n.id_referencia;
+      window._notifOpenComentsCancion = false;
+      window.loadPage('canciones-artistas.html');
+    } else if (n.tipo === 'comentario_cancion' && window.loadPage) {
+      window._notifTargetCancion = n.id_referencia;
+      window._notifOpenComentsCancion = true;
+      window.loadPage('canciones-artistas.html');
     } else if (n.tipo === 'seguimiento' && n.actor_id && window.loadPage) {
       window._perfilUsuarioId = n.actor_id;
       window.loadPage('perfil-usuario.html?id=' + n.actor_id);
@@ -379,8 +398,10 @@
     if (pollingInterval) clearInterval(pollingInterval);
     ultimaNotifVista = null; // resetear para la nueva sesión
 
-    // Pedir permiso para notificaciones nativas al iniciar
-    pedirPermiso();
+    // Pedir permiso solo si aún no se ha decidido
+    if (localStorage.getItem('attomusic_notif_asked') !== 'true') {
+      pedirPermiso();
+    }
 
     cargarNoLeidas(); // primera carga inmediata
     pollingInterval = setInterval(cargarNoLeidas, 15000); // cada 15 segundos
@@ -423,12 +444,21 @@
 
   // ── API pública ──
   window.Notificaciones = {
-    iniciar:     iniciarPolling,
-    detener:     detenerPolling,
-    recargar:    cargarNoLeidas,
+    iniciar:      iniciarPolling,
+    detener:      detenerPolling,
+    recargar:     cargarNoLeidas,
     abrirPanel,
     cerrarPanel,
-    pedirPermiso // expuesta por si quieres llamarla manualmente
+    pedirPermiso,
+    notifActivas,
+    habilitar: async () => {
+      localStorage.removeItem('attomusic_notif_disabled');
+      localStorage.removeItem('attomusic_notif_asked');
+      return await pedirPermiso();
+    },
+    deshabilitar: () => {
+      localStorage.setItem('attomusic_notif_disabled', 'true');
+    }
   };
 
   if (document.readyState === 'loading') {
