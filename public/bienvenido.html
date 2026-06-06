@@ -7,6 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/welcome.css">
+  <link rel="stylesheet" href="css/attoelite.css">
   <link rel="shortcut icon" href="images/icono.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,10 +19,8 @@
 
   <script src="https://cdn.lordicon.com/lordicon.js"></script>
 
-  <div style="text-align: center;">
-
+  <div>
     <div class="news-header mb-5 fade-up-section text-center">
-
       <h1 id="titulo-noticias" style="font-size: 70px;"></h1>
       <p class="text-muted">Observa los gustos de la gente.</p>
     </div>
@@ -35,15 +34,8 @@
           style="width:40px;height:40px;cursor:pointer;flex-shrink:0;"
           id="lordIconSearch">
         </lord-icon>
-
         <div class="input-group">
-          <input
-            type="text"
-            class="form-control"
-            id="inputBuscador"
-            placeholder="Buscar publicaciones..."
-            autocomplete="off"
-          >
+          <input type="text" class="form-control" id="inputBuscador" placeholder="Buscar publicaciones..." autocomplete="off">
           <button class="btn btn-outline-secondary" type="button" id="btnLimpiar" style="display: none;">
             <i class="bi bi-x-lg buscar"></i>
           </button>
@@ -51,11 +43,21 @@
       </div>
     </div>
 
-    <section id="feedPublicaciones" class="feed-publicaciones"></section>
-
+    <!-- Layout con sidebar -->
+    <div class="feed-con-sidebar">
+      <div class="feed-columna-principal">
+        <section id="feedPublicaciones" class="feed-publicaciones"></section>
+      </div>
+      <div class="feed-columna-sidebar" id="sidebar-artistas-wrap" style="display:none;">
+        <div class="sidebar-anuncios" id="sidebar-anuncios-artistas">
+          <!-- Se rellena via JS -->
+        </div>
+      </div>
+    </div>
   </div>
 
 <script src="./js/feed-publicaciones.js"></script>
 <script src="js/pages/bienvenido.js"></script>
+<script src="js/sidebar-anuncios.js"></script>
 </body>
 </html>

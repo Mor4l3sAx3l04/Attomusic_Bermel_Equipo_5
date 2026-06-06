@@ -110,7 +110,7 @@ router.get("/publicaciones", async (req, res) => {
         GROUP BY u2.id_usuario, u2.fecha_reg
       )
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto,
-            u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+            u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista, u.tipo_plan,
             CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
             p.publicacion, p.fecha_pub,
             c.id_cancion, c.nombre AS cancion, c.artista, c.album,
@@ -157,7 +157,7 @@ router.get("/publicacion/:id(\\d+)", async (req, res) => {
         GROUP BY u2.id_usuario, u2.fecha_reg
       )
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto,
-            u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+            u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista, u.tipo_plan,
             CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
             p.publicacion, p.fecha_pub,
             c.id_cancion, c.nombre AS cancion, c.artista, c.album,
@@ -201,7 +201,7 @@ router.get("/publicaciones/buscar", async (req, res) => {
         GROUP BY u2.id_usuario, u2.fecha_reg
       )
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto,
-            u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+            u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista, u.tipo_plan,
             CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
             p.publicacion, p.fecha_pub,
             c.id_cancion, c.nombre AS cancion, c.artista, c.album,
@@ -239,7 +239,7 @@ router.get("/publicaciones/destacadas", async (req, res) => {
         GROUP BY u2.id_usuario, u2.fecha_reg
       )
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
-             u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+             u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista, u.tipo_plan,
              CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
              c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
              COUNT(DISTINCT reac.id_reaccion) as likes,
@@ -251,7 +251,7 @@ router.get("/publicaciones/destacadas", async (req, res) => {
       LEFT JOIN comentario co ON p.id_publicacion = co.id_publicacion
       LEFT JOIN rnk ON u.id_usuario = rnk.id_usuario
       GROUP BY p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
-               u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista, rnk.posicion,
+               u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista, u.tipo_plan, rnk.posicion,
                c.id_cancion, c.nombre, c.artista, c.album, c.url_preview, c.imagen_url
       HAVING COUNT(DISTINCT reac.id_reaccion) > 0
       ORDER BY likes DESC, p.fecha_pub DESC
@@ -280,7 +280,7 @@ router.get("/publicaciones/siguiendo", getUserFromEmail, async (req, res) => {
         GROUP BY u2.id_usuario, u2.fecha_reg
       )
       SELECT p.id_publicacion, u.id_usuario, u.usuario, u.correo, u.foto, p.publicacion, p.fecha_pub,
-             u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista,
+             u.fondo_publicaciones, u.es_vip, u.rol, u.insignia_artista, u.tipo_plan,
              CASE WHEN rnk.posicion <= 3 THEN rnk.posicion ELSE NULL END AS posicion_ranking,
              c.id_cancion, c.nombre AS cancion, c.artista, c.album, c.url_preview, c.imagen_url AS imagen_cancion,
              (SELECT COUNT(*) FROM reaccion WHERE id_publicacion = p.id_publicacion AND tipo = 'like') as likes,

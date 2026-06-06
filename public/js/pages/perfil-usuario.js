@@ -65,6 +65,11 @@
         document.getElementById('perfilFecha').textContent =
           'Se unió en ' + fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 
+        const esElite = perfilData.tipo_plan === 'attoelite' || perfilData.rol === 'admin';
+        if (esElite) {
+          verificarPaginaArtista(idUsuario);
+        }
+
         const btnContainer = document.getElementById('btnSeguirContainer');
         if (correoActual && correoActual !== perfilData.correo) {
           btnContainer.innerHTML = `<button id="btnSeguirPerfil" class="btn-seguir-perfil">Seguir</button>`;
@@ -75,6 +80,24 @@
         }
       } catch (err) {
         console.error('Error cargando el perfil:', err);
+      }
+    }
+
+    async function verificarPaginaArtista(idUsr) {
+      try {
+        const res = await fetch(`/api/pagina-artista/${idUsr}`);
+        if (!res.ok) return;
+        const paginaData = await res.json();
+        if (!paginaData || !paginaData.id_pagina) return;
+
+        const btnContainer = document.getElementById('btnVerPaginaArtista');
+        if (!btnContainer) return;
+        btnContainer.style.display = 'block';
+        btnContainer.onclick = () => {
+          if (window.loadPage) window.loadPage(`pagina-artista.html?id=${idUsr}`);
+        };
+      } catch (err) {
+        console.error('Error verificando página artista:', err);
       }
     }
 

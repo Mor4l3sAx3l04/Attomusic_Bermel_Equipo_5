@@ -123,3 +123,33 @@
 .buscar {
     color: black;
 }
+
+/* ── Soporte modo oscuro ── */
+[data-bs-theme="dark"] .buscar {
+    color: white;
+}
+[data-bs-theme="dark"] .modal-content {
+    background: #1e2128;
+    color: #f4f0ff;
+}
+[data-bs-theme="dark"] .modal-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+[data-bs-theme="dark"] .modal-header h5 {
+    color: #f4f0ff;
+}
+[data-bs-theme="dark"] .btn-close-modal {
+    color: #aaa;
+}
+[data-bs-theme="dark"] .btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+[data-bs-theme="dark"] .modal-footer {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+[data-bs-theme="dark"] .modal-body {
+    color: #f4f0ff;
+}
+[data-bs-theme="dark"] .buscador-container .form-control {
+    border-color: rgba(185, 131, 255, 0.35);
+}

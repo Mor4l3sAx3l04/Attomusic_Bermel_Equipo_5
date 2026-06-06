@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>Resultados de búsqueda - AttoMusic</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/attoelite.css">
 </head>
 <body>
   <button id="backToTopBtn" title="Volver arriba" style="display:none;position:fixed;bottom:32px;right:32px;z-index:9999;background:linear-gradient(160deg,#ba01ff,#00dffc);color:white;border:none;border-radius:50%;width:52px;height:52px;box-shadow:0 2px 12px #0002;font-size:2rem;cursor:pointer;transition:opacity 0.3s;">
@@ -16,6 +17,14 @@
       <h1 id="titulo-buscador" style="font-size: 70px;"></h1>
       <p class="text-muted">Aquí tienes el resultado de tu búsqueda.</p>
     </div>
+    <!-- Anuncios de artistas AttoElite -->
+    <div id="anuncios-buscador-wrap" style="margin-bottom:28px;display:none;">
+      <div class="sidebar-anuncios-titulo" style="justify-content:center;">
+        <i class="bi bi-gem"></i> Artistas Destacados
+      </div>
+      <div id="anuncios-buscador-lista" style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;"></div>
+    </div>
+
     <h1 class="search-section-title text-center" id="songs" style="font-size: 40px;">Canciones</h1>
       <div id="results-tracks" class="search-results"></div>
     <h1 class="search-section-title text-center" id="artists" style="font-size: 40px;">Artistas</h1>
@@ -26,5 +35,11 @@
 
   <script src="js/detalleCancion.js"></script>
   <script src="js/pages/buscador.js"></script>
+  <script src="js/sidebar-anuncios.js"></script>
+  <script>
+    if (window.cargarAnunciosArtistas) {
+      window.cargarAnunciosArtistas('anuncios-buscador-lista', 'anuncios-buscador-wrap', 'horizontal');
+    }
+  </script>
 </body>
 </html>

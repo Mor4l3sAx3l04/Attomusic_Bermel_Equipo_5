@@ -298,7 +298,7 @@
         e.preventDefault();
         e.stopImmediatePropagation();
         if (typeof showToast === 'function') showToast(error, 'error');
-        else alert(error);
+        else if (window.mostrarToast) window.mostrarToast(error, 'error');
       }
     }, true);
   }
@@ -355,7 +355,7 @@
         e.preventDefault();
         e.stopImmediatePropagation();
         if (typeof showToast === 'function') showToast(error, 'error');
-        else alert(error);
+        else if (window.mostrarToast) window.mostrarToast(error, 'error');
       }
     }, true);
   }

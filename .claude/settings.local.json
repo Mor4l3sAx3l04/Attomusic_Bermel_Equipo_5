@@ -51,7 +51,21 @@
       "Bash(node --check public/js/notificaciones.js)",
       "Bash(node --check public/js/feed-publicaciones.js)",
       "Bash(node --check public/js/canciones-artistas.js)",
-      "Bash(node --check public/js/pages/para-ti.js)"
+      "Bash(node --check public/js/pages/para-ti.js)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" | Where-Object { $_.Name -ne \"node_modules\" } | Select-Object Name, PSIsContainer)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\\\\public\" | Where-Object { $_.PSIsContainer } | Select-Object Name)",
+      "PowerShell(Head-Object *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\axelm\\\\OneDrive\\\\Escritorio\\\\Attomusic_Bermel_Equipo_5\" -Force | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"DIR\"}else{\"FILE\"}}} | Format-Table -AutoSize)",
+      "Bash(node --check app.js)",
+      "Bash(node --check routes/vip.js)",
+      "Bash(node --check routes/pagina_artista.js)",
+      "Bash(node --check routes/album_artista.js)",
+      "Bash(node --check routes/evento_artista.js)",
+      "Bash(powershell -Command \"\\(Get-Content 'public\\\\perfil.html'\\).Count\")",
+      "Bash(node --check routes/cancion_artista.js)",
+      "Bash(node --check routes/users.js)",
+      "Bash(powershell -Command \"Select-String -Path 'public\\\\perfil.html' -Pattern 'main\\\\.js|utils\\\\.js|PublicacionCard' | Select-Object LineNumber, Line\")",
+      "Bash(powershell -Command \"Select-String -Path 'public\\\\*.html' -Pattern 'src=\\\\\"js/main\\\\.js\\\\\"' | Select-Object Filename, LineNumber, Line\")"
     ]
   }
 }

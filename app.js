@@ -54,6 +54,10 @@ const cancionesRoutes = require("./routes/canciones");
 const notificacionesRouter = require("./routes/notificaciones");
 const vipRoutes = require("./routes/vip");
 const cancionArtistaRoutes = require("./routes/cancion_artista");
+const paginaArtistaRoutes = require("./routes/pagina_artista");
+const albumArtistaRoutes = require("./routes/album_artista");
+const eventoArtistaRoutes = require("./routes/evento_artista");
+const mercanciaRoutes = require("./routes/mercancia");
 
 // USAR RUTAS
 app.use("/", authRoutes);
@@ -82,6 +86,18 @@ app.use("/api/vip", vipRoutes);
 
 // Canciones de artistas (VIP)
 app.use("/api/canciones-artista", cancionArtistaRoutes);
+
+// Páginas de artista (AttoElite)
+app.use("/api/pagina-artista", paginaArtistaRoutes);
+
+// Álbumes de artista (AttoElite)
+app.use("/api/albums", albumArtistaRoutes);
+
+// Eventos de artista (AttoElite)
+app.use("/api/eventos", eventoArtistaRoutes);
+
+// Mercancía de artistas
+app.use("/api/mercancia", mercanciaRoutes);
 
 // Panel de Administración
 app.use("/api/admin", adminRoutes);

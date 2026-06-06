@@ -23,7 +23,7 @@ router.get("/perfil/:correo", async (req, res) => {
          GROUP BY u2.id_usuario, u2.fecha_reg
        )
        SELECT u.id_usuario, u.usuario, u.correo, u.fecha_reg, u.foto, u.rol, u.estado,
-              u.fondo_perfil, u.fondo_publicaciones, u.es_vip, u.insignia_artista,
+              u.fondo_perfil, u.fondo_publicaciones, u.es_vip, u.insignia_artista, u.tipo_plan,
               CASE WHEN r.posicion <= 3 THEN r.posicion ELSE NULL END AS posicion_ranking
        FROM usuario u
        LEFT JOIN ranking r ON u.id_usuario = r.id_usuario
@@ -57,7 +57,7 @@ router.get("/perfil-publico/:id_usuario", async (req, res) => {
          GROUP BY u2.id_usuario, u2.fecha_reg
        )
        SELECT u.id_usuario, u.usuario, u.correo, u.fecha_reg, u.foto, u.rol, u.estado,
-              u.fondo_perfil, u.es_vip, u.insignia_artista,
+              u.fondo_perfil, u.es_vip, u.insignia_artista, u.tipo_plan,
               CASE WHEN r.posicion <= 3 THEN r.posicion ELSE NULL END AS posicion_ranking
        FROM usuario u
        LEFT JOIN ranking r ON u.id_usuario = r.id_usuario

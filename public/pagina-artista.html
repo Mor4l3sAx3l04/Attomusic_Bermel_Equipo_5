@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página de Artista — AttoMusic</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/attoelite.css">
+  <link rel="stylesheet" href="css/pages/pagina-artista.css">
+  <link rel="stylesheet" href="css/pages/mercancia.css">
+  <link rel="shortcut icon" href="images/icono.png" type="image/x-icon">
+</head>
+<body>
+
+<div id="artista-page-root">
+  <div class="artista-loading">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-3">Cargando página de artista...</p>
+  </div>
+</div>
+
+<!-- ===== MODAL: Crear / Editar Página ===== -->
+<div class="modal fade modal-elite" id="modalEditarPagina" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:500px;">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="tituloModalPagina">Crear mi página de artista</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="label-elite">Nombre artístico *</label>
+          <input type="text" class="input-elite" id="edit-nombre-artistico" placeholder="Tu nombre de artista" maxlength="100">
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Descripción / Bio</label>
+          <textarea class="input-elite" id="edit-descripcion" rows="3" placeholder="Cuéntale a todos sobre ti y tu música..."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Géneros musicales</label>
+          <div class="generos-picker" id="generos-picker">
+            <!-- Se genera por JS -->
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Foto de portada</label>
+          <input type="file" id="input-portada-pagina" accept="image/*" style="display:none">
+          <div id="portada-preview-wrap" style="position:relative;margin-bottom:8px;">
+            <img id="portada-preview-img" src="" alt="" style="display:none;width:100%;height:140px;object-fit:cover;border-radius:12px;border:2px solid rgba(255,165,0,0.3);">
+          </div>
+          <button type="button" onclick="document.getElementById('input-portada-pagina').click()"
+                  class="btn-elite-action-outline w-100" style="justify-content:center;">
+            <i class="bi bi-image"></i> Elegir imagen de portada
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" data-bs-dismiss="modal" class="btn-elite-action-outline">Cancelar</button>
+        <button type="button" id="btn-guardar-pagina" class="btn-elite-action">
+          <i class="bi bi-check-lg"></i> Guardar página
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Crear / Editar Álbum ===== -->
+<div class="modal fade modal-elite" id="modalAlbum" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:500px;">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="tituloModalAlbum">Nuevo álbum</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="album-editando-id">
+        <div class="mb-3">
+          <label class="label-elite">Nombre del álbum *</label>
+          <input type="text" class="input-elite" id="album-nombre" placeholder="Nombre del álbum" maxlength="150">
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Descripción</label>
+          <textarea class="input-elite" id="album-descripcion" rows="2" placeholder="Descripción del álbum..."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Portada del álbum</label>
+          <input type="file" id="input-portada-album" accept="image/*" style="display:none">
+          <div style="margin-bottom:8px;">
+            <img id="album-portada-preview" src="" style="display:none;width:120px;height:120px;object-fit:cover;border-radius:10px;border:2px solid rgba(255,165,0,0.3);">
+          </div>
+          <button type="button" onclick="document.getElementById('input-portada-album').click()"
+                  class="btn-elite-action-outline" style="justify-content:center;width:auto;">
+            <i class="bi bi-image"></i> Elegir imagen
+          </button>
+        </div>
+        <div class="mb-2">
+          <label class="label-elite">Canciones en este álbum</label>
+          <div id="album-canciones-lista" style="max-height:200px;overflow-y:auto;"></div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" data-bs-dismiss="modal" class="btn-elite-action-outline">Cancelar</button>
+        <button type="button" id="btn-guardar-album" class="btn-elite-action">
+          <i class="bi bi-check-lg"></i> Guardar álbum
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Crear / Editar Evento ===== -->
+<div class="modal fade modal-elite" id="modalEvento" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:540px;">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="tituloModalEvento">Nuevo evento</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="evento-editando-id">
+        <div class="mb-3">
+          <label class="label-elite">Título del evento *</label>
+          <input type="text" class="input-elite" id="evento-titulo" placeholder="Nombre del evento" maxlength="200">
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Descripción</label>
+          <textarea class="input-elite" id="evento-descripcion" rows="2" placeholder="Describe el evento..."></textarea>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <div style="flex:1;">
+            <label class="label-elite">Fecha y hora inicio *</label>
+            <input type="datetime-local" class="input-elite" id="evento-fecha">
+          </div>
+          <div style="flex:1;">
+            <label class="label-elite">Hora de fin (opcional)</label>
+            <input type="datetime-local" class="input-elite" id="evento-hora-fin">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="label-elite">Dirección *</label>
+          <input type="text" class="input-elite" id="evento-direccion" placeholder="Dirección del evento">
+        </div>
+        <div class="mb-1">
+          <label class="label-elite">Seleccionar ubicación en el mapa</label>
+          <small style="color:rgba(255,255,255,0.45);display:block;margin-bottom:6px;">Haz clic en el mapa para marcar la ubicación exacta</small>
+          <div id="mapa-evento-picker"></div>
+          <div id="coords-info" style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:4px;"></div>
+        </div>
+        <input type="hidden" id="evento-lat">
+        <input type="hidden" id="evento-lng">
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" data-bs-dismiss="modal" class="btn-elite-action-outline">Cancelar</button>
+        <button type="button" id="btn-guardar-evento" class="btn-elite-action">
+          <i class="bi bi-check-lg"></i> Guardar evento
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Crear / Editar Mercancía ===== -->
+<div class="modal fade modal-elite" id="modalMercancia" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:520px;">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="tituloModalMercancia">Nuevo producto</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="merch-editando-id">
+        <div class="mb-3">
+          <label class="label-elite">Nombre del producto *</label>
+          <input type="text" class="input-elite" id="merch-nombre" placeholder="Ej: Camiseta Tour 2025" maxlength="200">
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Descripción</label>
+          <textarea class="input-elite" id="merch-descripcion" rows="2" placeholder="Describe el producto..."></textarea>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <div style="flex:1;">
+            <label class="label-elite">Precio (MXN) *</label>
+            <input type="number" class="input-elite" id="merch-precio" placeholder="0.00" min="0.01" step="0.01">
+          </div>
+          <div style="flex:1;">
+            <label class="label-elite">Stock disponible *</label>
+            <input type="number" class="input-elite" id="merch-stock" placeholder="0" min="0" step="1" value="0">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="label-elite">Imagen del producto</label>
+          <input type="file" id="input-merch-imagen" accept="image/*" style="display:none">
+          <!-- Preview con zoom/pan -->
+          <div class="merch-img-preview-wrap" id="merch-img-preview-wrap">
+            <span class="placeholder-icon" id="merch-img-placeholder">🛍️</span>
+            <img id="merch-img-preview" class="merch-img-preview" src="" alt="">
+          </div>
+          <!-- Control de zoom -->
+          <div class="merch-zoom-row" id="merch-zoom-row" style="display:none">
+            <label>Zoom</label>
+            <input type="range" id="merch-zoom-slider" min="0.5" max="3" step="0.05" value="1">
+            <span id="merch-zoom-val">1×</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button type="button" onclick="document.getElementById('input-merch-imagen').click()"
+                    class="btn-elite-action-outline" style="justify-content:center;width:auto;">
+              <i class="bi bi-image"></i> Elegir imagen
+            </button>
+            <button type="button" id="btn-merch-quitar-img"
+                    class="btn-elite-action-outline" style="justify-content:center;width:auto;display:none;color:#ff4d6d;border-color:#ff4d6d;">
+              <i class="bi bi-x-lg"></i> Quitar
+            </button>
+          </div>
+          <p style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:4px;">
+            Arrastra la imagen para reposicionarla · Usa el slider para hacer zoom
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" data-bs-dismiss="modal" class="btn-elite-action-outline">Cancelar</button>
+        <button type="button" id="btn-guardar-merch" class="btn-elite-action">
+          <i class="bi bi-check-lg"></i> Guardar producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Ver canciones de un álbum ===== -->
+<div class="modal fade modal-elite" id="modalVerAlbum" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:480px;">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="tituloVerAlbum">Álbum</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="ver-album-canciones"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/atto-confirm.js"></script>
+<script src="js/pages/pagina-artista.js"></script>
+</body>
+</html>

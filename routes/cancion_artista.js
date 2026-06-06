@@ -106,6 +106,23 @@ router.post('/subir', requireVIP, async (req, res) => {
       await pool.query('UPDATE usuario SET insignia_artista = true WHERE id_usuario = $1', [id_usuario]);
     }
 
+    // Si el usuario es AttoElite, notificar a sus seguidores
+    const planR = await pool.query('SELECT tipo_plan FROM usuario WHERE id_usuario = $1', [id_usuario]);
+    if (planR.rows[0]?.tipo_plan === 'attoelite') {
+      const seguidores = await pool.query(
+        'SELECT id_usuario_seguidor FROM seguimiento WHERE id_usuario_seguido = $1', [id_usuario]
+      );
+      for (const seg of seguidores.rows) {
+        await crearNotificacion(
+          seg.id_usuario_seguidor,
+          id_usuario,
+          'nueva_cancion_elite',
+          result.rows[0].id_cancion,
+          `publicó una nueva canción: "${nombre.trim()}"`
+        );
+      }
+    }
+
     return res.json({
       message: 'Canción publicada exitosamente',
       id_cancion: result.rows[0].id_cancion,

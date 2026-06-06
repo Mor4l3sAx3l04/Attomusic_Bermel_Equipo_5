@@ -52,6 +52,13 @@
           Estadísticas
         </button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="mercancia-tab" data-bs-toggle="tab" data-bs-target="#mercancia-admin"
+          type="button" onclick="cargarMercanciaAdmin()">
+          <i class="bi bi-bag-fill"></i>
+          Mercancía
+        </button>
+      </li>
     </ul>
 
     <div class="tab-content admin-content" id="adminTabsContent">
@@ -211,6 +218,92 @@
 
       </div>
 
+      <!-- TAB: MERCANCÍA ADMIN -->
+      <div class="tab-pane fade" id="mercancia-admin" role="tabpanel">
+        <div class="admin-section-header">
+          <h2>Mercancía de Artistas</h2>
+          <button class="btn btn-outline-warning btn-sm" onclick="abrirModalMercanciaAdmin(null)">
+            <i class="bi bi-plus-lg"></i> Nuevo producto global
+          </button>
+        </div>
+        <p class="text-muted small mb-3">
+          Los productos <strong>globales</strong> (creados por admin) aparecen en la sección de mercancía de TODOS los artistas.
+        </p>
+        <div id="listaMercanciaAdmin" class="admin-list">
+          <div class="text-center p-5">
+            <div class="spinner-border text-warning" role="status"></div>
+            <p class="mt-3 text-muted">Cargando mercancía...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Modal Mercancía Admin ── -->
+  <div class="modal fade" id="modalMercanciaAdmin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:520px;">
+      <div class="modal-content bg-dark text-white border-0">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title" id="tituloModalMercanciaAdmin">Nuevo producto global</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="admin-merch-editando-id">
+          <div class="mb-3">
+            <label class="form-label small text-muted">Nombre del producto *</label>
+            <input type="text" class="form-control bg-dark text-white border-secondary" id="admin-merch-nombre" placeholder="Ej: Camiseta AttoMusic" maxlength="200">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted">Descripción</label>
+            <textarea class="form-control bg-dark text-white border-secondary" id="admin-merch-descripcion" rows="2" placeholder="Describe el producto..."></textarea>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:16px;">
+            <div style="flex:1;">
+              <label class="form-label small text-muted">Precio (MXN) *</label>
+              <input type="number" class="form-control bg-dark text-white border-secondary" id="admin-merch-precio" placeholder="0.00" min="0.01" step="0.01">
+            </div>
+            <div style="flex:1;">
+              <label class="form-label small text-muted">Stock *</label>
+              <input type="number" class="form-control bg-dark text-white border-secondary" id="admin-merch-stock" placeholder="0" min="0" value="0">
+            </div>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="admin-merch-es-global" checked>
+            <label class="form-check-label small" for="admin-merch-es-global">
+              Producto global (aparece en todos los artistas)
+            </label>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted">Imagen del producto</label>
+            <input type="file" id="input-admin-merch-img" accept="image/*" style="display:none">
+            <div id="admin-merch-img-wrap" style="width:100%;height:180px;overflow:hidden;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;cursor:grab;position:relative;margin-bottom:8px;">
+              <span id="admin-merch-img-placeholder" style="font-size:3rem;opacity:0.3;">🛍️</span>
+              <img id="admin-merch-img-preview" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:center;pointer-events:none;" alt="">
+            </div>
+            <div id="admin-merch-zoom-row" style="display:none;align-items:center;gap:10px;margin-bottom:8px;">
+              <label class="small text-muted">Zoom</label>
+              <input type="range" id="admin-merch-zoom" min="0.5" max="3" step="0.05" value="1" class="flex-1" style="flex:1;accent-color:#ffa500;">
+              <span id="admin-merch-zoom-val" class="small text-muted">1×</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('input-admin-merch-img').click()">
+                <i class="bi bi-image"></i> Elegir imagen
+              </button>
+              <button type="button" id="btn-admin-merch-quitar-img" class="btn btn-outline-danger btn-sm" style="display:none" onclick="quitarImagenAdminMerch()">
+                <i class="bi bi-x-lg"></i> Quitar
+              </button>
+            </div>
+            <p class="small text-muted mt-1">Arrastra la imagen para reposicionarla</p>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-warning" id="btn-guardar-admin-merch" onclick="guardarProductoAdmin()">
+            <i class="bi bi-check-lg"></i> Guardar producto
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -265,6 +358,7 @@
   </div>
 
   <script src="/js/utils.js"></script>
+  <script src="/js/atto-confirm.js"></script>
   <script src="/js/components/PublicacionCard.js"></script>
   <script src="/js/panel-admin.js"></script>
   <script src="js/pages/panel-admin-init.js"></script>

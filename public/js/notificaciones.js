@@ -39,6 +39,24 @@
       color: '#00dffc',
       texto: 'comentó en tu canción 💬',
       emoji: '🎵'
+    },
+    nueva_cancion_elite: {
+      icono: 'bi-music-note-beamed',
+      color: '#FF8C00',
+      texto: 'publicó una nueva canción 🎶',
+      emoji: '🎶'
+    },
+    nuevo_album: {
+      icono: 'bi-collection-play-fill',
+      color: '#FFD700',
+      texto: 'publicó un nuevo álbum 💿',
+      emoji: '💿'
+    },
+    nuevo_evento: {
+      icono: 'bi-calendar-event-fill',
+      color: '#FF8C00',
+      texto: 'publicó un nuevo evento 🎪',
+      emoji: '🎪'
     }
   };
 
@@ -300,6 +318,8 @@
     } else if (n.tipo === 'seguimiento' && n.actor_id && window.loadPage) {
       window._perfilUsuarioId = n.actor_id;
       window.loadPage('perfil-usuario.html?id=' + n.actor_id);
+    } else if (['nueva_cancion_elite', 'nuevo_album', 'nuevo_evento'].includes(n.tipo) && n.actor_id && window.loadPage) {
+      window.loadPage('pagina-artista.html?id=' + n.actor_id);
     }
 
     cargarNoLeidas();

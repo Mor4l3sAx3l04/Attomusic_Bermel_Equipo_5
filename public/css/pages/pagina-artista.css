@@ -1,0 +1,687 @@
+/* =====================================================
+   Página de Artista AttoElite — Estilos premium
+   ===================================================== */
+
+/* ── Cover ── */
+.artista-cover-wrap {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 0;
+  background: linear-gradient(135deg, #0f0f1f, #1a0a2e);
+}
+
+.artista-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.artista-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.75) 100%);
+}
+
+/* ── Info flotante sobre el cover ── */
+.artista-info-flotante {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 0 24px 24px;
+  margin-top: -80px;
+}
+
+.artista-avatar-wrap {
+  flex-shrink: 0;
+}
+
+.artista-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #FFD700;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+}
+
+.artista-avatar-placeholder {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #1a0800;
+  border: 4px solid #FFD700;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+}
+
+.artista-datos {
+  flex: 1;
+  color: white;
+  padding-bottom: 4px;
+}
+
+.artista-nombre-artistico {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin: 0 0 6px 0;
+  line-height: 1.1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.artista-usuario-real {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 8px;
+}
+
+.artista-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.artista-stats-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.artista-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.artista-stat-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #FFD700;
+}
+
+.artista-stat-label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Tarjeta principal de la página ── */
+.artista-page-card {
+  background: var(--card-bg, #fff);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+  margin-bottom: 24px;
+}
+
+/* ── Descripción / Bio ── */
+.artista-bio {
+  padding: 20px 24px 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-muted, #555);
+}
+
+/* ── Géneros ── */
+.artista-generos-wrap {
+  padding: 14px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.artista-genero-chip {
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.1));
+  color: #FF8C00;
+  border: 1px solid rgba(255,165,0,0.35);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ── Tabs ── */
+.artista-tabs {
+  border-bottom: 2px solid rgba(255,165,0,0.2);
+  padding: 0 24px;
+  display: flex;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.artista-tab-btn {
+  background: none;
+  border: none;
+  padding: 14px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.artista-tab-btn:hover {
+  color: #FF8C00;
+}
+
+.artista-tab-btn.activo {
+  color: #FF8C00;
+  border-bottom-color: #FFD700;
+}
+
+/* ── Contenido de tabs ── */
+.artista-tab-content {
+  padding: 20px 24px 24px;
+  display: none;
+}
+
+.artista-tab-content.activo {
+  display: block;
+  animation: fadeInTab 0.25s ease;
+}
+
+@keyframes fadeInTab {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Tab Canciones ── */
+.artista-cancion-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  transition: background 0.15s;
+  border-radius: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.artista-cancion-item:hover {
+  background: rgba(255,165,0,0.05);
+}
+
+.artista-cancion-num {
+  width: 24px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.artista-cancion-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.artista-cancion-cover-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1a0a2e, #0f0f1f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.artista-cancion-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.artista-cancion-nombre {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artista-cancion-genero {
+  font-size: 0.75rem;
+  color: #888;
+  margin: 0;
+}
+
+.btn-play-elite {
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a0800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-play-elite:hover { transform: scale(1.1); }
+
+/* ── Tab Álbumes ── */
+.artista-albums-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.album-card-elite {
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--card-bg, #fff);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(255,165,0,0.15);
+}
+
+.album-card-elite:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(255,165,0,0.2);
+}
+
+.album-card-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.album-card-cover-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #1a0a2e, #0f0f1f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+
+.album-card-info {
+  padding: 10px 12px 12px;
+}
+
+.album-card-nombre {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-card-canciones {
+  font-size: 0.72rem;
+  color: #888;
+  margin: 0;
+}
+
+/* ── Tab Eventos ── */
+.evento-card-elite {
+  border: 1px solid rgba(255,165,0,0.2);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.04), rgba(255,140,0,0.02));
+  transition: box-shadow 0.2s;
+}
+
+.evento-card-elite:hover {
+  box-shadow: 0 6px 20px rgba(255,165,0,0.15);
+}
+
+.evento-fecha-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  color: #1a0800;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.evento-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.evento-descripcion {
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+  margin: 0 0 10px;
+}
+
+.evento-direccion {
+  font-size: 0.82rem;
+  color: #888;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.evento-mapa-mini {
+  width: 100%;
+  height: 160px;
+  border-radius: 10px;
+  margin-top: 12px;
+  border: 1px solid rgba(255,165,0,0.2);
+}
+
+/* ── Mapa selección (al crear evento) ── */
+#mapa-evento-picker {
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  border: 2px solid rgba(255,165,0,0.3);
+  margin-top: 8px;
+  z-index: 0;
+}
+
+/* ── Panel de administración (owner buttons) ── */
+.artista-admin-bar {
+  display: flex;
+  gap: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, rgba(255,215,0,0.08), rgba(255,140,0,0.05));
+  border-top: 1px solid rgba(255,165,0,0.2);
+  flex-wrap: wrap;
+}
+
+.btn-elite-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  color: #1a0800;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-elite-action:hover { opacity: 0.88; transform: scale(1.02); }
+
+.btn-elite-action-outline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #FF8C00;
+  border: 1.5px solid #FF8C00;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-elite-action-outline:hover {
+  background: rgba(255,165,0,0.1);
+}
+
+/* ── Página no creada (empty state para owner) ── */
+.artista-crear-pagina {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.artista-crear-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #1a0800;
+  box-shadow: 0 8px 24px rgba(255,165,0,0.4);
+}
+
+.artista-crear-titulo {
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+}
+
+/* ── Modal de crear/editar álbum ── */
+.modal-elite .modal-content {
+  background: linear-gradient(135deg, #0f0f1f, #1a0a2e);
+  color: white;
+  border: 1px solid rgba(255,165,0,0.25);
+  border-radius: 20px;
+}
+
+.modal-elite .modal-header {
+  border-bottom: 1px solid rgba(255,165,0,0.2);
+}
+
+.modal-elite .modal-footer {
+  border-top: 1px solid rgba(255,165,0,0.2);
+}
+
+.input-elite {
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,165,0,0.3);
+  color: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  width: 100%;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.input-elite:focus {
+  outline: none;
+  border-color: #FFD700;
+  box-shadow: 0 0 0 3px rgba(255,215,0,0.15);
+  background: rgba(255,255,255,0.08);
+}
+
+.input-elite::placeholder { color: rgba(255,255,255,0.35); }
+
+.label-elite {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ── Generos picker ── */
+.generos-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.genero-toggle {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,165,0,0.3);
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.genero-toggle.activo {
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  color: #1a0800;
+  border-color: transparent;
+}
+
+/* ── Lista de canciones para añadir al álbum ── */
+.cancion-album-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cancion-album-item:last-child { border-bottom: none; }
+
+/* ── Loading state ── */
+.artista-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255,255,255,0.5);
+}
+
+.artista-loading .spinner-border {
+  color: #FFD700;
+  width: 2rem;
+  height: 2rem;
+}
+
+/* ── No encontrado ── */
+.artista-not-found {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+/* ══════════════════════════════════════════════════════
+   Soporte completo de tema oscuro/claro
+   ══════════════════════════════════════════════════════ */
+
+/* Loading state: texto adaptativo (antes era solo blanco) */
+.artista-loading {
+  color: var(--atto-muted, #666);
+}
+
+/* Cancion items: borde adaptativo en oscuro */
+[data-bs-theme="dark"] .artista-cancion-item {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+[data-bs-theme="dark"] .artista-cancion-num {
+  color: rgba(255, 255, 255, 0.4);
+}
+[data-bs-theme="dark"] .artista-cancion-genero {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-bs-theme="dark"] .artista-cancion-nombre {
+  color: #f4f0ff;
+}
+
+/* Album cards en oscuro */
+[data-bs-theme="dark"] .album-card-canciones {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-bs-theme="dark"] .album-card-nombre {
+  color: #f4f0ff;
+}
+
+/* Evento cards en oscuro */
+[data-bs-theme="dark"] .evento-titulo {
+  color: #f4f0ff;
+}
+[data-bs-theme="dark"] .evento-descripcion {
+  color: rgba(255, 255, 255, 0.65);
+}
+[data-bs-theme="dark"] .evento-direccion {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Empty/not-found states */
+[data-bs-theme="dark"] .artista-not-found h2 {
+  color: #f4f0ff;
+}
+[data-bs-theme="dark"] .artista-not-found p {
+  color: rgba(255, 255, 255, 0.6);
+}
+[data-bs-theme="dark"] .artista-crear-pagina > p {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Tabs: border en oscuro */
+[data-bs-theme="dark"] .artista-tabs {
+  border-bottom-color: rgba(255, 165, 0, 0.25);
+}
+
+/* Separador admin bar en oscuro */
+[data-bs-theme="dark"] .artista-admin-bar {
+  border-top-color: rgba(255, 165, 0, 0.25);
+}
+
+/* En modo claro: asegurar colores correctos */
+[data-bs-theme="light"] .artista-cancion-nombre {
+  color: #241334;
+}
+[data-bs-theme="light"] .artista-cancion-genero {
+  color: #666;
+}
+[data-bs-theme="light"] .artista-cancion-num {
+  color: #999;
+}
+[data-bs-theme="light"] .album-card-nombre {
+  color: #241334;
+}
+[data-bs-theme="light"] .album-card-canciones {
+  color: #666;
+}
+[data-bs-theme="light"] .evento-titulo {
+  color: #241334;
+}
+[data-bs-theme="light"] .evento-descripcion {
+  color: #555;
+}
+[data-bs-theme="light"] .evento-direccion {
+  color: #666;
+}
+[data-bs-theme="light"] .artista-loading {
+  color: #666;
+}
+
+/* btn-elite-action-outline en modo claro */
+[data-bs-theme="light"] .btn-elite-action-outline {
+  color: #FF8C00;
+  border-color: #FF8C00;
+}
+[data-bs-theme="light"] .btn-elite-action-outline:hover {
+  background: rgba(255, 140, 0, 0.08);
+}

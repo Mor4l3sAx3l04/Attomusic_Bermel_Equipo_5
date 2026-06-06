@@ -571,7 +571,7 @@
       } else {
         btnLogin.classList.remove('loading');
         btnLogin.textContent = 'Iniciar Sesión';
-        showToast(data.error || "Usuario o contraseña incorrectos", "error");
+        showToast("Credenciales no válidas", "error");
       }
     } catch (err) {
       console.error(err);

@@ -87,6 +87,287 @@ function init_panel_admin() {
   });
 }
 
+// ──────────────────────────────────────────────
+// MERCANCÍA ADMIN
+// ──────────────────────────────────────────────
+
+let _adminMerchImgBase64 = null;
+let _adminMerchZoom = 1.0;
+let _adminMerchOffsetX = 0;
+let _adminMerchOffsetY = 0;
+let _adminMerchDragging = false;
+let _adminMerchDragStart = null;
+let _adminMerchCargado = false;
+
+window.cargarMercanciaAdmin = async function () {
+  if (_adminMerchCargado) return; // evitar recargas por múltiples clicks en el tab
+  _adminMerchCargado = false; // permitir recargar con el botón reload
+  const lista = document.getElementById('listaMercanciaAdmin');
+  if (!lista) return;
+  lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-warning"></div></div>';
+
+  try {
+    const res = await adminFetch('/api/mercancia/todos');
+    if (!res.ok) { lista.innerHTML = '<p class="text-danger text-center p-4">Error cargando mercancía.</p>'; return; }
+    const productos = await res.json();
+
+    lista.innerHTML = '';
+
+    // Agrupar por artista; primero los admin/globales
+    const globales = productos.filter(p => p.es_admin);
+    const porArtista = {};
+    productos.filter(p => !p.es_admin).forEach(p => {
+      const key = p.nombre_artistico || p.usuario || `Usuario #${p.id_usuario}`;
+      if (!porArtista[key]) porArtista[key] = [];
+      porArtista[key].push(p);
+    });
+
+    const renderGrupo = (titulo, icono, prods) => {
+      const grupo = document.createElement('div');
+      grupo.className = 'admin-merch-artista-grupo';
+      grupo.innerHTML = `<div class="admin-merch-artista-header"><i class="${icono}"></i> ${escapeHtmlAdmin(titulo)} <span class="badge bg-secondary ms-1">${prods.length}</span></div>`;
+      const grid = document.createElement('div');
+      grid.className = 'admin-merch-grid';
+      prods.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'admin-merch-card';
+        const z = p.imagen_zoom || 1, ox = p.imagen_offset_x || 0, oy = p.imagen_offset_y || 0;
+        const imgHtml = p.imagen
+          ? `<img src="${escapeHtmlAdmin(p.imagen)}" class="admin-merch-card-img" style="transform:scale(${z}) translate(${ox}%,${oy}%);transform-origin:center;" alt="">`
+          : `<div class="admin-merch-card-img" style="background:rgba(255,165,0,0.06);display:flex;align-items:center;justify-content:center;font-size:2rem;">🛍️</div>`;
+        card.innerHTML = `
+          ${imgHtml}
+          <div class="admin-merch-card-body">
+            <p class="admin-merch-card-nombre">${escapeHtmlAdmin(p.nombre)}</p>
+            <p class="admin-merch-card-info">
+              $${parseFloat(p.precio).toFixed(2)} · Stock: ${p.stock || 0} · Vendidos: ${p.total_vendido || 0}
+              ${p.es_admin ? ' · <span style="color:#ffa500;">Global</span>' : ''}
+            </p>
+            <div class="admin-merch-card-acciones">
+              <button class="btn btn-outline-warning btn-sm" onclick="abrirModalMercanciaAdmin(${JSON.stringify(JSON.stringify(p))})">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm" onclick="eliminarProductoAdmin(${p.id_mercancia})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      grupo.appendChild(grid);
+      lista.appendChild(grupo);
+    };
+
+    if (globales.length) renderGrupo('Productos Globales (AttoMusic)', 'bi bi-gem', globales);
+    Object.entries(porArtista).forEach(([artista, prods]) => renderGrupo(artista, 'bi bi-person-fill', prods));
+
+    if (!productos.length) {
+      lista.innerHTML = '<p class="text-muted text-center p-5">No hay productos registrados aún.</p>';
+    }
+
+    _adminMerchCargado = true;
+  } catch(err) {
+    console.error('Error cargando mercancía admin:', err);
+    lista.innerHTML = '<p class="text-danger text-center p-4">Error de conexión.</p>';
+  }
+};
+
+function escapeHtmlAdmin(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+window.abrirModalMercanciaAdmin = function(prodJson) {
+  const prod = prodJson ? JSON.parse(prodJson) : null;
+
+  document.getElementById('tituloModalMercanciaAdmin').textContent = prod ? 'Editar producto' : 'Nuevo producto global';
+  document.getElementById('admin-merch-editando-id').value = prod?.id_mercancia || '';
+  document.getElementById('admin-merch-nombre').value = prod?.nombre || '';
+  document.getElementById('admin-merch-descripcion').value = prod?.descripcion || '';
+  document.getElementById('admin-merch-precio').value = prod?.precio || '';
+  document.getElementById('admin-merch-stock').value = prod?.stock ?? 0;
+  document.getElementById('admin-merch-es-global').checked = prod ? prod.es_admin : true;
+
+  _adminMerchImgBase64 = null;
+  _adminMerchZoom = prod?.imagen_zoom || 1.0;
+  _adminMerchOffsetX = prod?.imagen_offset_x || 0;
+  _adminMerchOffsetY = prod?.imagen_offset_y || 0;
+
+  const preview = document.getElementById('admin-merch-img-preview');
+  const placeholder = document.getElementById('admin-merch-img-placeholder');
+  const zoomRow = document.getElementById('admin-merch-zoom-row');
+  const quitarBtn = document.getElementById('btn-admin-merch-quitar-img');
+  const slider = document.getElementById('admin-merch-zoom');
+  const zoomVal = document.getElementById('admin-merch-zoom-val');
+
+  if (prod?.imagen) {
+    _adminMerchImgBase64 = prod.imagen;
+    preview.src = prod.imagen;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    zoomRow.style.display = 'flex';
+    quitarBtn.style.display = '';
+    aplicarTransformAdminMerch();
+  } else {
+    preview.src = ''; preview.style.display = 'none';
+    placeholder.style.display = '';
+    zoomRow.style.display = 'none';
+    quitarBtn.style.display = 'none';
+  }
+
+  slider.value = _adminMerchZoom;
+  zoomVal.textContent = `${_adminMerchZoom.toFixed(1)}×`;
+
+  // Inicializar listeners drag (solo una vez)
+  inicializarDragAdminMerch();
+
+  new bootstrap.Modal(document.getElementById('modalMercanciaAdmin')).show();
+};
+
+let _adminDragListenersOk = false;
+function inicializarDragAdminMerch() {
+  if (_adminDragListenersOk) return;
+  _adminDragListenersOk = true;
+
+  document.getElementById('input-admin-merch-img')?.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file || file.size > 5 * 1024 * 1024) { window.mostrarToast && window.mostrarToast('Imagen demasiado grande', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      _adminMerchImgBase64 = e.target.result;
+      const preview = document.getElementById('admin-merch-img-preview');
+      const placeholder = document.getElementById('admin-merch-img-placeholder');
+      preview.src = _adminMerchImgBase64; preview.style.display = 'block';
+      placeholder.style.display = 'none';
+      document.getElementById('admin-merch-zoom-row').style.display = 'flex';
+      document.getElementById('btn-admin-merch-quitar-img').style.display = '';
+      _adminMerchZoom = 1.0; _adminMerchOffsetX = 0; _adminMerchOffsetY = 0;
+      document.getElementById('admin-merch-zoom').value = 1;
+      aplicarTransformAdminMerch();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('admin-merch-zoom')?.addEventListener('input', function () {
+    _adminMerchZoom = parseFloat(this.value);
+    aplicarTransformAdminMerch();
+  });
+
+  const wrap = document.getElementById('admin-merch-img-wrap');
+  if (wrap) {
+    wrap.addEventListener('mousedown', (e) => {
+      if (!_adminMerchImgBase64) return;
+      _adminMerchDragging = true;
+      _adminMerchDragStart = { x: e.clientX, y: e.clientY, ox: _adminMerchOffsetX, oy: _adminMerchOffsetY };
+      wrap.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!_adminMerchDragging || !_adminMerchDragStart) return;
+      const dx = (e.clientX - _adminMerchDragStart.x) / (wrap.offsetWidth || 300) * 100;
+      const dy = (e.clientY - _adminMerchDragStart.y) / (wrap.offsetHeight || 200) * 100;
+      _adminMerchOffsetX = Math.max(-50, Math.min(50, _adminMerchDragStart.ox + dx / _adminMerchZoom));
+      _adminMerchOffsetY = Math.max(-50, Math.min(50, _adminMerchDragStart.oy + dy / _adminMerchZoom));
+      aplicarTransformAdminMerch();
+    });
+    window.addEventListener('mouseup', () => {
+      _adminMerchDragging = false;
+      if (wrap) wrap.style.cursor = 'grab';
+    });
+  }
+}
+
+function aplicarTransformAdminMerch() {
+  const preview = document.getElementById('admin-merch-img-preview');
+  if (preview) preview.style.transform = `scale(${_adminMerchZoom}) translate(${_adminMerchOffsetX}%,${_adminMerchOffsetY}%)`;
+  const zoomVal = document.getElementById('admin-merch-zoom-val');
+  if (zoomVal) zoomVal.textContent = `${_adminMerchZoom.toFixed(1)}×`;
+}
+
+window.quitarImagenAdminMerch = function() {
+  _adminMerchImgBase64 = null;
+  const preview = document.getElementById('admin-merch-img-preview');
+  const placeholder = document.getElementById('admin-merch-img-placeholder');
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  if (placeholder) placeholder.style.display = '';
+  const zoomRow = document.getElementById('admin-merch-zoom-row');
+  if (zoomRow) zoomRow.style.display = 'none';
+  const quitarBtn = document.getElementById('btn-admin-merch-quitar-img');
+  if (quitarBtn) quitarBtn.style.display = 'none';
+};
+
+window.guardarProductoAdmin = async function() {
+  const nombre = document.getElementById('admin-merch-nombre').value.trim();
+  const descripcion = document.getElementById('admin-merch-descripcion').value.trim();
+  const precio = document.getElementById('admin-merch-precio').value;
+  const stock = document.getElementById('admin-merch-stock').value;
+  const esGlobal = document.getElementById('admin-merch-es-global').checked;
+  const idMerch = document.getElementById('admin-merch-editando-id').value;
+
+  if (!nombre) { window.mostrarToast && window.mostrarToast('El nombre es obligatorio', 'error'); return; }
+  if (!precio || parseFloat(precio) <= 0) { window.mostrarToast && window.mostrarToast('El precio debe ser mayor a 0', 'error'); return; }
+
+  const usuario = window.getUsuarioActual();
+  if (!usuario) return;
+
+  const body = {
+    correo: usuario.correo, nombre, descripcion,
+    precio: parseFloat(precio), stock: parseInt(stock, 10) || 0,
+    es_admin: esGlobal,
+    imagen_zoom: _adminMerchZoom,
+    imagen_offset_x: _adminMerchOffsetX,
+    imagen_offset_y: _adminMerchOffsetY
+  };
+  if (_adminMerchImgBase64 !== null) body.imagen = _adminMerchImgBase64;
+
+  const btn = document.getElementById('btn-guardar-admin-merch');
+  if (btn) btn.disabled = true;
+
+  try {
+    const url = idMerch ? `/api/mercancia/${idMerch}` : '/api/mercancia';
+    const res = await adminFetch(url, {
+      method: idMerch ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      window.mostrarToast && window.mostrarToast(data.message || 'Producto guardado', 'success');
+      bootstrap.Modal.getInstance(document.getElementById('modalMercanciaAdmin'))?.hide();
+      _adminMerchCargado = false;
+      cargarMercanciaAdmin();
+    } else {
+      window.mostrarToast && window.mostrarToast(data.error || 'Error guardando', 'error');
+    }
+  } catch(err) {
+    window.mostrarToast && window.mostrarToast('Error de conexión', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+};
+
+window.eliminarProductoAdmin = async function(id) {
+  if (!await attoConfirm('Las órdenes existentes no se eliminarán.', { title: '¿Eliminar producto?', confirmText: 'Eliminar', icon: 'danger' })) return;
+  const usuario = window.getUsuarioActual();
+  if (!usuario) return;
+  try {
+    const res = await adminFetch(`/api/mercancia/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (res.ok) {
+      window.mostrarToast && window.mostrarToast('Producto eliminado', 'success');
+      _adminMerchCargado = false;
+      cargarMercanciaAdmin();
+    } else {
+      window.mostrarToast && window.mostrarToast(data.error || 'Error', 'error');
+    }
+  } catch {
+    window.mostrarToast && window.mostrarToast('Error de conexión', 'error');
+  }
+};
+
+// ──────────────────────────────────────────────
+
 // Verificar que el usuario sea admin
 async function verificarAccesoAdmin() {
   const usuario = window.getUsuarioActual();
@@ -238,7 +519,7 @@ function crearCardReporte(reporte) {
 }
 
 async function resolverReporte(idPublicacion) {
-  if (!confirm('¿Marcar este reporte como resuelto?')) return;
+  if (!await attoConfirm('El reporte se marcará como resuelto y dejará de aparecer pendiente.', { title: '¿Resolver reporte?', confirmText: 'Resolver', icon: 'info' })) return;
 
   try {
     const res = await adminFetch(`/api/admin/reporte/${idPublicacion}/resolver`, {
@@ -258,7 +539,7 @@ async function resolverReporte(idPublicacion) {
 }
 
 async function limpiarReportesResueltos() {
-  if (!confirm('¿Eliminar todos los reportes marcados como resueltos?')) return;
+  if (!await attoConfirm('Se eliminarán permanentemente todos los reportes resueltos.', { title: '¿Limpiar reportes?', confirmText: 'Limpiar', icon: 'danger' })) return;
 
   try {
     const res = await adminFetch('/api/admin/reportes/limpiar', {
@@ -475,7 +756,7 @@ async function cambiarRolUsuario(idUsuario, rolActual) {
   const nuevoRol = rolActual === 'admin' ? 'usuario' : 'admin';
   const textoRol = nuevoRol === 'admin' ? 'administrador' : 'usuario';
 
-  if (!confirm(`¿Cambiar este usuario a ${textoRol}?`)) return;
+  if (!await attoConfirm(`El usuario tendrá permisos de ${textoRol}.`, { title: `¿Cambiar rol a ${textoRol}?`, confirmText: 'Cambiar', icon: 'warning' })) return;
 
   try {
     const res = await adminFetch(`/api/admin/usuario/${idUsuario}/rol`, {
@@ -541,7 +822,7 @@ async function confirmarBaneo() {
 }
 
 async function desbanearUsuario(idUsuario) {
-  if (!confirm('¿Desbanear a este usuario?')) return;
+  if (!await attoConfirm('El usuario recuperará acceso completo a la plataforma.', { title: '¿Desbanear usuario?', confirmText: 'Desbanear', icon: 'info' })) return;
 
   try {
     const res = await adminFetch(`/api/admin/usuario/${idUsuario}/desbanear`, {

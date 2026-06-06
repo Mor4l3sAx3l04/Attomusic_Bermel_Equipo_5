@@ -134,14 +134,19 @@
 
         _renderBadges() {
             const { pub } = this;
-            const esVip = pub.es_vip || pub.rol === 'admin';
+            const esAdmin = pub.rol === 'admin';
+            const tipoPlan = esAdmin ? 'attoelite' : (pub.tipo_plan || null);
+            const esElite = tipoPlan === 'attoelite';
+            const esVip = pub.es_vip || esAdmin;
             const TITULOS = { 1: 'Rey de la Música', 2: 'Príncipe de la Música', 3: 'Caballero de la Música' };
             let html = '';
             if (pub.posicion_ranking && TITULOS[pub.posicion_ranking]) {
                 html += `<span class="titulo-real titulo-real-${pub.posicion_ranking}">${TITULOS[pub.posicion_ranking]}</span>`;
             }
-            if (esVip) {
-                html += `<span class="badge-vip-small"><i class="bi bi-crown-fill"></i> VIP</span>`;
+            if (esElite) {
+                html += `<span class="badge-elite-small"><i class="bi bi-gem"></i> AttoElite</span>`;
+            } else if (esVip) {
+                html += `<span class="badge-vip-small"><i class="bi bi-crown-fill"></i> AttoPlus</span>`;
             }
             if (pub.insignia_artista) {
                 html += `<span class="badge-artista-small"><i class="bi bi-music-note"></i> Artista</span>`;

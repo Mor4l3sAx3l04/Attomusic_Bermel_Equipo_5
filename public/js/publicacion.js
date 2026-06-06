@@ -176,7 +176,8 @@ function inicializarPublicaciones() {
       return;
     }
     if (!texto) {
-      alert("Escribe algo para publicar.");
+      if (window.mostrarToast) window.mostrarToast('Escribe algo para publicar.', 'warning');
+      else if (window.showToast) window.showToast('Escribe algo para publicar.', 'warning');
       return;
     }
 

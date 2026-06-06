@@ -151,11 +151,8 @@
 
   async function toggleSeguirPerfil(idUsuario, btnElement) {
     if (!correoActual) {
-      if (window.mostrarToast) {
-        window.mostrarToast('Debes iniciar sesión para seguir usuarios', 'error');
-      } else {
-        alert('Debes iniciar sesión para seguir usuarios');
-      }
+      if (window.mostrarToast) window.mostrarToast('Debes iniciar sesión para seguir usuarios', 'error');
+      else if (window.showToast) window.showToast('Debes iniciar sesión para seguir usuarios', 'error');
       return;
     }
 

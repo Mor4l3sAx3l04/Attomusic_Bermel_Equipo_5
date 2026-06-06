@@ -8,25 +8,35 @@
       const res = await fetch(`/api/perfil/${correo}`);
       if (!res.ok) return;
       const data = await res.json();
-      const esVip = data.es_vip || data.rol === 'admin';
+
+      const esAdmin = data.rol === 'admin';
+      const tipoPlan = esAdmin ? 'attoelite' : (data.tipo_plan || null);
+      const esElite = tipoPlan === 'attoelite';
+      const esVip = data.es_vip || esAdmin;
       const esArtista = data.insignia_artista;
 
-      window._perfilVipData = { esVip, esArtista, esAdmin: data.rol === 'admin' };
+      window._perfilVipData = { esVip, esElite, tipoPlan, esArtista, esAdmin };
 
-      // Mostrar insignias
+      // ── Insignias ──
       const wrapInsignias = document.getElementById('perfil-insignias');
-      const insVip = document.getElementById('insignia-vip');
+      const insElite   = document.getElementById('insignia-elite');
+      const insVip     = document.getElementById('insignia-vip');
       const insArtista = document.getElementById('insignia-artista');
 
       if (esVip || esArtista) {
         if (wrapInsignias) wrapInsignias.style.display = 'flex';
       }
-      if (insVip && esVip) insVip.style.display = 'inline-flex';
+      if (esElite) {
+        if (insElite) insElite.style.display = 'inline-flex';
+        if (insVip) insVip.style.display = 'none'; // Elite reemplaza AttoPlus
+      } else if (esVip) {
+        if (insVip) insVip.style.display = 'inline-flex';
+      }
       if (insArtista && esArtista) insArtista.style.display = 'inline-flex';
 
-      // Mostrar botón subir canción y tabs solo para VIP
-      const btnSubir = document.getElementById('btn-subir-cancion');
-      const tabsWrap = document.getElementById('perfil-tabs-wrap');
+      // ── Botón subir canción y tabs ──
+      const btnSubir   = document.getElementById('btn-subir-cancion');
+      const tabsWrap   = document.getElementById('perfil-tabs-wrap');
       const tituloNonTab = document.getElementById('titulo-publicaciones-nontab');
 
       if (esVip) {
@@ -38,8 +48,146 @@
         if (tabsWrap) tabsWrap.style.display = 'none';
         if (tituloNonTab) tituloNonTab.style.display = 'block';
       }
+
+      // ── Botón Mi Página Artista (solo AttoElite) ──
+      const btnPaginaArtista = document.getElementById('btn-pagina-artista');
+      if (btnPaginaArtista) {
+        btnPaginaArtista.style.display = esElite ? 'inline-block' : 'none';
+        if (esElite) {
+          btnPaginaArtista.onclick = () => {
+            const idUsuario = sessionStorage.getItem('id_usuario') || data.id_usuario;
+            if (window.loadPage) window.loadPage(`pagina-artista.html?id=${idUsuario}`);
+          };
+        }
+      }
+
+      // ── Botón Gestionar Suscripción (si tiene plan) ──
+      const btnGestionar = document.getElementById('btn-gestionar-suscripcion');
+      if (btnGestionar && tipoPlan && !esAdmin) {
+        // Actualizar color según plan
+        if (esElite) {
+          btnGestionar.style.border = '1.5px solid #FF8C00';
+          btnGestionar.style.color = '#FF8C00';
+        }
+        btnGestionar.style.display = 'inline-block';
+        btnGestionar.onclick = () => abrirModalSuscripcion(tipoPlan, correo);
+      }
+
     } catch (err) {
       console.error('Error cargando insignias VIP:', err);
+    }
+  }
+
+  // ── Modal gestionar suscripción ──────────────────────────
+  function abrirModalSuscripcion(tipoPlan, correo) {
+    const esElite = tipoPlan === 'attoelite';
+    const otroPlan = esElite ? 'attoplus' : 'attoelite';
+    const otroNombre = esElite ? 'AttoPlus ($4.99/mes)' : 'AttoElite ($9.99/mes)';
+    const planNombre = esElite ? 'AttoElite' : 'AttoPlus';
+    const planPrecio = esElite ? '$9.99/mes' : '$4.99/mes';
+
+    const icono = document.getElementById('suscripcion-icono');
+    const titulo = document.getElementById('suscripcion-titulo');
+    const precio = document.getElementById('suscripcion-precio');
+    const beneficios = document.getElementById('suscripcion-beneficios');
+    const btnCambiar = document.getElementById('btn-cambiar-plan');
+    const btnCambiarTexto = document.getElementById('btn-cambiar-plan-texto');
+
+    if (icono) {
+      icono.style.background = esElite ? 'linear-gradient(135deg,#FFD700,#FF8C00)' : 'linear-gradient(160deg,#ba01ff,#00dffc)';
+      icono.innerHTML = esElite ? '<i class="bi bi-gem" style="color:#1a0800;"></i>' : '<i class="bi bi-crown-fill" style="color:white;"></i>';
+    }
+    if (titulo) {
+      titulo.style.background = esElite ? 'linear-gradient(135deg,#FFD700,#FF8C00)' : 'linear-gradient(160deg,#ba01ff,#00dffc)';
+      titulo.style.webkitBackgroundClip = 'text';
+      titulo.style.backgroundClip = 'text';
+      titulo.style.webkitTextFillColor = 'transparent';
+      titulo.textContent = `Plan activo: ${planNombre}`;
+    }
+    if (precio) precio.textContent = planPrecio;
+    if (beneficios) {
+      if (esElite) {
+        beneficios.innerHTML = `
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;color:rgba(255,255,255,0.75);">
+            <li><i class="bi bi-gem" style="color:#FFD700;margin-right:6px;"></i>Insignia AttoElite dorada</li>
+            <li><i class="bi bi-music-note-beamed" style="color:#FF8C00;margin-right:6px;"></i>Publicar canciones propias</li>
+            <li><i class="bi bi-person-lines-fill" style="color:#FFD700;margin-right:6px;"></i>Página de artista premium</li>
+            <li><i class="bi bi-collection-play-fill" style="color:#FF8C00;margin-right:6px;"></i>Álbumes y eventos con mapa</li>
+            <li><i class="bi bi-bell-fill" style="color:#FFD700;margin-right:6px;"></i>Notificaciones a seguidores</li>
+            <li><i class="bi bi-megaphone-fill" style="color:#FF8C00;margin-right:6px;"></i>Anuncios en la plataforma</li>
+          </ul>`;
+      } else {
+        beneficios.innerHTML = `
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;color:rgba(255,255,255,0.75);">
+            <li><i class="bi bi-crown-fill" style="color:#ffd700;margin-right:6px;"></i>Insignia AttoPlus visible</li>
+            <li><i class="bi bi-music-note-beamed" style="color:#00dffc;margin-right:6px;"></i>Publicar canciones propias</li>
+            <li><i class="bi bi-broadcast" style="color:#ba01ff;margin-right:6px;"></i>Recomendaciones automáticas</li>
+          </ul>`;
+      }
+    }
+    if (btnCambiarTexto) {
+      btnCambiarTexto.innerHTML = `<i class="bi bi-arrow-left-right me-2"></i>Cambiar a ${otroNombre}`;
+    }
+    if (btnCambiar) {
+      btnCambiar.onclick = () => confirmarCambioPlan(otroPlan, correo);
+    }
+
+    const btnCancelar = document.getElementById('btn-cancelar-suscripcion');
+    if (btnCancelar) {
+      btnCancelar.onclick = () => confirmarCancelacion(correo);
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('modalGestionarSuscripcion'));
+    modal.show();
+  }
+
+  async function confirmarCambioPlan(nuevoPlan, correo) {
+    const planNombre = nuevoPlan === 'attoelite' ? 'AttoElite' : 'AttoPlus';
+    const confirmMsg = nuevoPlan === 'attoelite'
+      ? `Obtendrás página de artista, álbumes, eventos y mercancía por $9.99/mes.`
+      : `Perderás acceso a tu página de artista y eventos. Tu contenido se mantiene.`;
+    if (!await attoConfirm(confirmMsg, { title: `¿Cambiar a ${planNombre}?`, confirmText: 'Cambiar plan', icon: 'warning' })) return;
+
+    try {
+      const res = await fetch('/api/vip/cambiar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo, nuevo_plan: nuevoPlan })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (window.mostrarToast) window.mostrarToast(`${data.message}`, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('modalGestionarSuscripcion'))?.hide();
+        if (window.actualizarInterfaz) window.actualizarInterfaz();
+        setTimeout(() => cargarInsigniasVip(correo), 800);
+      } else {
+        if (window.mostrarToast) window.mostrarToast(data.error || 'Error cambiando plan', 'error');
+      }
+    } catch {
+      if (window.mostrarToast) window.mostrarToast('Error de conexión', 'error');
+    }
+  }
+
+  async function confirmarCancelacion(correo) {
+    if (!await attoConfirm('Tu insignia de artista y canciones publicadas se mantienen.', { title: '¿Cancelar suscripción?', confirmText: 'Sí, cancelar', cancelText: 'No, quedarse', icon: 'warning' })) return;
+
+    try {
+      const res = await fetch('/api/vip/cancelar', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (window.mostrarToast) window.mostrarToast(data.message || 'Suscripción cancelada', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('modalGestionarSuscripcion'))?.hide();
+        if (window.actualizarInterfaz) window.actualizarInterfaz();
+        setTimeout(() => cargarInsigniasVip(correo), 800);
+      } else {
+        if (window.mostrarToast) window.mostrarToast(data.error || 'Error cancelando', 'error');
+      }
+    } catch {
+      if (window.mostrarToast) window.mostrarToast('Error de conexión', 'error');
     }
   }
 
