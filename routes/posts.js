@@ -8,6 +8,17 @@ const queries = require("../utils/queries");
 const { getUserFromEmail } = require("../middleware/auth");
 const { crearNotificacion } = require("./notificaciones");
 
+pool.query(`
+  CREATE TABLE IF NOT EXISTS reporte (
+    id_reporte SERIAL PRIMARY KEY,
+    id_publicacion INTEGER REFERENCES publicacion(id_publicacion) ON DELETE CASCADE,
+    id_usuario INTEGER REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    motivo TEXT NOT NULL,
+    fecha_rep TIMESTAMP DEFAULT NOW(),
+    estado VARCHAR(20) DEFAULT 'pendiente'
+  )
+`).catch(err => console.error('Error creando tabla reporte:', err));
+
 async function getItunesPreview(nombre, artista) {
   try {
     const query = encodeURIComponent(`${nombre} ${artista}`);
@@ -487,18 +498,6 @@ router.post("/publicacion/:id/reportar", getUserFromEmail, async (req, res) => {
     if (yaReporto.rowCount > 0) {
       return responses.badRequest(res, "Ya has reportado esta publicación");
     }
-
-    // Crear tabla de reportes si no existe
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS reporte (
-        id_reporte SERIAL PRIMARY KEY,
-        id_publicacion INTEGER REFERENCES publicacion(id_publicacion) ON DELETE CASCADE,
-        id_usuario INTEGER REFERENCES usuario(id_usuario) ON DELETE CASCADE,
-        motivo TEXT NOT NULL,
-        fecha_rep TIMESTAMP DEFAULT NOW(),
-        estado VARCHAR(20) DEFAULT 'pendiente'
-      )
-    `);
 
     await pool.query(queries.addReport, [id, id_usuario, motivo]);
 

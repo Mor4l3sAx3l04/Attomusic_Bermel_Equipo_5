@@ -40,6 +40,7 @@ router.post('/activar', getUserFromEmail, async (req, res) => {
 
   try {
     const r = await pool.query('SELECT rol, es_vip, tipo_plan FROM usuario WHERE correo = $1', [correo]);
+    if (r.rowCount === 0) return responses.notFound(res, 'Usuario');
     const u = r.rows[0];
 
     if (u.rol === 'admin') {
@@ -73,6 +74,7 @@ router.delete('/cancelar', getUserFromEmail, async (req, res) => {
   const { correo } = req.user;
   try {
     const r = await pool.query('SELECT rol, tipo_plan FROM usuario WHERE correo = $1', [correo]);
+    if (r.rowCount === 0) return responses.notFound(res, 'Usuario');
     const u = r.rows[0];
 
     if (u.rol === 'admin') {
@@ -104,6 +106,7 @@ router.post('/cambiar', getUserFromEmail, async (req, res) => {
 
   try {
     const r = await pool.query('SELECT rol, tipo_plan FROM usuario WHERE correo = $1', [correo]);
+    if (r.rowCount === 0) return responses.notFound(res, 'Usuario');
     const u = r.rows[0];
 
     if (u.rol === 'admin') {

@@ -207,7 +207,15 @@
         </div>
       `;
 
+      var done = false;
+      function escHandler(e) {
+        if (e.key === 'Escape') cleanup(false);
+      }
+
       function cleanup(value) {
+        if (done) return;
+        done = true;
+        document.removeEventListener('keydown', escHandler);
         overlay.classList.remove('atto-show');
         setTimeout(function () { overlay.remove(); }, 320);
         resolve(value);
@@ -220,12 +228,7 @@
         else if (e.target === overlay) cleanup(false);
       });
 
-      document.addEventListener('keydown', function escHandler(e) {
-        if (e.key === 'Escape') {
-          document.removeEventListener('keydown', escHandler);
-          cleanup(false);
-        }
-      });
+      document.addEventListener('keydown', escHandler);
 
       document.body.appendChild(overlay);
       requestAnimationFrame(function () {

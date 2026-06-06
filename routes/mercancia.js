@@ -195,21 +195,26 @@ router.post('/orden', getUserFromEmail, async (req, res) => {
     return responses.badRequest(res, 'El carrito está vacío');
   }
 
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
+
     let total = 0;
     const verified = [];
 
     for (const item of items) {
-      const p = await pool.query(
-        'SELECT id_mercancia, nombre, precio, stock FROM mercancia WHERE id_mercancia = $1 AND activo = TRUE',
+      const p = await client.query(
+        'SELECT id_mercancia, nombre, precio, stock FROM mercancia WHERE id_mercancia = $1 AND activo = TRUE FOR UPDATE',
         [item.id_mercancia]
       );
       if (!p.rowCount) {
-        return responses.badRequest(res, `Producto no encontrado (ID: ${item.id_mercancia})`);
+        await client.query('ROLLBACK');
+        return responses.notFound(res, `Producto (ID: ${item.id_mercancia})`);
       }
       const prod = p.rows[0];
       const cant = Math.max(1, parseInt(item.cantidad, 10) || 1);
       if (prod.stock < cant) {
+        await client.query('ROLLBACK');
         return responses.badRequest(res, `Stock insuficiente para "${prod.nombre}" (disponible: ${prod.stock})`);
       }
       const sub = parseFloat(prod.precio) * cant;
@@ -223,7 +228,7 @@ router.post('/orden', getUserFromEmail, async (req, res) => {
       });
     }
 
-    const ordenR = await pool.query(`
+    const ordenR = await client.query(`
       INSERT INTO orden_mercancia
         (id_usuario_comprador, nombre_comprador, email_comprador,
          direccion, ciudad, estado_envio, codigo_postal, pais,
@@ -239,22 +244,26 @@ router.post('/orden', getUserFromEmail, async (req, res) => {
     const id_orden = ordenR.rows[0].id_orden;
 
     for (const v of verified) {
-      await pool.query(`
+      await client.query(`
         INSERT INTO orden_mercancia_item
           (id_orden, id_mercancia, nombre_producto, precio_unitario, cantidad, subtotal)
         VALUES ($1,$2,$3,$4,$5,$6)
       `, [id_orden, v.id_mercancia, v.nombre, v.precio, v.cantidad, v.subtotal]);
 
-      await pool.query(
+      await client.query(
         'UPDATE mercancia SET stock = stock - $1 WHERE id_mercancia = $2',
         [v.cantidad, v.id_mercancia]
       );
     }
 
+    await client.query('COMMIT');
     return res.json({ message: 'Orden creada exitosamente', id_orden, total });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Error procesando orden:', err);
     return responses.error(res, 'Error procesando la orden');
+  } finally {
+    client.release();
   }
 });
 

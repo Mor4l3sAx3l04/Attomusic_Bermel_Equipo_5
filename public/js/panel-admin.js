@@ -101,7 +101,7 @@ let _adminMerchCargado = false;
 
 window.cargarMercanciaAdmin = async function () {
   if (_adminMerchCargado) return; // evitar recargas por múltiples clicks en el tab
-  _adminMerchCargado = false; // permitir recargar con el botón reload
+  _adminMerchCargado = true;
   const lista = document.getElementById('listaMercanciaAdmin');
   if (!lista) return;
   lista.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-warning"></div></div>';
@@ -144,7 +144,7 @@ window.cargarMercanciaAdmin = async function () {
               ${p.es_admin ? ' · <span style="color:#ffa500;">Global</span>' : ''}
             </p>
             <div class="admin-merch-card-acciones">
-              <button class="btn btn-outline-warning btn-sm" onclick="abrirModalMercanciaAdmin(${JSON.stringify(JSON.stringify(p))})">
+              <button class="btn btn-outline-warning btn-sm" onclick="abrirModalMercanciaAdmin('${escapeHtmlAdmin(JSON.stringify(p))}')">
                 <i class="bi bi-pencil"></i>
               </button>
               <button class="btn btn-outline-danger btn-sm" onclick="eliminarProductoAdmin(${p.id_mercancia})">
