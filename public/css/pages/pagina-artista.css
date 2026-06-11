@@ -349,7 +349,7 @@
 .evento-card-elite {
   border: 1px solid rgba(255,165,0,0.2);
   border-radius: 14px;
-  padding: 16px;
+  overflow: hidden;
   margin-bottom: 14px;
   background: linear-gradient(135deg, rgba(255,215,0,0.04), rgba(255,140,0,0.02));
   transition: box-shadow 0.2s;
@@ -357,6 +357,20 @@
 
 .evento-card-elite:hover {
   box-shadow: 0 6px 20px rgba(255,165,0,0.15);
+}
+
+.evento-card-img-wrap {
+  width: 100%;
+}
+
+.evento-card-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.evento-card-body-elite {
+  padding: 16px;
 }
 
 .evento-fecha-badge {

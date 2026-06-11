@@ -145,8 +145,6 @@
             }
             if (esElite) {
                 html += `<span class="badge-elite-small"><i class="bi bi-gem"></i> AttoElite</span>`;
-            } else if (esVip) {
-                html += `<span class="badge-vip-small"><i class="bi bi-crown-fill"></i> AttoPlus</span>`;
             }
             if (pub.insignia_artista) {
                 html += `<span class="badge-artista-small"><i class="bi bi-music-note"></i> Artista</span>`;

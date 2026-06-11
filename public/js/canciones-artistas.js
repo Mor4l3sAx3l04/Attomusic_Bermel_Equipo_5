@@ -48,8 +48,9 @@
       ? `<img src="${escHtml(cancion.foto)}" alt="${escHtml(cancion.usuario)}" class="ca-avatar">`
       : `<div class="ca-avatar-text">${escHtml(cancion.usuario.charAt(0).toUpperCase())}</div>`;
 
+    const esElite = cancion.tipo_plan === 'attoelite' || cancion.rol === 'admin';
     const badgesHtml = `
-      ${esVip ? '<span class="badge-vip-small"><i class="bi bi-crown-fill"></i> VIP</span>' : ''}
+      ${esElite ? '<span class="badge-elite-small"><i class="bi bi-gem"></i> AttoElite</span>' : ''}
       ${cancion.insignia_artista ? '<span class="badge-artista-small"><i class="bi bi-music-note"></i> Artista</span>' : ''}
     `;
 
@@ -405,7 +406,7 @@
             <div class="ca-empty">
               <i class="bi bi-music-note-beamed"></i>
               <p>Aún no hay canciones publicadas.</p>
-              <p class="small">Los usuarios AttoPlus podrán publicar su música aquí.</p>
+              <p class="small">Sé el primero en compartir tu música con la comunidad.</p>
             </div>`;
         } else {
           const fin = document.getElementById('ca-fin-feed');

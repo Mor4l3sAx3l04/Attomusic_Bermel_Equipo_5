@@ -71,8 +71,6 @@
     }
     if (esElite) {
       html += `<span class="badge-elite-small"><i class="bi bi-gem"></i> AttoElite</span>`;
-    } else if (esVip) {
-      html += `<span class="badge-vip-small"><i class="bi bi-crown-fill"></i> AttoPlus</span>`;
     }
     if (data.insignia_artista) {
       html += `<span class="badge-artista-small"><i class="bi bi-music-note"></i> Artista</span>`;
@@ -391,19 +389,22 @@
         if (pasado) card.style.opacity = '0.6';
         const mapId = `mapa-ev-${ev.id_evento}`;
         card.innerHTML = `
-          <div class="evento-fecha-badge">
-            <i class="bi bi-calendar3"></i> ${formatFechaCorta(ev.fecha_evento)}
-            ${pasado ? ' <span style="opacity:0.7">(Pasado)</span>' : ''}
+          ${ev.imagen_url ? `<div class="evento-card-img-wrap"><img src="${escapeHtml(ev.imagen_url)}" alt="${escapeHtml(ev.titulo)}" class="evento-card-img"></div>` : ''}
+          <div class="evento-card-body-elite">
+            <div class="evento-fecha-badge">
+              <i class="bi bi-calendar3"></i> ${formatFechaCorta(ev.fecha_evento)}
+              ${pasado ? ' <span style="opacity:0.7">(Pasado)</span>' : ''}
+            </div>
+            <h3 class="evento-titulo">${escapeHtml(ev.titulo)}</h3>
+            ${ev.descripcion ? `<p class="evento-descripcion">${escapeHtml(ev.descripcion)}</p>` : ''}
+            <p class="evento-direccion"><i class="bi bi-geo-alt-fill"></i> ${escapeHtml(ev.direccion)}</p>
+            ${ev.latitud && ev.longitud ? `<div id="${mapId}" class="evento-mapa-mini"></div>` : ''}
+            ${_esOwner ? `
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <button class="btn-elite-action-outline" style="padding:4px 12px;font-size:0.78rem;" data-ev-id="${ev.id_evento}" data-accion="editar"><i class="bi bi-pencil"></i> Editar</button>
+                <button class="btn-elite-action-outline" style="padding:4px 12px;font-size:0.78rem;color:#ff4d6d;border-color:#ff4d6d;" data-ev-id="${ev.id_evento}" data-accion="eliminar"><i class="bi bi-trash"></i> Eliminar</button>
+              </div>` : ''}
           </div>
-          <h3 class="evento-titulo">${escapeHtml(ev.titulo)}</h3>
-          ${ev.descripcion ? `<p class="evento-descripcion">${escapeHtml(ev.descripcion)}</p>` : ''}
-          <p class="evento-direccion"><i class="bi bi-geo-alt-fill"></i> ${escapeHtml(ev.direccion)}</p>
-          ${ev.latitud && ev.longitud ? `<div id="${mapId}" class="evento-mapa-mini"></div>` : ''}
-          ${_esOwner ? `
-            <div style="display:flex;gap:8px;margin-top:12px;">
-              <button class="btn-elite-action-outline" style="padding:4px 12px;font-size:0.78rem;" data-ev-id="${ev.id_evento}" data-accion="editar"><i class="bi bi-pencil"></i> Editar</button>
-              <button class="btn-elite-action-outline" style="padding:4px 12px;font-size:0.78rem;color:#ff4d6d;border-color:#ff4d6d;" data-ev-id="${ev.id_evento}" data-accion="eliminar"><i class="bi bi-trash"></i> Eliminar</button>
-            </div>` : ''}
         `;
         card.querySelectorAll('[data-accion]').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -545,6 +546,40 @@
       } catch { toast('Error de conexión', 'error'); }
     });
 
+    // ── Imagen del evento ──
+    document.getElementById('evento-imagen-file')?.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      if (file.size > 4 * 1024 * 1024) { toast('La imagen no puede superar 4MB', 'error'); this.value = ''; return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        const base64 = e.target.result;
+        document.getElementById('evento-imagen-data').value = base64;
+        const previewImg  = document.getElementById('evento-imagen-preview');
+        const previewWrap = document.getElementById('evento-imagen-preview-wrap');
+        const labelImg    = document.getElementById('evento-imagen-label');
+        if (previewImg) previewImg.src = base64;
+        if (previewWrap) previewWrap.style.display = 'block';
+        if (labelImg) labelImg.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('btn-quitar-imagen-evento')?.addEventListener('click', () => {
+      document.getElementById('evento-imagen-data').value = '';
+      document.getElementById('evento-imagen-file').value = '';
+      const previewWrap = document.getElementById('evento-imagen-preview-wrap');
+      const labelImg    = document.getElementById('evento-imagen-label');
+      if (previewWrap) previewWrap.style.display = 'none';
+      if (labelImg) labelImg.style.display = 'flex';
+    });
+
+    // ── Geocoding de dirección ──
+    document.getElementById('btn-buscar-direccion')?.addEventListener('click', geocodificarDireccion);
+    document.getElementById('evento-direccion')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); geocodificarDireccion(); }
+    });
+
     document.getElementById('btn-guardar-evento')?.addEventListener('click', async () => {
       const titulo = document.getElementById('evento-titulo').value.trim();
       const descripcion = document.getElementById('evento-descripcion').value.trim();
@@ -553,12 +588,13 @@
       const direccion = document.getElementById('evento-direccion').value.trim();
       const latitud = document.getElementById('evento-lat').value;
       const longitud = document.getElementById('evento-lng').value;
+      const imagen_url = document.getElementById('evento-imagen-data').value || null;
       const idEvento = document.getElementById('evento-editando-id').value;
       if (!titulo) { toast('El título es obligatorio', 'error'); return; }
       if (!fecha_evento) { toast('La fecha es obligatoria', 'error'); return; }
       if (!direccion) { toast('La dirección es obligatoria', 'error'); return; }
       const usuario = getUsuarioActual();
-      const body = { correo: usuario.correo, titulo, descripcion, fecha_evento, direccion };
+      const body = { correo: usuario.correo, titulo, descripcion, fecha_evento, direccion, imagen_url };
       if (horario_fin) body.horario_fin = horario_fin;
       if (latitud) body.latitud = parseFloat(latitud);
       if (longitud) body.longitud = parseFloat(longitud);
@@ -770,6 +806,27 @@
     document.getElementById('evento-direccion').value = evento?.direccion || '';
     document.getElementById('evento-lat').value = evento?.latitud || '';
     document.getElementById('evento-lng').value = evento?.longitud || '';
+    document.getElementById('evento-imagen-data').value = '';
+
+    // Imagen previa
+    const previewWrap = document.getElementById('evento-imagen-preview-wrap');
+    const previewImg  = document.getElementById('evento-imagen-preview');
+    const labelImg    = document.getElementById('evento-imagen-label');
+    const fileInput   = document.getElementById('evento-imagen-file');
+    if (fileInput) fileInput.value = '';
+    if (evento?.imagen_url) {
+      document.getElementById('evento-imagen-data').value = evento.imagen_url;
+      if (previewImg) previewImg.src = evento.imagen_url;
+      if (previewWrap) previewWrap.style.display = 'block';
+      if (labelImg) labelImg.style.display = 'none';
+    } else {
+      if (previewWrap) previewWrap.style.display = 'none';
+      if (labelImg) labelImg.style.display = 'flex';
+    }
+
+    const statusEl = document.getElementById('geocoding-status');
+    if (statusEl) statusEl.textContent = '';
+
     if (evento?.fecha_evento) {
       document.getElementById('evento-fecha').value = new Date(evento.fecha_evento).toISOString().slice(0, 16);
     } else { document.getElementById('evento-fecha').value = ''; }
@@ -812,6 +869,48 @@
       document.getElementById('evento-lng').value = lng;
       document.getElementById('coords-info').textContent = `📍 ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     });
+  }
+
+  async function geocodificarDireccion() {
+    const input = document.getElementById('evento-direccion');
+    const statusEl = document.getElementById('geocoding-status');
+    const btnBuscar = document.getElementById('btn-buscar-direccion');
+    const direccion = input?.value?.trim();
+    if (!direccion) { if (statusEl) statusEl.textContent = ''; return; }
+
+    if (statusEl) { statusEl.style.color = 'rgba(255,255,255,0.5)'; statusEl.textContent = 'Buscando...'; }
+    if (btnBuscar) { btnBuscar.disabled = true; btnBuscar.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'; }
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(direccion)}&format=json&limit=1&addressdetails=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'es', 'User-Agent': 'AttoMusic/1.0' } });
+      const datos = await res.json();
+
+      if (datos.length === 0) {
+        if (statusEl) { statusEl.style.color = '#ff4d6d'; statusEl.textContent = 'No se encontró la dirección. Intenta ser más específico.'; }
+        return;
+      }
+
+      const { lat, lon, display_name } = datos[0];
+      const latNum = parseFloat(lat);
+      const lngNum = parseFloat(lon);
+
+      document.getElementById('evento-lat').value = latNum;
+      document.getElementById('evento-lng').value = lngNum;
+
+      if (_mapaEvento) {
+        _mapaEvento.flyTo([latNum, lngNum], 15, { duration: 1.2 });
+        if (_mapaMarker) _mapaEvento.removeLayer(_mapaMarker);
+        _mapaMarker = L.marker([latNum, lngNum]).addTo(_mapaEvento);
+        document.getElementById('coords-info').textContent = `📍 ${latNum.toFixed(5)}, ${lngNum.toFixed(5)}`;
+      }
+
+      if (statusEl) { statusEl.style.color = '#00dffc'; statusEl.textContent = `✓ ${display_name}`; }
+    } catch (err) {
+      if (statusEl) { statusEl.style.color = '#ff4d6d'; statusEl.textContent = 'Error al buscar la dirección.'; }
+    } finally {
+      if (btnBuscar) { btnBuscar.disabled = false; btnBuscar.innerHTML = '<i class="bi bi-search"></i> Buscar'; }
+    }
   }
 
   async function eliminarEvento(idEvento) {

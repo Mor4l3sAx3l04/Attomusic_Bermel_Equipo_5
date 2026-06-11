@@ -67,7 +67,8 @@
       "Bash(powershell -Command \"Select-String -Path 'public\\\\perfil.html' -Pattern 'main\\\\.js|utils\\\\.js|PublicacionCard' | Select-Object LineNumber, Line\")",
       "Bash(powershell -Command \"Select-String -Path 'public\\\\*.html' -Pattern 'src=\\\\\"js/main\\\\.js\\\\\"' | Select-Object Filename, LineNumber, Line\")",
       "Skill(code-review)",
-      "Bash(xargs grep -l \"script\")"
+      "Bash(xargs grep -l \"script\")",
+      "Bash(grep -E \"^[./]|\\\\.js$|\\\\.sql$|\\\\.json$\")"
     ]
   }
 }

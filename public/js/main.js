@@ -441,7 +441,6 @@ async function actualizarInterfaz() {
   const perfilNombre    = document.getElementById("perfil-nombre");
   const notifWrap       = document.getElementById("notif-wrap");
   const upgradeWrap     = document.getElementById("btn-upgrade-wrap");
-  const vipBadge        = document.getElementById("navbar-vip-badge");
 
   if (usuario) {
     try {
@@ -470,7 +469,6 @@ async function actualizarInterfaz() {
 
         // Badges en navbar
         const eliteBadge = document.getElementById('navbar-elite-badge');
-        if (vipBadge) vipBadge.style.display = (esVip && !esElite) ? 'inline-flex' : 'none';
         if (eliteBadge) eliteBadge.style.display = esElite ? 'inline-flex' : 'none';
 
         // Botón "Mejorar Experiencia" solo si NO tiene plan activo
@@ -514,7 +512,6 @@ async function actualizarInterfaz() {
     if (upgradeWrap) upgradeWrap.style.cssText = "display: none !important;";
     const carritoWrap = document.getElementById('carrito-wrap');
     if (carritoWrap) carritoWrap.style.cssText = "display: none !important;";
-    if (vipBadge) vipBadge.style.display = 'none';
     if (window.Notificaciones) window.Notificaciones.detener();
 
     sessionStorage.removeItem('es_vip');
@@ -533,38 +530,31 @@ function actualizarDropdownVip(esVip, rol, tipoPlan) {
   const divider = dropdown.querySelector('.dropdown-divider');
   const insertTarget = divider ? divider.parentElement : null;
 
-  if (esVip && rol !== 'admin') {
-    const esElite = tipoPlan === 'attoelite';
-    const planLabel = esElite ? 'AttoElite' : 'AttoPlus';
-    const planIcon = esElite ? 'bi-gem' : 'bi-crown';
-    const planColor = esElite ? '#FF8C00' : '#ba01ff';
-
-    // Opción cancelar plan
+  if (tipoPlan === 'attoelite' && rol !== 'admin') {
+    // Opción cancelar AttoElite
     const liCancel = document.createElement('li');
     liCancel.id = 'dropdown-vip-item';
-    liCancel.innerHTML = `<a class="dropdown-item" href="#" id="btn-cancelar-vip" style="color:${planColor};font-weight:600;">
-      <i class="bi ${planIcon} me-1"></i>Cancelar ${planLabel}
+    liCancel.innerHTML = `<a class="dropdown-item" href="#" id="btn-cancelar-vip" style="color:#FF8C00;font-weight:600;">
+      <i class="bi bi-gem me-1"></i>Cancelar AttoElite
     </a>`;
     if (insertTarget) dropdown.insertBefore(liCancel, insertTarget);
     else dropdown.appendChild(liCancel);
 
     document.getElementById('btn-cancelar-vip').addEventListener('click', async (e) => {
       e.preventDefault();
-      if (!await attoConfirm(`Tu insignia y canciones publicadas se mantienen.`, { title: `¿Cancelar ${planLabel}?`, confirmText: 'Sí, cancelar', cancelText: 'No, quedarse', icon: 'warning' })) return;
+      if (!await attoConfirm('Tu insignia y canciones publicadas se mantienen.', { title: '¿Cancelar AttoElite?', confirmText: 'Sí, cancelar', cancelText: 'No, quedarse', icon: 'warning' })) return;
       await cancelarVip();
     });
 
-    // Si es AttoElite, agregar enlace a "Mi página artista"
-    if (esElite) {
-      const liPagina = document.createElement('li');
-      liPagina.id = 'dropdown-elite-item';
-      const idUsuario = sessionStorage.getItem('id_usuario');
-      liPagina.innerHTML = `<a class="dropdown-item load-page" href="pagina-artista.html?id=${idUsuario}" style="color:#FF8C00;font-weight:600;">
-        <i class="bi bi-person-lines-fill me-1"></i>Mi Página Artista
-      </a>`;
-      if (insertTarget) dropdown.insertBefore(liPagina, insertTarget);
-      else dropdown.appendChild(liPagina);
-    }
+    // Enlace a "Mi página artista"
+    const liPagina = document.createElement('li');
+    liPagina.id = 'dropdown-elite-item';
+    const idUsuario = sessionStorage.getItem('id_usuario');
+    liPagina.innerHTML = `<a class="dropdown-item load-page" href="pagina-artista.html?id=${idUsuario}" style="color:#FF8C00;font-weight:600;">
+      <i class="bi bi-person-lines-fill me-1"></i>Mi Página Artista
+    </a>`;
+    if (insertTarget) dropdown.insertBefore(liPagina, insertTarget);
+    else dropdown.appendChild(liPagina);
   }
 }
 
@@ -1412,103 +1402,12 @@ window.cargarPerfil = async function () {
 }
 
 // ─────────────────────────────────────────────────────────
-// Funciones Modal AttoPlus / AttoElite
+// Funciones Modal AttoElite
 // ─────────────────────────────────────────────────────────
-
-window._planSeleccionado = null; // 'attoplus' | 'attoelite'
-
-window.resetCardHover = function (plan) {
-  if (plan === 'attoplus') {
-    document.getElementById('card-attoplus').style.borderColor = 'rgba(186,1,255,0.4)';
-    document.getElementById('card-attoplus').style.background = 'rgba(186,1,255,0.05)';
-  } else {
-    document.getElementById('card-attoelite').style.borderColor = 'rgba(255,165,0,0.4)';
-    document.getElementById('card-attoelite').style.background = 'rgba(255,165,0,0.05)';
-  }
-};
-
-window.seleccionarPlan = function (plan) {
-  window._planSeleccionado = plan;
-  const esElite = plan === 'attoelite';
-
-  // Actualizar paso 1 según el plan elegido
-  const iconWrap = document.getElementById('plan-icon-wrap');
-  const titulo = document.getElementById('plan-nombre-titulo');
-  const subtitulo = document.getElementById('plan-subtitulo');
-  const beneficios = document.getElementById('plan-beneficios');
-  const precioDisplay = document.getElementById('plan-precio-display');
-  const precioBtnSpan = document.getElementById('pago-precio-btn');
-  const btnContinuar = document.getElementById('btn-plan-continuar');
-
-  if (esElite) {
-    iconWrap.style.background = 'linear-gradient(135deg,#FFD700,#FF8C00)';
-    iconWrap.style.boxShadow = '0 8px 24px rgba(255,165,0,0.4)';
-    iconWrap.innerHTML = '<i class="bi bi-gem" style="font-size:2rem;color:#1a0800;"></i>';
-    titulo.style.cssText = 'font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#FFD700,#FF8C00);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0;';
-    titulo.textContent = 'AttoElite';
-    subtitulo.textContent = 'La experiencia definitiva para artistas serios';
-    beneficios.style.borderColor = 'rgba(255,165,0,0.25)';
-    beneficios.innerHTML = `
-      <p style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:#FF8C00;font-weight:700;margin-bottom:14px;">Al activar AttoElite obtendrás:</p>
-      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-gem" style="color:#FFD700;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Insignia <strong>AttoElite</strong> dorada visible en perfil y publicaciones</span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-music-note-beamed" style="color:#FF8C00;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Publica <strong>canciones propias</strong> como artista</span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-person-lines-fill" style="color:#FFD700;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Crea tu <strong>página de artista</strong> premium con bio, géneros y portada</span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-collection-play-fill" style="color:#FF8C00;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Organiza tus canciones en <strong>álbumes</strong></span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-calendar-event-fill" style="color:#FFD700;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Publica <strong>eventos</strong> con ubicación en mapa</span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-bell-fill" style="color:#FF8C00;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Tus seguidores reciben <strong>notificaciones</strong> de todo lo que publiques</span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-megaphone-fill" style="color:#FFD700;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Tu página aparece como <strong>anuncio</strong> a usuarios no premium</span></li>
-      </ul>`;
-    precioDisplay.style.cssText = 'font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,#FFD700,#FF8C00);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;';
-    precioDisplay.textContent = '$9.99';
-    if (precioBtnSpan) precioBtnSpan.textContent = '$9.99';
-    btnContinuar.style.background = 'linear-gradient(135deg,#FFD700,#FF8C00)';
-    btnContinuar.style.color = '#1a0800';
-    btnContinuar.style.boxShadow = '0 4px 20px rgba(255,165,0,0.4)';
-  } else {
-    iconWrap.style.background = 'linear-gradient(160deg,#ba01ff,#00dffc)';
-    iconWrap.style.boxShadow = '0 8px 24px rgba(186,1,255,0.4)';
-    iconWrap.innerHTML = '<i class="bi bi-crown-fill" style="font-size:2rem;color:white;"></i>';
-    titulo.style.cssText = 'font-size:1.8rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0;';
-    titulo.textContent = 'AttoPlus';
-    subtitulo.textContent = 'Lleva tu experiencia musical al siguiente nivel';
-    beneficios.style.borderColor = 'rgba(186,1,255,0.2)';
-    beneficios.innerHTML = `
-      <p style="font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:#ba01ff;font-weight:700;margin-bottom:14px;">Al activar AttoPlus obtendrás:</p>
-      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-crown-fill" style="color:#ffd700;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Una <strong>insignia AttoPlus</strong> visible en tu perfil y publicaciones</span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-music-note-beamed" style="color:#00dffc;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Crea <strong>contenido musical propio</strong> como artista y compártelo con la comunidad</span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;"><i class="bi bi-broadcast" style="color:#ba01ff;margin-top:2px;flex-shrink:0;"></i><span style="font-size:0.9rem;">Tus canciones se <strong>recomiendan automáticamente</strong> a todos los usuarios</span></li>
-      </ul>`;
-    precioDisplay.style.cssText = 'font-size:2.8rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;';
-    precioDisplay.textContent = '$4.99';
-    if (precioBtnSpan) precioBtnSpan.textContent = '$4.99';
-    btnContinuar.style.background = 'linear-gradient(160deg,#ba01ff,#00dffc)';
-    btnContinuar.style.color = 'white';
-    btnContinuar.style.boxShadow = '0 4px 20px rgba(186,1,255,0.4)';
-  }
-
-  mostrarPasoPlan();
-};
-
-window.mostrarPasoSeleccion = function () {
-  document.getElementById('attoplus-paso0').style.display = 'block';
-  document.getElementById('attoplus-paso1').style.display = 'none';
-  document.getElementById('attoplus-paso2').style.display = 'none';
-  document.getElementById('attoplus-paso3').style.display = 'none';
-};
 
 window.mostrarPasoPago = function () {
   document.getElementById('attoplus-paso0').style.display = 'none';
-  document.getElementById('attoplus-paso1').style.display = 'none';
   document.getElementById('attoplus-paso2').style.display = 'block';
-  document.getElementById('attoplus-paso3').style.display = 'none';
-};
-
-window.mostrarPasoPlan = function () {
-  document.getElementById('attoplus-paso0').style.display = 'none';
-  document.getElementById('attoplus-paso1').style.display = 'block';
-  document.getElementById('attoplus-paso2').style.display = 'none';
   document.getElementById('attoplus-paso3').style.display = 'none';
 };
 
@@ -1518,14 +1417,11 @@ window.formatarTarjeta = function (input) {
 };
 
 window.confirmarPagoAttoPlus = async function () {
-  const plan = window._planSeleccionado || 'attoplus';
   const btn = document.getElementById('btn-confirmar-pago');
   const nombre = document.getElementById('pago-nombre').value.trim();
   const tarjeta = document.getElementById('pago-tarjeta').value.replace(/\s/g, '');
   const vence = document.getElementById('pago-vence').value.trim();
   const cvv = document.getElementById('pago-cvv').value.trim();
-  const precio = plan === 'attoelite' ? '$9.99' : '$4.99';
-  const planNombre = plan === 'attoelite' ? 'AttoElite' : 'AttoPlus';
 
   if (!nombre || tarjeta.length < 16 || !vence || cvv.length < 3) {
     showToast('Completa todos los datos de pago', 'error');
@@ -1540,39 +1436,28 @@ window.confirmarPagoAttoPlus = async function () {
     const res = await fetch('/api/vip/activar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ correo: usuario.correo, plan })
+      body: JSON.stringify({ correo: usuario.correo, plan: 'attoelite' })
     });
     const data = await res.json();
 
     if (res.ok) {
-      // Actualizar paso 3 según el plan
-      const esElite = plan === 'attoelite';
-      document.getElementById('success-icon-wrap').style.background = esElite
-        ? 'linear-gradient(135deg,#FFD700,#FF8C00)' : 'linear-gradient(160deg,#ba01ff,#00dffc)';
-      document.getElementById('success-icon-wrap').style.boxShadow = esElite
-        ? '0 8px 28px rgba(255,165,0,0.45)' : '0 8px 28px rgba(186,1,255,0.45)';
-      document.getElementById('success-icon-wrap').innerHTML = esElite
-        ? '<i class="bi bi-gem" style="font-size:2.2rem;color:#1a0800;"></i>'
-        : '<i class="bi bi-crown-fill" style="font-size:2.2rem;color:white;"></i>';
-      document.getElementById('success-titulo').style.cssText = esElite
-        ? 'font-size:1.9rem;font-weight:900;background:linear-gradient(135deg,#FFD700,#FF8C00);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;'
-        : 'font-size:1.9rem;font-weight:900;background:linear-gradient(160deg,#ba01ff,#00dffc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;';
-      document.getElementById('success-titulo').textContent = `¡Bienvenido a ${planNombre}!`;
-      document.getElementById('success-subtitulo').textContent = esElite
-        ? 'Ya tienes acceso a todos los beneficios exclusivos de élite.'
-        : 'Ya eres un usuario VIP. Disfruta todos los beneficios exclusivos.';
-
+      document.getElementById('success-icon-wrap').style.background = 'linear-gradient(135deg,#FFD700,#FF8C00)';
+      document.getElementById('success-icon-wrap').style.boxShadow = '0 8px 28px rgba(255,165,0,0.45)';
+      document.getElementById('success-icon-wrap').innerHTML = '<i class="bi bi-gem" style="font-size:2.2rem;color:#1a0800;"></i>';
+      document.getElementById('success-titulo').style.cssText = 'font-size:1.9rem;font-weight:900;background:linear-gradient(135deg,#FFD700,#FF8C00);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;';
+      document.getElementById('success-titulo').textContent = '¡Bienvenido a AttoElite!';
+      document.getElementById('success-subtitulo').textContent = 'Ya tienes acceso a todos los beneficios exclusivos de élite.';
       document.getElementById('attoplus-paso2').style.display = 'none';
       document.getElementById('attoplus-paso3').style.display = 'block';
     } else {
-      showToast(data.error || `Error al activar ${planNombre}`, 'error');
+      showToast(data.error || 'Error al activar AttoElite', 'error');
       btn.disabled = false;
-      btn.innerHTML = `<i class="bi bi-lock-fill me-2"></i>Pagar ${precio}`;
+      btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar $9.99';
     }
   } catch (err) {
     showToast('Error de conexión', 'error');
     btn.disabled = false;
-    btn.innerHTML = `<i class="bi bi-lock-fill me-2"></i>Pagar ${precio}`;
+    btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar $9.99';
   }
 };
 
@@ -1582,17 +1467,14 @@ window.cerrarModalVipYActualizar = function () {
 
   setTimeout(() => {
     document.getElementById('attoplus-paso0').style.display = 'block';
-    document.getElementById('attoplus-paso1').style.display = 'none';
     document.getElementById('attoplus-paso2').style.display = 'none';
     document.getElementById('attoplus-paso3').style.display = 'none';
     const btn = document.getElementById('btn-confirmar-pago');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar <span id="pago-precio-btn">$4.99</span>'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar <span id="pago-precio-btn">$9.99</span>'; }
   }, 400);
 
-  const plan = window._planSeleccionado || 'attoplus';
-  const esElite = plan === 'attoelite';
   actualizarInterfaz();
-  showToast(esElite ? '¡Bienvenido a AttoElite! 💎' : '¡Bienvenido a AttoPlus! 👑', 'success');
+  showToast('¡Bienvenido a AttoElite! 💎', 'success');
 };
 
 async function cancelarVip() {
@@ -1606,7 +1488,7 @@ async function cancelarVip() {
     });
     const data = await res.json();
     if (res.ok) {
-      showToast(data.message || 'AttoPlus cancelado', 'success');
+      showToast(data.message || 'AttoElite cancelado', 'success');
       actualizarInterfaz();
     } else {
       showToast(data.error || 'Error al cancelar', 'error');
@@ -1632,12 +1514,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalEl = document.getElementById('modalAttoPlus');
   if (modalEl) {
     modalEl.addEventListener('hidden.bs.modal', () => {
-      ['attoplus-paso0','attoplus-paso1','attoplus-paso2','attoplus-paso3'].forEach((id, i) => {
+      document.getElementById('attoplus-paso0').style.display = 'block';
+      ['attoplus-paso2','attoplus-paso3'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = i === 0 ? 'block' : 'none';
+        if (el) el.style.display = 'none';
       });
       const btn = document.getElementById('btn-confirmar-pago');
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar <span id="pago-precio-btn">$4.99</span>'; }
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pagar <span id="pago-precio-btn">$9.99</span>'; }
     });
   }
 });

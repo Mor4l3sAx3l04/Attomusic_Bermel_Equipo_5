@@ -29,13 +29,13 @@ router.get('/estado', async (req, res) => {
   }
 });
 
-// POST /api/vip/activar - Activar AttoPlus o AttoElite
+// POST /api/vip/activar - Activar AttoElite
 router.post('/activar', getUserFromEmail, async (req, res) => {
   const { correo } = req.user;
-  const { plan } = req.body; // 'attoplus' o 'attoelite'
+  const { plan } = req.body;
 
-  if (!['attoplus', 'attoelite'].includes(plan)) {
-    return responses.badRequest(res, 'Plan inválido. Usa "attoplus" o "attoelite"');
+  if (plan !== 'attoelite') {
+    return responses.badRequest(res, 'Plan inválido. El único plan disponible es "attoelite"');
   }
 
   try {
@@ -47,9 +47,8 @@ router.post('/activar', getUserFromEmail, async (req, res) => {
       return res.json({ message: 'Los administradores tienen acceso completo', es_vip: true, tipo_plan: 'attoelite' });
     }
 
-    if (u.tipo_plan) {
-      const planActual = u.tipo_plan === 'attoplus' ? 'AttoPlus' : 'AttoElite';
-      return responses.badRequest(res, `Ya tienes ${planActual} activo. Cancela tu plan actual primero.`);
+    if (u.tipo_plan === 'attoelite') {
+      return responses.badRequest(res, 'Ya tienes AttoElite activo.');
     }
 
     await pool.query(
@@ -57,11 +56,10 @@ router.post('/activar', getUserFromEmail, async (req, res) => {
       [plan, correo]
     );
 
-    const nombre = plan === 'attoelite' ? 'AttoElite' : 'AttoPlus';
     return res.json({
-      message: `¡Bienvenido a ${nombre}! Ya tienes acceso a todos los beneficios.`,
+      message: '¡Bienvenido a AttoElite! Ya tienes acceso a todos los beneficios exclusivos.',
       es_vip: true,
-      tipo_plan: plan
+      tipo_plan: 'attoelite'
     });
   } catch (err) {
     console.error('Error activando plan:', err);
@@ -81,11 +79,14 @@ router.delete('/cancelar', getUserFromEmail, async (req, res) => {
       return responses.badRequest(res, 'Los administradores no pueden cancelar su plan');
     }
 
-    const planCancelado = u.tipo_plan === 'attoelite' ? 'AttoElite' : 'AttoPlus';
+    if (!u.tipo_plan) {
+      return responses.badRequest(res, 'No tienes ningún plan activo');
+    }
+
     await pool.query('UPDATE usuario SET es_vip = false, tipo_plan = NULL WHERE correo = $1', [correo]);
 
     return res.json({
-      message: `${planCancelado} cancelado. Tus canciones e insignia de artista se mantienen.`,
+      message: 'AttoElite cancelado. Tu insignia de artista y canciones se mantienen.',
       es_vip: false,
       tipo_plan: null
     });
@@ -95,43 +96,9 @@ router.delete('/cancelar', getUserFromEmail, async (req, res) => {
   }
 });
 
-// POST /api/vip/cambiar - Cambiar de plan sin cancelar manualmente
+// POST /api/vip/cambiar - (reservado para uso futuro)
 router.post('/cambiar', getUserFromEmail, async (req, res) => {
-  const { correo } = req.user;
-  const { nuevo_plan } = req.body;
-
-  if (!['attoplus', 'attoelite'].includes(nuevo_plan)) {
-    return responses.badRequest(res, 'Plan inválido');
-  }
-
-  try {
-    const r = await pool.query('SELECT rol, tipo_plan FROM usuario WHERE correo = $1', [correo]);
-    if (r.rowCount === 0) return responses.notFound(res, 'Usuario');
-    const u = r.rows[0];
-
-    if (u.rol === 'admin') {
-      return responses.badRequest(res, 'Los administradores no pueden cambiar de plan');
-    }
-
-    if (u.tipo_plan === nuevo_plan) {
-      return responses.badRequest(res, `Ya tienes ${nuevo_plan === 'attoelite' ? 'AttoElite' : 'AttoPlus'} activo`);
-    }
-
-    await pool.query(
-      'UPDATE usuario SET es_vip = true, tipo_plan = $1 WHERE correo = $2',
-      [nuevo_plan, correo]
-    );
-
-    const nombre = nuevo_plan === 'attoelite' ? 'AttoElite' : 'AttoPlus';
-    return res.json({
-      message: `Plan cambiado a ${nombre} exitosamente.`,
-      es_vip: true,
-      tipo_plan: nuevo_plan
-    });
-  } catch (err) {
-    console.error('Error cambiando plan:', err);
-    return responses.error(res, 'Error cambiando plan');
-  }
+  return responses.badRequest(res, 'Solo existe el plan AttoElite. Usa /activar para suscribirte.');
 });
 
 module.exports = router;

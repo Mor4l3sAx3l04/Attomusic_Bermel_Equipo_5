@@ -6,24 +6,6 @@ const responses = require('../utils/responses');
 const { getUserFromEmail } = require('../middleware/auth');
 const { crearNotificacion } = require('./notificaciones');
 
-async function requireVIP(req, res, next) {
-  const correo = req.body.correo || req.query.correo || req.get('x-user-email');
-  if (!correo) return responses.unauthorized(res, 'Usuario no autenticado');
-  try {
-    const r = await pool.query('SELECT id_usuario, es_vip, rol FROM usuario WHERE correo = $1', [correo]);
-    if (r.rowCount === 0) return responses.notFound(res, 'Usuario');
-    const u = r.rows[0];
-    if (!u.es_vip && u.rol !== 'admin') {
-      return responses.forbidden(res, 'Se requiere AttoPlus para esta acción');
-    }
-    req.user = { id_usuario: u.id_usuario, correo };
-    next();
-  } catch (err) {
-    console.error('Error verificando VIP:', err);
-    return responses.error(res, 'Error verificando permisos');
-  }
-}
-
 // GET /api/canciones-artista - Feed de canciones (sin audio para no saturar)
 router.get('/', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -32,7 +14,7 @@ router.get('/', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT ca.id_cancion, ca.nombre, ca.descripcion, ca.genero, ca.imagen_url, ca.fecha_subida,
-             u.id_usuario, u.usuario, u.foto, u.es_vip, u.rol, u.insignia_artista, u.fondo_publicaciones,
+             u.id_usuario, u.usuario, u.foto, u.tipo_plan, u.rol, u.insignia_artista, u.fondo_publicaciones,
              (SELECT COUNT(*) FROM like_cancion_artista WHERE id_cancion = ca.id_cancion) AS likes,
              (SELECT COUNT(*) FROM comentario_cancion_artista WHERE id_cancion = ca.id_cancion) AS comentarios
       FROM cancion_artista ca
@@ -81,8 +63,8 @@ router.get('/:id/audio', async (req, res) => {
   }
 });
 
-// POST /api/canciones-artista/subir - Solo VIP
-router.post('/subir', requireVIP, async (req, res) => {
+// POST /api/canciones-artista/subir
+router.post('/subir', getUserFromEmail, async (req, res) => {
   const { nombre, descripcion, genero, imagen_url, audio_data } = req.body;
   const { id_usuario } = req.user;
 

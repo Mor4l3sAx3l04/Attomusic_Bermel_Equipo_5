@@ -21,9 +21,9 @@
       ? `<img src="${escHtml(cancion.imagen_url)}" alt="${escHtml(cancion.nombre)}" class="anuncio-feed-thumb">`
       : `<div class="anuncio-feed-thumb-placeholder">🎵</div>`;
 
+    const esEliteAnuncio = cancion.tipo_plan === 'attoelite' || cancion.rol === 'admin';
     const badgesHtml = [
-      (cancion.es_vip || cancion.rol === 'admin')
-        ? '<span class="badge-vip-small"><i class="bi bi-crown-fill"></i> VIP</span>' : '',
+      esEliteAnuncio ? '<span class="badge-elite-small"><i class="bi bi-gem"></i> AttoElite</span>' : '',
       cancion.insignia_artista
         ? '<span class="badge-artista-small"><i class="bi bi-music-note"></i> Artista</span>' : ''
     ].join(' ');
@@ -35,8 +35,8 @@
         ${thumbHtml}
         <div class="anuncio-feed-info">
           <div class="anuncio-feed-sponsored">
-            <span class="anuncio-feed-badge"><i class="bi bi-vinyl-fill"></i> AttoPlus</span>
-            Artista en AttoMusic
+            <span class="anuncio-feed-badge"><i class="bi bi-vinyl-fill"></i> Artista</span>
+            en AttoMusic
           </div>
           <div class="anuncio-feed-song">${escHtml(cancion.nombre)}</div>
           <div class="anuncio-feed-artist">@${escHtml(cancion.usuario)} ${badgesHtml}</div>
